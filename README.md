@@ -10,6 +10,7 @@ Una pequeña aplicación web para calcular la altura de un árbol a partir de me
 - Guarda mediciones localmente con `localStorage` para editar o revisar datos sin depender de un servidor.
 - Exporta los registros a Excel con archivos `.xlsx` para auditoría posterior.
 - Está pensada para funcionar en escritorio, tablet y móvil.
+- Incluye una firma discreta con enlace al perfil del desarrollador.
 
 ## Cómo instalarla
 

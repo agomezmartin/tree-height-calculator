@@ -332,6 +332,60 @@ input[type='radio']:focus {
   padding: 1rem 1.1rem;
 }
 
+.app-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1.1rem 1rem 1.5rem;
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.app-footer p {
+  margin: 0;
+}
+
+.footer-mark {
+  display: grid;
+  width: 1.8rem;
+  height: 1.8rem;
+  place-items: center;
+  border: 1px solid rgba(31, 111, 67, 0.2);
+  border-radius: 8px;
+  background: rgba(31, 111, 67, 0.08);
+  color: var(--primary-strong);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.app-footer a {
+  color: var(--primary-strong);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.app-footer a:hover {
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+.app-footer a:focus-visible {
+  outline: 3px solid rgba(31, 111, 67, 0.24);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+.footer-divider {
+  width: 1px;
+  height: 1rem;
+  background: var(--border);
+}
+
 .table-wrap {
   overflow-x: auto;
 }
@@ -405,6 +459,13 @@ tbody tr:hover {
 
   .form-actions {
     flex-direction: column;
+  }
+
+  .app-footer {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 1rem 0.75rem 1.25rem;
+    font-size: 0.76rem;
   }
 
   .primary-button,
