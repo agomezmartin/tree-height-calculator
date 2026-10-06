@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#1f6f43" />
+    <title>Calculadora de altura de árboles</title>
+    <meta name="description" content="Calcula la altura de árboles a partir de mediciones con clinómetro." />
+    <link rel="icon" type="image/svg+xml" href="./assets/favicon.svg" />
+    <link rel="stylesheet" href="./css/styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script type="module" src="./js/app.js" defer></script>
+  </head>
+  <body>
+    <header class="app-header">
+      <p class="eyebrow">Medición mediante clinómetro</p>
+      <h1>Calculadora de altura de árboles</h1>
+    </header>
+
+    <main class="app-shell">
+      <section class="panel form-panel" aria-labelledby="form-title">
+        <div class="panel-header">
+          <h2 id="form-title">Nueva medición</h2>
+        </div>
+
+        <form id="measurementForm" novalidate>
+          <fieldset>
+            <legend>Árbol</legend>
+
+            <div class="field-grid">
+              <label class="field">
+                <span>ID / nombre</span>
+                <input id="treeId" name="treeId" type="text" maxlength="80" placeholder="Ej. Pino 3" />
+              </label>
+
+              <label class="field">
+                <span>Fecha</span>
+                <input id="measurementDate" name="measurementDate" type="date" />
+              </label>
+            </div>
+
+            <label class="field">
+              <span>Observaciones</span>
+              <textarea id="notes" name="notes" rows="3" placeholder="Detalles del árbol, orientación, condiciones..."></textarea>
+            </label>
+          </fieldset>
+
+          <fieldset>
+            <legend>Método de distancia</legend>
+
+            <div class="radio-group" role="radiogroup" aria-label="Método de medición de distancia">
+              <label class="choice">
+                <input type="radio" name="distanceMethod" value="horizontal" checked />
+                <span>
+                  <strong>Distancia horizontal</strong>
+                  <small>La distancia introducida es la proyección horizontal al tronco.</small>
+                </span>
+              </label>
+
+              <label class="choice">
+                <input type="radio" name="distanceMethod" value="slope" />
+                <span>
+                  <strong>Distancia sobre el terreno</strong>
+                  <small>La distancia sigue la pendiente del suelo y se convierte a horizontal.</small>
+                </span>
+              </label>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>Datos de medición</legend>
+
+            <div class="field-grid">
+              <label class="field">
+                <span>Distancia (m)</span>
+                <input id="distance" name="distance" type="number" step="0.01" min="0.01" placeholder="20" required />
+              </label>
+
+              <label class="field">
+                <span>Lectura del clinómetro (%)</span>
+                <input id="clinometerPercent" name="clinometerPercent" type="number" step="0.01" placeholder="80" required />
+              </label>
+
+              <label class="field">
+                <span>Pendiente del terreno (%)</span>
+                <input id="terrainSlopePercent" name="terrainSlopePercent" type="number" step="0.01" placeholder="0" required />
+              </label>
+
+              <label class="field">
+                <span>Altura del instrumento / ojos (m)</span>
+                <input id="observerHeight" name="observerHeight" type="number" step="0.01" min="0" placeholder="1.70" required />
+              </label>
+            </div>
+          </fieldset>
+
+          <div class="form-actions">
+            <button id="calculateButton" class="primary-button" type="submit">Calcular altura</button>
+            <button id="saveButton" class="secondary-button" type="button">Guardar árbol</button>
+            <button id="exportButton" class="ghost-button" type="button">Exportar a Excel</button>
+          </div>
+
+          <div id="formError" class="message error" aria-live="assertive" hidden></div>
+        </form>
+      </section>
+
+      <section class="panel result-panel" aria-labelledby="result-title">
+        <div class="panel-header compact">
+          <h2 id="result-title">Resultado</h2>
+        </div>
+
+        <div id="treeHeightResult" class="result-value" aria-live="polite">0,00 m</div>
+        <p class="result-label">ALTURA ESTIMADA</p>
+
+        <div class="summary-card">
+          <h3>Resumen</h3>
+          <dl id="resultSummary" class="summary-list">
+            <div><dt>Método</dt><dd>—</dd></div>
+            <div><dt>Distancia introducida</dt><dd>—</dd></div>
+            <div><dt>Distancia horizontal</dt><dd>—</dd></div>
+            <div><dt>Clinómetro</dt><dd>—</dd></div>
+            <div><dt>Pendiente</dt><dd>—</dd></div>
+            <div><dt>Desnivel</dt><dd>—</dd></div>
+            <div><dt>Altura instrumento</dt><dd>—</dd></div>
+          </dl>
+        </div>
+
+        <div class="formula-card">
+          <h3>Cómo se ha calculado</h3>
+          <p id="formulaExplanation">
+            La altura se estima con la diferencia vertical hasta la copa y la corrección del desnivel del terreno y de la altura del ojo del observador.
+          </p>
+        </div>
+
+        <div class="diagram-wrap">
+          <svg id="measurementDiagram" viewBox="0 0 420 220" role="img" aria-labelledby="diagramTitle">
+            <title id="diagramTitle">Diagrama geométrico de la medición</title>
+          </svg>
+        </div>
+      </section>
+    </main>
+
+    <section class="panel table-panel" aria-labelledby="table-title">
+      <div class="panel-header compact">
+        <h2 id="table-title">Árboles guardados</h2>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Fecha</th>
+              <th>Método</th>
+              <th>Distancia</th>
+              <th>Clinómetro</th>
+              <th>Pendiente</th>
+              <th>Altura instrumento</th>
+              <th>Altura calculada</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="measurementTableBody"></tbody>
+        </table>
+      </div>
+    </section>
+  </body>
+</html>

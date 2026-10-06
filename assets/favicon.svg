@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Icono de árbol">
+  <rect width="128" height="128" rx="26" fill="#edf6ef"/>
+  <path d="M64 18 L84 52 L72 52 L92 82 L74 82 L96 110 L32 110 L54 82 L36 82 L56 52 L44 52 Z" fill="#1f6f43"/>
+  <rect x="58" y="82" width="12" height="22" rx="4" fill="#3d4d45"/>
+</svg>
