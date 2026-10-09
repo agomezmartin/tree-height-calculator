@@ -128,6 +128,14 @@
             </div>
 
             <p class="location-help map-help" data-i18n="gps.mapHelp"></p>
+            <label class="field map-style-picker">
+              <span data-i18n="gps.mapStyle"></span>
+              <select id="mapStyleSelect" data-i18n-aria-label="gps.mapStyle">
+                <option value="standard" data-i18n="gps.mapStyleStandard"></option>
+                <option value="satellite" data-i18n="gps.mapStyleSatellite"></option>
+                <option value="topographic" data-i18n="gps.mapStyleTopographic"></option>
+              </select>
+            </label>
             <div id="locationMap" class="location-map" role="region" data-i18n-aria-label="gps.mapLabel"></div>
             <p id="mapStatus" class="location-status" role="status" aria-live="polite" data-i18n="gps.mapInitialStatus"></p>
             <p class="map-attribution"><span data-i18n="gps.mapAttribution"></span> <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer" data-i18n="gps.osmContributors"></a></p>

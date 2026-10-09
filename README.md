@@ -9,7 +9,7 @@ Una pequeña aplicación web para calcular la altura de un árbol a partir de me
 - Calcula la altura estimada del árbol usando una formulación geométrica clara y separada por fases.
 - Guarda mediciones localmente con `localStorage` para editar o revisar datos sin depender de un servidor.
 - Exporta los registros a Excel con archivos `.xlsx` para auditoría posterior.
-- Captura opcionalmente las coordenadas GPS de cada árbol y las incluye en la exportación.
+- Captura opcionalmente las coordenadas GPS de cada árbol y las incluye en la exportación; permite elegir mapa estándar, satélite o topográfico y seleccionar la ubicación con un clic o ajustando el marcador.
 - Está pensada para funcionar en escritorio, tablet y móvil.
 - Incluye una firma discreta con enlace al perfil del desarrollador.
 - Permite cambiar la interfaz entre español, inglés, catalán, euskera, gallego y valenciano; el idioma elegido se guarda localmente y también se aplica a la exportación Excel.
@@ -49,7 +49,7 @@ Al abrir la aplicación, se solicita una captura puntual de GPS para centrar el 
 
 Las coordenadas son opcionales: denegar el permiso, no disponer de señal o usar un navegador sin geolocalización no impide calcular ni guardar una medición. Si se introduce una coordenada, ambas son obligatorias. La latitud debe estar entre -90 y 90 y la longitud entre -180 y 180; `0, 0` es una posición válida. Los registros anteriores, que no incluyen estos campos, siguen siendo compatibles y se exportan con las celdas de ubicación vacías.
 
-La posición representa la ubicación estimada por el dispositivo al capturarla, no una garantía de que sea exactamente la base del árbol. La precisión depende del equipo y de las condiciones de recepción y puede empeorar bajo la cubierta forestal. La aplicación requiere un contexto seguro (HTTPS o `localhost`) y el permiso del usuario. La cartografía usa Leaflet y teselas de OpenStreetMap: sus servidores reciben solicitudes para las áreas visibles del mapa y pueden inferir aproximadamente la zona consultada. Las coordenadas no se envían como datos de la medición; la carga de teselas puede revelar la zona mostrada. Se necesita conexión a Internet para ver el mapa. La atribución de OpenStreetMap aparece junto al mapa.
+La posición representa la ubicación estimada por el dispositivo al capturarla, no una garantía de que sea exactamente la base del árbol. La precisión depende del equipo y de las condiciones de recepción y puede empeorar bajo la cubierta forestal. La aplicación requiere un contexto seguro (HTTPS o `localhost`) y el permiso del usuario. El mapa permite elegir entre cartografía estándar de OpenStreetMap, imágenes satelitales de Esri y mapa topográfico de OpenTopoMap. Leaflet muestra la atribución correspondiente a la capa seleccionada. Estos proveedores reciben solicitudes para las áreas visibles del mapa y pueden inferir aproximadamente la zona consultada. Las coordenadas no se envían como datos de la medición; la carga de teselas puede revelar la zona mostrada. Se necesita conexión a Internet para ver el mapa.
 
 ### Comprobación de permisos
 

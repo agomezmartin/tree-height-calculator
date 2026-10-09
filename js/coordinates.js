@@ -8,6 +8,7 @@ export const GPS_OPTIONS = Object.freeze({
 });
 
 export const DEFAULT_MAP_VIEW = Object.freeze([20, 0]);
+export const MAP_STYLES = Object.freeze(['standard', 'satellite', 'topographic']);
 
 function localizedError(key) {
   return Object.assign(new Error(t(key)), { translationKey: key });
@@ -44,6 +45,7 @@ export function createCoordinateMap({
   leaflet,
   latitudeInput,
   longitudeInput,
+  mapStyleSelect,
   onSelect = () => {},
   onMapError = () => {},
 }) {
@@ -56,18 +58,35 @@ export function createCoordinateMap({
     zoomInTitle: t('gps.zoomIn'),
     zoomOutTitle: t('gps.zoomOut'),
   }).addTo(map);
-  const attribution = () => (
-    `&copy; <a href="https://www.openstreetmap.org/copyright">${t('gps.osmContributors')}</a>`
-  );
-  const tileLayer = leaflet
-    .tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  const layerOptions = {
+    standard: {
+      url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
       maxZoom: 19,
-      attribution: attribution(),
-    })
-    .on('tileerror', () => {
+      attribution: () => `&copy; <a href="https://www.openstreetmap.org/copyright">${t('gps.osmContributors')}</a>`,
+    },
+    satellite: {
+      url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+      maxZoom: 19,
+      attribution: () => `&copy; ${t('gps.esriAttribution')}`,
+    },
+    topographic: {
+      url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
+      maxZoom: 17,
+      attribution: () => `&copy; <a href="https://opentopomap.org">${t('gps.openTopoMap')}</a> | &copy; <a href="https://www.openstreetmap.org/copyright">${t('gps.osmContributors')}</a>`,
+    },
+  };
+
+  const createTileLayer = (style) => {
+    const options = layerOptions[style];
+    return leaflet.tileLayer(options.url, {
+      maxZoom: options.maxZoom,
+      attribution: options.attribution(),
+    }).on('tileerror', () => {
       onMapError('gps.tileError');
-    })
-    .addTo(map);
+    });
+  };
+  let activeStyle = MAP_STYLES.includes(mapStyleSelect?.value) ? mapStyleSelect.value : 'standard';
+  let tileLayer = createTileLayer(activeStyle).addTo(map);
 
   let selectedMarker = null;
 
@@ -117,6 +136,19 @@ export function createCoordinateMap({
     onSelect(coordinates);
   });
 
+  const setMapStyle = (style) => {
+    if (!MAP_STYLES.includes(style) || style === activeStyle) return false;
+    map.removeLayer(tileLayer);
+    activeStyle = style;
+    if (mapStyleSelect) mapStyleSelect.value = style;
+    tileLayer = createTileLayer(activeStyle).addTo(map);
+    return true;
+  };
+
+  mapStyleSelect?.addEventListener('change', () => {
+    setMapStyle(mapStyleSelect.value);
+  });
+
   const handleFieldChange = () => {
     try {
       const coordinates = validateCoordinates({
@@ -135,12 +167,13 @@ export function createCoordinateMap({
   return {
     map,
     setCoordinates,
+    setMapStyle,
     setLanguage() {
       const zoomButtons = zoomControl.getContainer();
       zoomButtons.querySelector('.leaflet-control-zoom-in').title = t('gps.zoomIn');
       zoomButtons.querySelector('.leaflet-control-zoom-out').title = t('gps.zoomOut');
       map.attributionControl.removeAttribution(tileLayer.options.attribution);
-      tileLayer.options.attribution = attribution();
+      tileLayer.options.attribution = layerOptions[activeStyle].attribution();
       map.attributionControl.addAttribution(tileLayer.options.attribution);
     },
   };

@@ -72,6 +72,26 @@ button {
   outline-offset: 2px;
 }
 
+.map-style-picker {
+  max-width: 18rem;
+  margin-bottom: 0.65rem;
+}
+
+.map-style-picker select {
+  min-height: 40px;
+  padding: 0.45rem 0.65rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--text);
+  font: inherit;
+}
+
+.map-style-picker select:focus-visible {
+  outline: 3px solid rgba(31, 111, 67, 0.24);
+  outline-offset: 2px;
+}
+
 .app-header .eyebrow {
   display: inline-block;
   padding: 0.28rem 0.6rem;

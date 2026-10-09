@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { JSDOM } from 'jsdom';
+import { i18n } from '../js/i18n.js';
 
 import {
   bindGpsCapture,
@@ -171,13 +172,24 @@ test('la ubicación inicial centra el mapa y respeta cambios del usuario mientra
 });
 
 test('el mapa coloca y arrastra el marcador y sincroniza los campos manuales', () => {
-  const dom = new JSDOM('<input id="latitude"><input id="longitude"><div id="map"></div>');
+  const dom = new JSDOM(`
+    <input id="latitude">
+    <input id="longitude">
+    <select id="mapStyleSelect">
+      <option value="standard" selected></option>
+      <option value="satellite"></option>
+      <option value="topographic"></option>
+    </select>
+    <div id="map"></div>
+  `);
   const latitudeInput = dom.window.document.getElementById('latitude');
   const longitudeInput = dom.window.document.getElementById('longitude');
+  const mapStyleSelect = dom.window.document.getElementById('mapStyleSelect');
   const mapHandlers = new Map();
   const markerHandlers = new Map();
   const mapCalls = { views: [], removed: [] };
-  let tileErrorHandler;
+  const tileLayers = [];
+  const attributions = [];
   let marker;
   const map = {
     zoom: 2,
@@ -196,6 +208,14 @@ test('el mapa coloca y arrastra el marcador y sincroniza los campos manuales', (
     removeLayer(layer) {
       mapCalls.removed.push(layer);
     },
+    attributionControl: {
+      removeAttribution(value) {
+        attributions.push({ action: 'remove', value });
+      },
+      addAttribution(value) {
+        attributions.push({ action: 'add', value });
+      },
+    },
   };
   const leaflet = {
     map: (_element, options) => {
@@ -208,22 +228,34 @@ test('el mapa coloca y arrastra el marcador y sincroniza los campos manuales', (
         return {
           addTo(target) {
             assert.equal(target, map);
+            return this;
+          },
+          getContainer() {
+            const container = dom.window.document.createElement('div');
+            container.innerHTML = '<a class="leaflet-control-zoom-in"></a><a class="leaflet-control-zoom-out"></a>';
+            return container;
           },
         };
       },
     },
-    tileLayer: (url, options) => ({
-      on(event, handler) {
-        assert.equal(event, 'tileerror');
-        tileErrorHandler = handler;
-        return this;
-      },
-      addTo(target) {
-        assert.equal(target, map);
-        assert.match(url, /openstreetmap\.org/);
-        assert.match(options.attribution, /OpenStreetMap/);
-      },
-    }),
+    tileLayer: (url, options) => {
+      const layer = {
+        url,
+        options,
+        handlers: new Map(),
+        on(event, handler) {
+          assert.equal(event, 'tileerror');
+          this.handlers.set(event, handler);
+          return this;
+        },
+        addTo(target) {
+          assert.equal(target, map);
+          tileLayers.push(this);
+          return this;
+        },
+      };
+      return layer;
+    },
     marker: (position, options) => {
       marker = {
         position,
@@ -255,18 +287,37 @@ test('el mapa coloca y arrastra el marcador y sincroniza los campos manuales', (
     leaflet,
     latitudeInput,
     longitudeInput,
+    mapStyleSelect,
     onSelect: (coordinates) => selected.push(coordinates),
     onMapError: (message) => mapErrors.push(message),
   });
 
   assert.deepEqual(mapCalls.views[0], { position: DEFAULT_MAP_VIEW, zoom: 2 });
-  tileErrorHandler();
+  assert.match(tileLayers[0].url, /openstreetmap\.org/);
+  tileLayers[0].handlers.get('tileerror')();
   assert.equal(mapErrors[0], 'gps.tileError');
   mapHandlers.get('click')({ latlng: { lat: 40.123456789, lng: -3.987654321 } });
   assert.equal(latitudeInput.value, '40.123456789');
   assert.equal(longitudeInput.value, '-3.987654321');
   assert.deepEqual(marker.options, { draggable: true });
   assert.deepEqual(selected[0], { latitude: 40.123456789, longitude: -3.987654321 });
+
+  mapStyleSelect.value = 'satellite';
+  mapStyleSelect.dispatchEvent(new dom.window.Event('change'));
+  assert.match(tileLayers[1].url, /World_Imagery/);
+  assert.deepEqual(mapCalls.removed, [tileLayers[0]]);
+  assert.equal(controller.setMapStyle('topographic'), true);
+  assert.match(tileLayers[2].url, /opentopomap\.org/);
+  assert.equal(mapStyleSelect.value, 'topographic');
+  assert.match(tileLayers[1].options.attribution, /Esri/);
+  assert.match(tileLayers[2].options.attribution, /OpenTopoMap/);
+  assert.equal(controller.setMapStyle('unknown'), false);
+  assert.equal(mapStyleSelect.value, 'topographic');
+  i18n.setLanguage('en', { persist: false });
+  controller.setLanguage();
+  assert.match(tileLayers[2].options.attribution, /OpenStreetMap contributors/);
+  i18n.setLanguage('es', { persist: false });
+  controller.setLanguage();
 
   marker.position = [40.5, -3.5];
   markerHandlers.get('dragend')();
@@ -283,7 +334,7 @@ test('el mapa coloca y arrastra el marcador y sincroniza los campos manuales', (
   latitudeInput.value = '';
   longitudeInput.value = '';
   longitudeInput.dispatchEvent(new dom.window.Event('change'));
-  assert.deepEqual(mapCalls.removed, [marker]);
+  assert.deepEqual(mapCalls.removed, [tileLayers[0], tileLayers[1], marker]);
   assert.deepEqual(controller.setCoordinates({ latitude: null, longitude: null }), {
     latitude: null,
     longitude: null,

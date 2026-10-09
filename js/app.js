@@ -51,6 +51,7 @@ try {
   locationMap = createCoordinateMap({
     element: document.getElementById('locationMap'),
     leaflet: window.L,
+    mapStyleSelect: document.getElementById('mapStyleSelect'),
     latitudeInput,
     longitudeInput,
     onSelect: () => {
