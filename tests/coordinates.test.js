@@ -261,7 +261,7 @@ test('el mapa coloca y arrastra el marcador y sincroniza los campos manuales', (
 
   assert.deepEqual(mapCalls.views[0], { position: DEFAULT_MAP_VIEW, zoom: 2 });
   tileErrorHandler();
-  assert.match(mapErrors[0], /No se pudieron cargar/);
+  assert.equal(mapErrors[0], 'gps.tileError');
   mapHandlers.get('click')({ latlng: { lat: 40.123456789, lng: -3.987654321 } });
   assert.equal(latitudeInput.value, '40.123456789');
   assert.equal(longitudeInput.value, '-3.987654321');

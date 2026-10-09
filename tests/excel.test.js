@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import { exportMeasurementsToXlsx } from '../js/excel.js';
+import { i18n } from '../js/i18n.js';
 
 test('exportMeasurementsToXlsx agrega latitud y longitud numéricas o vacías sin alterar columnas previas', () => {
   let exportedRows;
@@ -80,6 +81,48 @@ test('exportMeasurementsToXlsx conserva la exportación sin coordenadas y report
     globalThis.window = {};
     assert.throws(() => exportMeasurementsToXlsx([]), /librería Excel no está disponible/);
   } finally {
+    delete globalThis.window;
+  }
+});
+
+test('exportMeasurementsToXlsx localiza encabezados, hoja y nombre sin convertir coordenadas numéricas', () => {
+  let exportedRows;
+  let sheetName;
+  let writtenFile;
+  globalThis.window = {
+    XLSX: {
+      utils: {
+        json_to_sheet(rows) {
+          exportedRows = rows;
+          return {};
+        },
+        book_new: () => ({}),
+        book_append_sheet(_workbook, _worksheet, name) {
+          sheetName = name;
+        },
+      },
+      writeFile(_workbook, fileName) {
+        writtenFile = fileName;
+      },
+    },
+  };
+
+  try {
+    i18n.setLanguage('en');
+    exportMeasurementsToXlsx([{
+      method: 'slope',
+      distance: 12,
+      latitude: 40.123,
+      longitude: -3.456,
+    }]);
+    assert.equal(sheetName, 'Measurements');
+    assert.equal(exportedRows[0]['Measurement method'], 'Distance along the ground');
+    assert.match(exportedRows[0]['Formula / method used'], /h_eye/);
+    assert.equal(exportedRows[0].Latitude, 40.123);
+    assert.equal(exportedRows[0].Longitude, -3.456);
+    assert.match(writtenFile, /^tree-measurements-\d{4}-\d{2}-\d{2}\.xlsx$/);
+  } finally {
+    i18n.setLanguage('es');
     delete globalThis.window;
   }
 });

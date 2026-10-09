@@ -109,6 +109,19 @@ test('el formulario guarda mediciones con y sin GPS, conserva y permite actualiz
     document.querySelector(`[data-action="edit"][data-id="${withGps.id}"]`).click();
     document.querySelector(`[data-action="delete"][data-id="${withGps.id}"]`).click();
     assert.equal(getSavedMeasurements().some((entry) => entry.id === withGps.id), false);
+
+    const languageSelect = document.getElementById('languageSelect');
+    languageSelect.value = 'en';
+    languageSelect.dispatchEvent(new dom.window.Event('change', { bubbles: true }));
+    assert.equal(document.documentElement.lang, 'en');
+    assert.equal(document.querySelector('h1').textContent, 'Tree Height Calculator');
+    assert.equal(document.querySelector('#treeHeightResult').textContent, '17.70 m');
+    assert.equal(document.querySelector('#measurementTableBody tr').cells[2].textContent, 'Horizontal distance');
+    assert.match(document.getElementById('locationStatus').textContent, /Location permission was denied/);
+    assert.equal(document.getElementById('treeId').value, 'Con GPS');
+
+    languageSelect.value = 'es';
+    languageSelect.dispatchEvent(new dom.window.Event('change', { bubbles: true }));
   } finally {
     dom.window.close();
     delete globalThis.window;

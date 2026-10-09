@@ -40,9 +40,36 @@ button {
 }
 
 .app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
   max-width: 1200px;
   margin: 0 auto;
   padding: 1.2rem 1rem 0.5rem;
+}
+
+.language-picker {
+  display: grid;
+  gap: 0.3rem;
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.language-picker select {
+  min-height: 40px;
+  padding: 0.45rem 2rem 0.45rem 0.65rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--text);
+  font: 400 1rem Arial, Helvetica, sans-serif;
+}
+
+.language-picker select:focus-visible {
+  outline: 3px solid rgba(31, 111, 67, 0.24);
+  outline-offset: 2px;
 }
 
 .app-header .eyebrow {
@@ -507,6 +534,10 @@ tbody tr:hover {
   .table-panel {
     padding-left: 0.75rem;
     padding-right: 0.75rem;
+  }
+
+  .app-header {
+    align-items: flex-start;
   }
 
   .panel {

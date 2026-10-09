@@ -1,4 +1,5 @@
 import { parseNumericInput } from './calculator.js';
+import { setLocalizedText, t } from './i18n.js';
 
 export const GPS_OPTIONS = Object.freeze({
   enableHighAccuracy: true,
@@ -7,6 +8,10 @@ export const GPS_OPTIONS = Object.freeze({
 });
 
 export const DEFAULT_MAP_VIEW = Object.freeze([20, 0]);
+
+function localizedError(key) {
+  return Object.assign(new Error(t(key)), { translationKey: key });
+}
 
 export function validateCoordinates({ latitude, longitude }) {
   const latitudeMissing = latitude === null || latitude === undefined || String(latitude).trim() === '';
@@ -17,18 +22,18 @@ export function validateCoordinates({ latitude, longitude }) {
   }
 
   if (latitudeMissing || longitudeMissing) {
-    throw new Error('Introduce tanto la latitud como la longitud, o deja ambos campos vacíos.');
+    throw localizedError('gps.coordinatesPairRequired');
   }
 
   const parsedLatitude = parseNumericInput(latitude);
   const parsedLongitude = parseNumericInput(longitude);
 
   if (!Number.isFinite(parsedLatitude) || parsedLatitude < -90 || parsedLatitude > 90) {
-    throw new Error('La latitud debe ser un número entre -90 y 90 grados decimales.');
+    throw localizedError('gps.invalidLatitude');
   }
 
   if (!Number.isFinite(parsedLongitude) || parsedLongitude < -180 || parsedLongitude > 180) {
-    throw new Error('La longitud debe ser un número entre -180 y 180 grados decimales.');
+    throw localizedError('gps.invalidLongitude');
   }
 
   return { latitude: parsedLatitude, longitude: parsedLongitude };
@@ -43,21 +48,24 @@ export function createCoordinateMap({
   onMapError = () => {},
 }) {
   if (!leaflet?.map || !leaflet?.tileLayer || !leaflet?.marker || !leaflet?.control?.zoom) {
-    throw new Error('No se pudo cargar el mapa. Puedes seguir usando el GPS o introducir las coordenadas manualmente.');
+    throw localizedError('gps.mapUnavailable');
   }
 
   const map = leaflet.map(element, { scrollWheelZoom: false, zoomControl: false }).setView(DEFAULT_MAP_VIEW, 2);
-  leaflet.control.zoom({
-    zoomInTitle: 'Acercar mapa',
-    zoomOutTitle: 'Alejar mapa',
+  const zoomControl = leaflet.control.zoom({
+    zoomInTitle: t('gps.zoomIn'),
+    zoomOutTitle: t('gps.zoomOut'),
   }).addTo(map);
-  leaflet
+  const attribution = () => (
+    `&copy; <a href="https://www.openstreetmap.org/copyright">${t('gps.osmContributors')}</a>`
+  );
+  const tileLayer = leaflet
     .tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      attribution: attribution(),
     })
     .on('tileerror', () => {
-      onMapError('No se pudieron cargar algunas teselas del mapa. Comprueba la conexión o continúa con las coordenadas manuales.');
+      onMapError('gps.tileError');
     })
     .addTo(map);
 
@@ -116,8 +124,8 @@ export function createCoordinateMap({
         longitude: longitudeInput.value,
       });
       setCoordinates(coordinates, { center: coordinates.latitude !== null });
-    } catch {
-      return;
+    } catch (error) {
+      onMapError(error.translationKey ?? 'message.genericError');
     }
   };
 
@@ -127,27 +135,33 @@ export function createCoordinateMap({
   return {
     map,
     setCoordinates,
+    setLanguage() {
+      const zoomButtons = zoomControl.getContainer();
+      zoomButtons.querySelector('.leaflet-control-zoom-in').title = t('gps.zoomIn');
+      zoomButtons.querySelector('.leaflet-control-zoom-out').title = t('gps.zoomOut');
+      map.attributionControl.removeAttribution(tileLayer.options.attribution);
+      tileLayer.options.attribution = attribution();
+      map.attributionControl.addAttribution(tileLayer.options.attribution);
+    },
   };
 }
 
-function getPositionErrorMessage(error) {
+function getPositionErrorKey(error) {
   switch (error?.code) {
     case 1:
-      return 'Se denegó el permiso de ubicación. Puedes guardar la medición sin coordenadas o habilitar el permiso en el navegador.';
+      return 'gps.permissionDenied';
     case 2:
-      return 'No se pudo determinar la ubicación. Comprueba la señal GPS e inténtalo de nuevo.';
+      return 'gps.positionUnavailable';
     case 3:
-      return 'La solicitud de ubicación superó el tiempo de espera. Inténtalo de nuevo.';
+      return 'gps.timeout';
     default:
-      return 'Se produjo un error al obtener la ubicación. Puedes guardar la medición sin coordenadas.';
+      return 'gps.unexpectedError';
   }
 }
 
 export function captureGpsCoordinates(geolocation) {
   if (!geolocation || typeof geolocation.getCurrentPosition !== 'function') {
-    return Promise.reject(
-      new Error('Este navegador no ofrece geolocalización. Puedes introducir las coordenadas manualmente o guardar sin ellas.'),
-    );
+    return Promise.reject(localizedError('gps.unsupported'));
   }
 
   return new Promise((resolve, reject) => {
@@ -162,7 +176,10 @@ export function captureGpsCoordinates(geolocation) {
           reject(error);
         }
       },
-      (error) => reject(new Error(getPositionErrorMessage(error))),
+      (error) => {
+        const key = getPositionErrorKey(error);
+        reject(Object.assign(new Error(t(key)), { translationKey: key }));
+      },
       GPS_OPTIONS,
     );
   });
@@ -178,14 +195,14 @@ export async function locateUserOnLoad({
   shouldApply = () => true,
 }) {
   button.disabled = true;
-  status.textContent = 'Buscando tu ubicación para centrar el mapa…';
+  setLocalizedText(status, 'gps.initialLoading');
   status.dataset.state = 'loading';
 
   try {
     const coordinates = await captureGpsCoordinates(geolocation);
 
     if (!shouldApply()) {
-      status.textContent = 'No se aplicó la ubicación automática porque ya modificaste o guardaste la localización.';
+      setLocalizedText(status, 'gps.initialNotApplied');
       status.dataset.state = 'success';
       return null;
     }
@@ -193,11 +210,15 @@ export async function locateUserOnLoad({
     latitudeInput.value = String(coordinates.latitude);
     longitudeInput.value = String(coordinates.longitude);
     onCoordinates(coordinates);
-    status.textContent = 'Mapa centrado en tu ubicación. Puedes ajustar el punto antes de guardar.';
+    setLocalizedText(status, 'gps.initialSuccess');
     status.dataset.state = 'success';
     return coordinates;
   } catch (error) {
-    status.textContent = `No se pudo centrar automáticamente. ${error.message} Puedes intentarlo con el botón GPS.`;
+    setLocalizedText(status, 'gps.initialFailure', {
+      error: error.translationKey
+        ? { key: error.translationKey }
+        : { fallback: error.message },
+    });
     status.dataset.state = 'error';
     return null;
   } finally {
@@ -219,8 +240,8 @@ export function bindGpsCapture({
     }
 
     button.disabled = true;
-    button.textContent = 'Obteniendo ubicación...';
-    status.textContent = 'Solicitando la ubicación al dispositivo…';
+    setLocalizedText(button, 'gps.loading');
+    setLocalizedText(status, 'gps.requesting');
     status.dataset.state = 'loading';
 
     try {
@@ -228,14 +249,18 @@ export function bindGpsCapture({
       latitudeInput.value = String(coordinates.latitude);
       longitudeInput.value = String(coordinates.longitude);
       onCoordinates(coordinates);
-      status.textContent = 'Ubicación capturada. Revisa las coordenadas antes de guardar.';
+      setLocalizedText(status, 'gps.captured');
       status.dataset.state = 'success';
     } catch (error) {
-      status.textContent = error.message;
+      if (error.translationKey) {
+        setLocalizedText(status, error.translationKey);
+      } else {
+        status.textContent = error.message;
+      }
       status.dataset.state = 'error';
     } finally {
       button.disabled = false;
-      button.textContent = 'Obtener ubicación GPS';
+      setLocalizedText(button, 'gps.getLocation');
     }
   };
 

@@ -12,6 +12,11 @@ Una pequeña aplicación web para calcular la altura de un árbol a partir de me
 - Captura opcionalmente las coordenadas GPS de cada árbol y las incluye en la exportación.
 - Está pensada para funcionar en escritorio, tablet y móvil.
 - Incluye una firma discreta con enlace al perfil del desarrollador.
+- Permite cambiar la interfaz entre español, inglés, catalán, euskera, gallego y valenciano; el idioma elegido se guarda localmente y también se aplica a la exportación Excel.
+
+## Idiomas
+
+La aplicación detecta el idioma del navegador al iniciarse y permite elegir español, inglés, catalán, euskera, gallego o valenciano desde el selector de la cabecera. La preferencia se guarda en el navegador. La guía para mantener las traducciones está en [docs/INTERNATIONALIZATION.md](./docs/INTERNATIONALIZATION.md).
 
 ## Cómo instalarla
 

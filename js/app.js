@@ -15,6 +15,7 @@ import {
   locateUserOnLoad,
   validateCoordinates,
 } from './coordinates.js';
+import { getErrorTranslationKey, i18n, setLocalizedText } from './i18n.js';
 
 const form = document.getElementById('measurementForm');
 const resultValue = document.getElementById('treeHeightResult');
@@ -28,6 +29,8 @@ const exportButton = document.getElementById('exportButton');
 const latitudeInput = document.getElementById('latitude');
 const longitudeInput = document.getElementById('longitude');
 const mapStatus = document.getElementById('mapStatus');
+const languageSelect = document.getElementById('languageSelect');
+const { t } = i18n;
 
 const state = {
   measurements: getMeasurements(),
@@ -52,16 +55,16 @@ try {
     longitudeInput,
     onSelect: () => {
       locationWasAdjusted = true;
-      mapStatus.textContent = 'Punto seleccionado. Puedes arrastrar el marcador o editar las coordenadas.';
+      setLocalizedText(mapStatus, 'gps.mapSelected');
       mapStatus.dataset.state = 'success';
     },
-    onMapError: (message) => {
-      mapStatus.textContent = message;
+    onMapError: (key) => {
+      setLocalizedText(mapStatus, key);
       mapStatus.dataset.state = 'error';
     },
   });
 } catch (error) {
-  mapStatus.textContent = error.message;
+  setLocalizedText(mapStatus, 'gps.mapUnavailable');
   mapStatus.dataset.state = 'error';
 }
 
@@ -89,36 +92,29 @@ void locateUserOnLoad({
 });
 
 measurementDateInput.value = new Date().toISOString().slice(0, 10);
+i18n.applyTranslations();
 
 function formatMeters(value) {
-  if (!Number.isFinite(value)) return '—';
-  return `${Number(value).toLocaleString('es-ES', {
+  if (!Number.isFinite(value)) return t('common.notAvailable');
+  return `${i18n.formatNumber(value, {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   })} m`;
 }
 
 function formatPercent(value) {
-  if (!Number.isFinite(value)) return '—';
-  return `${Number(value).toLocaleString('es-ES', {
+  if (!Number.isFinite(value)) return t('common.notAvailable');
+  return `${i18n.formatNumber(value, {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   })} %`;
 }
 
-function formatDegrees(value) {
-  if (!Number.isFinite(value)) return '—';
-  return `${Number(value).toLocaleString('es-ES', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })} °`;
-}
-
 function formatCoordinate(value) {
-  if (value === null || value === undefined || value === '') return '—';
+  if (value === null || value === undefined || value === '') return t('common.notAvailable');
   const coordinate = Number(value);
-  if (!Number.isFinite(coordinate)) return '—';
-  return coordinate.toLocaleString('es-ES', {
+  if (!Number.isFinite(coordinate)) return t('common.notAvailable');
+  return i18n.formatNumber(coordinate, {
     useGrouping: false,
     maximumFractionDigits: 15,
   });
@@ -131,16 +127,19 @@ function clearError() {
   errorBox.classList.remove('error');
 }
 
-function showError(message) {
+function showError(error) {
   errorBox.hidden = false;
-  errorBox.textContent = message;
+  const message = typeof error === 'string' ? error : error?.message;
+  const isTranslationKey = typeof error === 'string' && t(error) !== error;
+  const key = error?.translationKey ?? (isTranslationKey ? error : getErrorTranslationKey(message));
+  setLocalizedText(errorBox, key);
   errorBox.classList.remove('success');
   errorBox.classList.add('error');
 }
 
-function showSuccess(message) {
+function showSuccess(key, parameters = {}) {
   errorBox.hidden = false;
-  errorBox.textContent = message;
+  setLocalizedText(errorBox, key, parameters);
   errorBox.classList.remove('error');
   errorBox.classList.add('success');
 }
@@ -187,7 +186,6 @@ function buildMeasurementResult() {
     treeId: values.treeId,
     date: values.date || new Date().toISOString().slice(0, 10),
     notes: values.notes,
-    methodLabel: validated.method === 'horizontal' ? 'Distancia horizontal' : 'Distancia sobre el terreno',
     horizontalDistance,
     terrainElevationDifference,
     crownElevation,
@@ -200,30 +198,49 @@ function buildMeasurementResult() {
   };
 
   if (estimatedHeight > 80 || estimatedHeight < 1) {
-    result.warning = 'La altura estimada parece inusualmente alta o baja para una medición de campo; revisa las lecturas introducidas.';
+    result.warning = true;
   }
 
   return result;
 }
 
 function renderResultSummary(result) {
-  resultSummary.innerHTML = `
-    <div><dt>Método</dt><dd>${result.methodLabel}</dd></div>
-    <div><dt>Distancia introducida</dt><dd>${formatMeters(result.distance)}</dd></div>
-    <div><dt>Distancia horizontal</dt><dd>${formatMeters(result.horizontalDistance)}</dd></div>
-    <div><dt>Clinómetro</dt><dd>${formatPercent(result.clinometerPercent)}</dd></div>
-    <div><dt>Pendiente</dt><dd>${formatPercent(result.terrainSlopePercent)}</dd></div>
-    <div><dt>Desnivel</dt><dd>${formatMeters(result.terrainElevationDifference)}</dd></div>
-    <div><dt>Altura instrumento</dt><dd>${formatMeters(result.observerHeight)}</dd></div>
-  `;
+  const rows = [
+    ['result.method', result.method === 'horizontal' ? t('distance.horizontal') : t('distance.slope')],
+    ['result.inputDistance', formatMeters(result.distance)],
+    ['result.horizontalDistance', formatMeters(result.horizontalDistance)],
+    ['result.clinometer', formatPercent(result.clinometerPercent)],
+    ['result.slope', formatPercent(result.terrainSlopePercent)],
+    ['result.elevationDifference', formatMeters(result.terrainElevationDifference)],
+    ['result.instrumentHeight', formatMeters(result.observerHeight)],
+  ];
+  const fragment = document.createDocumentFragment();
+  for (const [labelKey, value] of rows) {
+    const row = document.createElement('div');
+    const label = document.createElement('dt');
+    label.textContent = t(labelKey);
+    const definition = document.createElement('dd');
+    definition.textContent = value;
+    row.append(label, definition);
+    fragment.append(row);
+  }
+  resultSummary.replaceChildren(fragment);
 }
 
 function renderFormulaExplanation(result) {
-  const warningText = result.warning ? ` <strong>Advertencia:</strong> ${result.warning}` : '';
-
-  formulaExplanation.innerHTML = `
-    Se parte de la distancia horizontal ${formatMeters(result.horizontalDistance)}. El terreno aporta un desnivel de ${formatMeters(result.terrainElevationDifference)} y la copa está ${formatMeters(result.crownElevation)} por encima o por debajo del plano horizontal del observador. La altura total se calcula como: ${formatMeters(result.observerHeight)} + ${formatMeters(result.crownElevation)} - ${formatMeters(result.terrainElevationDifference)} = <strong>${formatMeters(result.estimatedHeight)}</strong>.${warningText}
-  `;
+  const narrative = t('result.formulaNarrative', {
+    horizontalDistance: formatMeters(result.horizontalDistance),
+    terrainDifference: formatMeters(result.terrainElevationDifference),
+    crownElevation: formatMeters(result.crownElevation),
+    observerHeight: formatMeters(result.observerHeight),
+    estimatedHeight: formatMeters(result.estimatedHeight),
+  });
+  formulaExplanation.replaceChildren(document.createTextNode(narrative));
+  if (result.warning) {
+    const warning = document.createElement('strong');
+    warning.textContent = ` ${t('result.warningLabel')} ${t('result.unusualHeight')}`;
+    formulaExplanation.append(warning);
+  }
 }
 
 function updateDiagram(result) {
@@ -245,11 +262,22 @@ function updateDiagram(result) {
     <line x1="${baseX}" y1="${groundY}" x2="${baseX}" y2="${baseY}" stroke="#3d4d45" stroke-width="4" />
     <line x1="${baseX}" y1="${baseY}" x2="${baseX}" y2="${crownY}" stroke="#3d4d45" stroke-width="4" />
     <line x1="${baseX}" y1="${crownY}" x2="${baseX + 18}" y2="${crownY}" stroke="#3d4d45" stroke-width="3" />
-    <text x="25" y="212" font-size="12" fill="#17312a">Observador</text>
-    <text x="247" y="210" font-size="12" fill="#17312a">Base</text>
-    <text x="244" y="${crownY - 8}" font-size="12" fill="#17312a">Copa</text>
-    <text x="120" y="95" font-size="12" fill="#17312a">Altura del ojo: ${formatMeters(result.observerHeight)}</text>
   `;
+  const labels = [
+    [25, 212, t('result.observer')],
+    [247, 210, t('result.base')],
+    [244, crownY - 8, t('result.crown')],
+    [120, 95, t('result.eyeHeight', { height: formatMeters(result.observerHeight) })],
+  ];
+  for (const [x, y, value] of labels) {
+    const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    label.setAttribute('x', x);
+    label.setAttribute('y', y);
+    label.setAttribute('font-size', '12');
+    label.setAttribute('fill', '#17312a');
+    label.textContent = value;
+    svg.append(label);
+  }
 }
 
 function renderResult(result) {
@@ -266,7 +294,7 @@ function calculateAndRender() {
     clearError();
     renderResult(result);
   } catch (error) {
-    showError(error.message);
+    showError(error);
   }
 }
 
@@ -285,11 +313,10 @@ saveButton.addEventListener('click', () => {
     });
     const measurement = {
       id: state.editingId ?? `tree-${Date.now()}-${Math.random().toString(16).slice(2)}`,
-      treeId: result.treeId || 'Sin nombre',
+      treeId: result.treeId,
       date: result.date,
       notes: result.notes,
       method: result.method,
-      methodLabel: result.methodLabel,
       distance: result.distance,
       clinometerPercent: result.clinometerPercent,
       terrainSlopePercent: result.terrainSlopePercent,
@@ -306,63 +333,84 @@ saveButton.addEventListener('click', () => {
     if (state.editingId) {
       state.measurements = updateMeasurementById(state.editingId, measurement);
       state.editingId = null;
-      saveButton.textContent = 'Guardar árbol';
-      showSuccess('La medición se ha actualizado correctamente.');
+      setLocalizedText(saveButton, 'action.save');
+      showSuccess('message.measurementUpdated');
     } else {
       state.measurements = addMeasurement(measurement);
-      showSuccess('La medición se ha guardado correctamente.');
+      showSuccess('message.measurementSaved');
     }
 
     renderTable();
   } catch (error) {
-    showError(error.message);
+    showError(error);
   }
 });
 
 exportButton.addEventListener('click', () => {
   if (!state.measurements.length) {
-    showError('No hay mediciones guardadas para exportar.');
+    showError('message.noMeasurementsToExport');
     return;
   }
 
   try {
     const fileName = exportMeasurementsToXlsx(state.measurements);
-    showSuccess(`Archivo exportado correctamente: ${fileName}`);
+    showSuccess('message.exportSuccess', { fileName });
   } catch (error) {
-    showError(error.message);
+    showError(error);
   }
 });
 
 function renderTable() {
   if (!state.measurements.length) {
-    tableBody.innerHTML = '<tr><td colspan="11" class="empty-state">Todavía no hay árboles guardados.</td></tr>';
+    const row = document.createElement('tr');
+    const cell = document.createElement('td');
+    cell.colSpan = 11;
+    cell.className = 'empty-state';
+    cell.textContent = t('table.empty');
+    row.append(cell);
+    tableBody.replaceChildren(row);
     return;
   }
 
-  tableBody.innerHTML = state.measurements
-    .map(
-      (entry) => `
-        <tr>
-          <td>${entry.treeId || 'Sin nombre'}</td>
-          <td>${entry.date || '—'}</td>
-          <td>${entry.methodLabel || '—'}</td>
-          <td>${formatMeters(entry.distance)}</td>
-          <td>${formatPercent(entry.clinometerPercent)}</td>
-          <td>${formatPercent(entry.terrainSlopePercent)}</td>
-          <td>${formatMeters(entry.observerHeight)}</td>
-          <td>${formatMeters(entry.estimatedHeight)}</td>
-          <td>${formatCoordinate(entry.latitude)}</td>
-          <td>${formatCoordinate(entry.longitude)}</td>
-          <td>
-            <div class="action-buttons">
-              <button class="icon-button" type="button" data-action="edit" data-id="${entry.id}">Editar</button>
-              <button class="icon-button" type="button" data-action="delete" data-id="${entry.id}">Eliminar</button>
-            </div>
-          </td>
-        </tr>
-      `,
-    )
-    .join('');
+  const fragment = document.createDocumentFragment();
+  for (const entry of state.measurements) {
+    const row = document.createElement('tr');
+    const values = [
+      entry.treeId || t('table.unnamedTree'),
+      entry.date ? i18n.formatDate(entry.date) : t('common.notAvailable'),
+      entry.method === 'horizontal' ? t('distance.horizontal') : t('distance.slope'),
+      formatMeters(entry.distance),
+      formatPercent(entry.clinometerPercent),
+      formatPercent(entry.terrainSlopePercent),
+      formatMeters(entry.observerHeight),
+      formatMeters(entry.estimatedHeight),
+      formatCoordinate(entry.latitude),
+      formatCoordinate(entry.longitude),
+    ];
+    for (const value of values) {
+      const cell = document.createElement('td');
+      cell.textContent = value;
+      row.append(cell);
+    }
+
+    const actionsCell = document.createElement('td');
+    const actions = document.createElement('div');
+    actions.className = 'action-buttons';
+    for (const [action, key] of [['edit', 'action.edit'], ['delete', 'action.delete']]) {
+      const button = document.createElement('button');
+      button.className = 'icon-button';
+      button.type = 'button';
+      button.dataset.action = action;
+      button.dataset.id = entry.id;
+      button.dataset.i18n = key;
+      button.textContent = t(key);
+      actions.append(button);
+    }
+    actionsCell.append(actions);
+    row.append(actionsCell);
+    fragment.append(row);
+  }
+  tableBody.replaceChildren(fragment);
 }
 
 tableBody.addEventListener('click', (event) => {
@@ -376,14 +424,14 @@ tableBody.addEventListener('click', (event) => {
   if (action === 'delete') {
     state.measurements = deleteMeasurementById(id);
     renderTable();
-    showSuccess('La medición ha sido eliminada.');
+    showSuccess('message.measurementDeleted');
     return;
   }
 
   if (action === 'edit') {
     locationWasAdjusted = true;
     state.editingId = id;
-    saveButton.textContent = 'Actualizar árbol';
+    setLocalizedText(saveButton, 'action.update');
     document.getElementById('treeId').value = target.treeId || '';
     document.getElementById('measurementDate').value = target.date || new Date().toISOString().slice(0, 10);
     document.getElementById('notes').value = target.notes || '';
@@ -402,4 +450,17 @@ tableBody.addEventListener('click', (event) => {
   }
 });
 
+languageSelect.addEventListener('change', () => {
+  i18n.setLanguage(languageSelect.value);
+  locationMap?.setLanguage();
+  renderTable();
+  if (state.lastResult) renderResult(state.lastResult);
+  if (state.editingId) {
+    setLocalizedText(saveButton, 'action.update');
+  } else {
+    setLocalizedText(saveButton, 'action.save');
+  }
+});
+
 renderTable();
+resultValue.textContent = formatMeters(0);
