@@ -7,8 +7,10 @@
     <title>Calculadora de altura de árboles</title>
     <meta name="description" content="Calcula la altura de árboles a partir de mediciones con clinómetro." />
     <link rel="icon" type="image/svg+xml" href="./assets/favicon.svg" />
-    <link rel="stylesheet" href="./css/styles.css?v=2" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="./css/styles.css?v=3" />
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
     <script type="module" src="./js/app.js" defer></script>
   </head>
   <body>
@@ -96,7 +98,7 @@
           <fieldset>
             <legend>Localización del árbol</legend>
 
-            <p class="location-help">Sitúate junto a la base del árbol antes de capturar la ubicación. La precisión depende del dispositivo y de la señal GPS.</p>
+            <p class="location-help">Al abrir la aplicación se intentará centrar el mapa en tu ubicación; el navegador puede solicitar permiso. Sitúate junto a la base del árbol. La precisión depende del dispositivo y de la señal GPS.</p>
             <button id="getLocationButton" class="secondary-button location-button" type="button">Obtener ubicación GPS</button>
             <p id="locationStatus" class="location-status" role="status" aria-live="polite">La ubicación es opcional. Puedes introducir las coordenadas manualmente.</p>
 
@@ -111,6 +113,11 @@
                 <input id="longitude" name="longitude" type="text" inputmode="decimal" autocomplete="off" placeholder="Ej. -3,7038" />
               </label>
             </div>
+
+            <p class="location-help map-help">Acércate a la zona, haz clic para colocar el punto y arrastra el marcador para ajustarlo. También puedes editar las coordenadas directamente.</p>
+            <div id="locationMap" class="location-map" role="region" aria-label="Mapa interactivo para seleccionar la ubicación del árbol"></div>
+            <p id="mapStatus" class="location-status" role="status" aria-live="polite">El mapa muestra el punto seleccionado cuando hay coordenadas.</p>
+            <p class="map-attribution">Mapa © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap contributors</a>. Las teselas se cargan desde sus servidores.</p>
           </fieldset>
 
           <div class="form-actions">
@@ -176,6 +183,8 @@
               <th>Pendiente</th>
               <th>Altura instrumento</th>
               <th>Altura calculada</th>
+              <th>Latitud</th>
+              <th>Longitud</th>
               <th>Acciones</th>
             </tr>
           </thead>

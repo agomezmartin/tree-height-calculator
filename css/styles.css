@@ -221,6 +221,29 @@ input[type='radio']:focus {
   opacity: 0.7;
 }
 
+.map-help {
+  margin-top: 0.8rem;
+}
+
+.location-map {
+  height: 320px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #e8efea;
+}
+
+.map-attribution {
+  margin: 0.45rem 0 0;
+  color: var(--muted);
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
+.map-attribution a {
+  color: var(--primary-strong);
+}
+
 .form-actions {
   display: flex;
   flex-wrap: wrap;

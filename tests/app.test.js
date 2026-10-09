@@ -7,17 +7,30 @@ test('el formulario guarda mediciones con y sin GPS, conserva y permite actualiz
   const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
   const dom = new JSDOM(html, { url: 'https://example.test/' });
   const previousNavigator = Object.getOwnPropertyDescriptor(globalThis, 'navigator');
+  let initialGpsRequest;
   globalThis.window = dom.window;
   globalThis.document = dom.window.document;
   globalThis.localStorage = dom.window.localStorage;
   Object.defineProperty(globalThis, 'navigator', {
     configurable: true,
-    value: dom.window.navigator,
+    value: {
+      geolocation: {
+        getCurrentPosition(_success, error, options) {
+          initialGpsRequest = options;
+          error({ code: 1 });
+        },
+      },
+    },
   });
 
   try {
     await import(`../js/app.js?integration=${Date.now()}`);
     const { document } = dom.window;
+    assert.deepEqual(initialGpsRequest, {
+      enableHighAccuracy: true,
+      timeout: 15000,
+      maximumAge: 0,
+    });
     const setRequiredMeasurements = () => {
       document.getElementById('distance').value = '20';
       document.getElementById('clinometerPercent').value = '80';
@@ -35,6 +48,9 @@ test('el formulario guarda mediciones con y sin GPS, conserva y permite actualiz
     assert.equal(measurements[0].latitude, null);
     assert.equal(measurements[0].longitude, null);
     assert.ok(Math.abs(measurements[0].estimatedHeight - 17.7) < 1e-9);
+    const noGpsCells = [...document.querySelector('#measurementTableBody tr').cells];
+    assert.equal(noGpsCells[8].textContent, '—');
+    assert.equal(noGpsCells[9].textContent, '—');
 
     setRequiredMeasurements();
     document.getElementById('treeId').value = 'Con GPS';
@@ -45,6 +61,10 @@ test('el formulario guarda mediciones con y sin GPS, conserva y permite actualiz
     const withGps = measurements.find((entry) => entry.treeId === 'Con GPS');
     assert.equal(withGps.latitude, 40.123456789);
     assert.equal(withGps.longitude, -3.987654321);
+    const gpsRow = [...document.querySelectorAll('#measurementTableBody tr')]
+      .find((row) => row.cells[0].textContent === 'Con GPS');
+    assert.equal(gpsRow.cells[8].textContent, '40,123456789');
+    assert.equal(gpsRow.cells[9].textContent, '-3,987654321');
 
     document.querySelector(`[data-action="edit"][data-id="${withGps.id}"]`).click();
     document.getElementById('notes').value = 'Notas editadas';
@@ -54,6 +74,10 @@ test('el formulario guarda mediciones con y sin GPS, conserva y permite actualiz
     assert.equal(edited.latitude, 40.123456789);
     assert.equal(edited.longitude, -3.987654321);
     assert.equal(edited.notes, 'Notas editadas');
+    const editedRow = [...document.querySelectorAll('#measurementTableBody tr')]
+      .find((row) => row.cells[0].textContent === 'Con GPS');
+    assert.equal(editedRow.cells[8].textContent, '40,123456789');
+    assert.equal(editedRow.cells[9].textContent, '-3,987654321');
 
     document.querySelector(`[data-action="edit"][data-id="${withGps.id}"]`).click();
     document.getElementById('latitude').value = '0';

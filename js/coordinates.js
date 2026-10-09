@@ -6,6 +6,8 @@ export const GPS_OPTIONS = Object.freeze({
   maximumAge: 0,
 });
 
+export const DEFAULT_MAP_VIEW = Object.freeze([20, 0]);
+
 export function validateCoordinates({ latitude, longitude }) {
   const latitudeMissing = latitude === null || latitude === undefined || String(latitude).trim() === '';
   const longitudeMissing = longitude === null || longitude === undefined || String(longitude).trim() === '';
@@ -30,6 +32,102 @@ export function validateCoordinates({ latitude, longitude }) {
   }
 
   return { latitude: parsedLatitude, longitude: parsedLongitude };
+}
+
+export function createCoordinateMap({
+  element,
+  leaflet,
+  latitudeInput,
+  longitudeInput,
+  onSelect = () => {},
+  onMapError = () => {},
+}) {
+  if (!leaflet?.map || !leaflet?.tileLayer || !leaflet?.marker || !leaflet?.control?.zoom) {
+    throw new Error('No se pudo cargar el mapa. Puedes seguir usando el GPS o introducir las coordenadas manualmente.');
+  }
+
+  const map = leaflet.map(element, { scrollWheelZoom: false, zoomControl: false }).setView(DEFAULT_MAP_VIEW, 2);
+  leaflet.control.zoom({
+    zoomInTitle: 'Acercar mapa',
+    zoomOutTitle: 'Alejar mapa',
+  }).addTo(map);
+  leaflet
+    .tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    })
+    .on('tileerror', () => {
+      onMapError('No se pudieron cargar algunas teselas del mapa. Comprueba la conexión o continúa con las coordenadas manuales.');
+    })
+    .addTo(map);
+
+  let selectedMarker = null;
+
+  const setCoordinates = (coordinates, { center = true } = {}) => {
+    const validated = validateCoordinates(coordinates);
+
+    if (validated.latitude === null) {
+      if (selectedMarker) {
+        map.removeLayer(selectedMarker);
+        selectedMarker = null;
+      }
+      return validated;
+    }
+
+    const position = [validated.latitude, validated.longitude];
+    latitudeInput.value = String(validated.latitude);
+    longitudeInput.value = String(validated.longitude);
+
+    if (selectedMarker) {
+      selectedMarker.setLatLng(position);
+    } else {
+      selectedMarker = leaflet.marker(position, { draggable: true }).addTo(map);
+      selectedMarker.on('dragend', () => {
+        const markerPosition = selectedMarker.getLatLng();
+        const nextCoordinates = validateCoordinates({
+          latitude: markerPosition.lat,
+          longitude: markerPosition.lng,
+        });
+        latitudeInput.value = String(nextCoordinates.latitude);
+        longitudeInput.value = String(nextCoordinates.longitude);
+        onSelect(nextCoordinates);
+      });
+    }
+
+    if (center) {
+      map.setView(position, Math.max(map.getZoom(), 15));
+    }
+
+    return validated;
+  };
+
+  map.on('click', (event) => {
+    const coordinates = setCoordinates({
+      latitude: event.latlng.lat,
+      longitude: event.latlng.lng,
+    }, { center: false });
+    onSelect(coordinates);
+  });
+
+  const handleFieldChange = () => {
+    try {
+      const coordinates = validateCoordinates({
+        latitude: latitudeInput.value,
+        longitude: longitudeInput.value,
+      });
+      setCoordinates(coordinates, { center: coordinates.latitude !== null });
+    } catch {
+      return;
+    }
+  };
+
+  latitudeInput.addEventListener('change', handleFieldChange);
+  longitudeInput.addEventListener('change', handleFieldChange);
+
+  return {
+    map,
+    setCoordinates,
+  };
 }
 
 function getPositionErrorMessage(error) {
@@ -70,7 +168,51 @@ export function captureGpsCoordinates(geolocation) {
   });
 }
 
-export function bindGpsCapture({ button, status, latitudeInput, longitudeInput, geolocation }) {
+export async function locateUserOnLoad({
+  button,
+  status,
+  latitudeInput,
+  longitudeInput,
+  geolocation,
+  onCoordinates = () => {},
+  shouldApply = () => true,
+}) {
+  button.disabled = true;
+  status.textContent = 'Buscando tu ubicación para centrar el mapa…';
+  status.dataset.state = 'loading';
+
+  try {
+    const coordinates = await captureGpsCoordinates(geolocation);
+
+    if (!shouldApply()) {
+      status.textContent = 'No se aplicó la ubicación automática porque ya modificaste o guardaste la localización.';
+      status.dataset.state = 'success';
+      return null;
+    }
+
+    latitudeInput.value = String(coordinates.latitude);
+    longitudeInput.value = String(coordinates.longitude);
+    onCoordinates(coordinates);
+    status.textContent = 'Mapa centrado en tu ubicación. Puedes ajustar el punto antes de guardar.';
+    status.dataset.state = 'success';
+    return coordinates;
+  } catch (error) {
+    status.textContent = `No se pudo centrar automáticamente. ${error.message} Puedes intentarlo con el botón GPS.`;
+    status.dataset.state = 'error';
+    return null;
+  } finally {
+    button.disabled = false;
+  }
+}
+
+export function bindGpsCapture({
+  button,
+  status,
+  latitudeInput,
+  longitudeInput,
+  geolocation,
+  onCoordinates = () => {},
+}) {
   const handleCapture = async () => {
     if (button.disabled) {
       return;
@@ -85,6 +227,7 @@ export function bindGpsCapture({ button, status, latitudeInput, longitudeInput, 
       const coordinates = await captureGpsCoordinates(geolocation);
       latitudeInput.value = String(coordinates.latitude);
       longitudeInput.value = String(coordinates.longitude);
+      onCoordinates(coordinates);
       status.textContent = 'Ubicación capturada. Revisa las coordenadas antes de guardar.';
       status.dataset.state = 'success';
     } catch (error) {

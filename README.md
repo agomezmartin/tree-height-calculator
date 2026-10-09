@@ -40,15 +40,15 @@ http://localhost:8000
 
 ## Localización GPS
 
-En «Localización del árbol», sitúate junto a la base del árbol y pulsa «Obtener ubicación GPS». El navegador puede solicitar permiso; la aplicación pide una captura puntual de alta precisión y no mantiene el GPS activo. También puedes introducir o corregir manualmente la latitud y la longitud en grados decimales, con punto o coma decimal.
+Al abrir la aplicación, se solicita una captura puntual de GPS para centrar el mapa en tu ubicación; el navegador puede pedir permiso. No se mantiene el GPS activo. Si la captura automática falla, puedes reintentarlo con «Obtener ubicación GPS». El mapa interactivo permite colocar el punto con un clic y ajustarlo arrastrando el marcador. También puedes introducir o corregir manualmente la latitud y la longitud en grados decimales, con punto o coma decimal; el mapa se centra en el punto al confirmar los campos. Si modificas las coordenadas o guardas antes de que termine la captura inicial, la posición automática tardía no sobrescribirá tu selección.
 
 Las coordenadas son opcionales: denegar el permiso, no disponer de señal o usar un navegador sin geolocalización no impide calcular ni guardar una medición. Si se introduce una coordenada, ambas son obligatorias. La latitud debe estar entre -90 y 90 y la longitud entre -180 y 180; `0, 0` es una posición válida. Los registros anteriores, que no incluyen estos campos, siguen siendo compatibles y se exportan con las celdas de ubicación vacías.
 
-La posición representa la ubicación estimada por el dispositivo al capturarla, no una garantía de que sea exactamente la base del árbol. La precisión depende del equipo y de las condiciones de recepción y puede empeorar bajo la cubierta forestal. La aplicación requiere un contexto seguro (HTTPS o `localhost`) y el permiso del usuario. No transmite las coordenadas a ningún servicio externo.
+La posición representa la ubicación estimada por el dispositivo al capturarla, no una garantía de que sea exactamente la base del árbol. La precisión depende del equipo y de las condiciones de recepción y puede empeorar bajo la cubierta forestal. La aplicación requiere un contexto seguro (HTTPS o `localhost`) y el permiso del usuario. La cartografía usa Leaflet y teselas de OpenStreetMap: sus servidores reciben solicitudes para las áreas visibles del mapa y pueden inferir aproximadamente la zona consultada. Las coordenadas no se envían como datos de la medición; la carga de teselas puede revelar la zona mostrada. Se necesita conexión a Internet para ver el mapa. La atribución de OpenStreetMap aparece junto al mapa.
 
 ### Comprobación de permisos
 
-En Chrome, abre los controles de información del sitio junto a la dirección y permite la ubicación para el sitio de pruebas. Si ya se denegó, cambia ese permiso y vuelve a cargar la página. La API solo se consulta cuando se pulsa el botón de captura.
+En Chrome, abre los controles de información del sitio junto a la dirección y permite la ubicación para el sitio de pruebas. Si ya se denegó, cambia ese permiso y vuelve a cargar la página. La aplicación solicita la ubicación una vez al abrirse y permite repetir la captura con el botón GPS; nunca usa seguimiento continuo. Si se deniega o no hay señal, el mapa y la entrada manual siguen disponibles.
 
 ### Prueba segura en móvil
 
@@ -167,7 +167,7 @@ La aplicación genera un archivo `.xlsx` con todas las columnas útiles para aud
 
 La exportación usa SheetJS en el navegador y no requiere ningún backend.
 
-La hoja también contiene las columnas numéricas `Latitud` y `Longitud` en grados decimales. Conservan la precisión almacenada; si un registro no tiene ubicación, ambas celdas quedan vacías. Las demás columnas y los registros antiguos se mantienen.
+La tabla de registros muestra las columnas `Latitud` y `Longitud` en grados decimales antes de exportar. La hoja Excel también incluye ambas columnas numéricas y conserva la precisión almacenada; si un registro no tiene ubicación, la tabla muestra `—` y las celdas quedan vacías. Las demás columnas y los registros antiguos se mantienen.
 
 ## Limitaciones del método
 

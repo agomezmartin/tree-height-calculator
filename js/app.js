@@ -9,7 +9,12 @@ import {
 } from './calculator.js';
 import { addMeasurement, deleteMeasurementById, getMeasurements, updateMeasurementById } from './storage.js';
 import { exportMeasurementsToXlsx } from './excel.js';
-import { bindGpsCapture, validateCoordinates } from './coordinates.js';
+import {
+  bindGpsCapture,
+  createCoordinateMap,
+  locateUserOnLoad,
+  validateCoordinates,
+} from './coordinates.js';
 
 const form = document.getElementById('measurementForm');
 const resultValue = document.getElementById('treeHeightResult');
@@ -22,6 +27,7 @@ const saveButton = document.getElementById('saveButton');
 const exportButton = document.getElementById('exportButton');
 const latitudeInput = document.getElementById('latitude');
 const longitudeInput = document.getElementById('longitude');
+const mapStatus = document.getElementById('mapStatus');
 
 const state = {
   measurements: getMeasurements(),
@@ -29,12 +35,57 @@ const state = {
   lastResult: null,
 };
 
+let locationWasAdjusted = false;
+latitudeInput.addEventListener('input', () => {
+  locationWasAdjusted = true;
+});
+longitudeInput.addEventListener('input', () => {
+  locationWasAdjusted = true;
+});
+
+let locationMap;
+try {
+  locationMap = createCoordinateMap({
+    element: document.getElementById('locationMap'),
+    leaflet: window.L,
+    latitudeInput,
+    longitudeInput,
+    onSelect: () => {
+      locationWasAdjusted = true;
+      mapStatus.textContent = 'Punto seleccionado. Puedes arrastrar el marcador o editar las coordenadas.';
+      mapStatus.dataset.state = 'success';
+    },
+    onMapError: (message) => {
+      mapStatus.textContent = message;
+      mapStatus.dataset.state = 'error';
+    },
+  });
+} catch (error) {
+  mapStatus.textContent = error.message;
+  mapStatus.dataset.state = 'error';
+}
+
+const getLocationButton = document.getElementById('getLocationButton');
+const locationStatus = document.getElementById('locationStatus');
+const updateMapLocation = (coordinates) => locationMap?.setCoordinates(coordinates);
+
 bindGpsCapture({
-  button: document.getElementById('getLocationButton'),
-  status: document.getElementById('locationStatus'),
+  button: getLocationButton,
+  status: locationStatus,
   latitudeInput,
   longitudeInput,
   geolocation: navigator.geolocation,
+  onCoordinates: updateMapLocation,
+});
+
+void locateUserOnLoad({
+  button: getLocationButton,
+  status: locationStatus,
+  latitudeInput,
+  longitudeInput,
+  geolocation: navigator.geolocation,
+  onCoordinates: updateMapLocation,
+  shouldApply: () => !locationWasAdjusted,
 });
 
 measurementDateInput.value = new Date().toISOString().slice(0, 10);
@@ -61,6 +112,16 @@ function formatDegrees(value) {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   })} °`;
+}
+
+function formatCoordinate(value) {
+  if (value === null || value === undefined || value === '') return '—';
+  const coordinate = Number(value);
+  if (!Number.isFinite(coordinate)) return '—';
+  return coordinate.toLocaleString('es-ES', {
+    useGrouping: false,
+    maximumFractionDigits: 15,
+  });
 }
 
 function clearError() {
@@ -216,6 +277,7 @@ form.addEventListener('submit', (event) => {
 
 saveButton.addEventListener('click', () => {
   try {
+    locationWasAdjusted = true;
     const result = buildMeasurementResult();
     const coordinates = validateCoordinates({
       latitude: latitudeInput.value,
@@ -273,7 +335,7 @@ exportButton.addEventListener('click', () => {
 
 function renderTable() {
   if (!state.measurements.length) {
-    tableBody.innerHTML = '<tr><td colspan="9" class="empty-state">Todavía no hay árboles guardados.</td></tr>';
+    tableBody.innerHTML = '<tr><td colspan="11" class="empty-state">Todavía no hay árboles guardados.</td></tr>';
     return;
   }
 
@@ -289,6 +351,8 @@ function renderTable() {
           <td>${formatPercent(entry.terrainSlopePercent)}</td>
           <td>${formatMeters(entry.observerHeight)}</td>
           <td>${formatMeters(entry.estimatedHeight)}</td>
+          <td>${formatCoordinate(entry.latitude)}</td>
+          <td>${formatCoordinate(entry.longitude)}</td>
           <td>
             <div class="action-buttons">
               <button class="icon-button" type="button" data-action="edit" data-id="${entry.id}">Editar</button>
@@ -317,6 +381,7 @@ tableBody.addEventListener('click', (event) => {
   }
 
   if (action === 'edit') {
+    locationWasAdjusted = true;
     state.editingId = id;
     saveButton.textContent = 'Actualizar árbol';
     document.getElementById('treeId').value = target.treeId || '';
@@ -329,6 +394,10 @@ tableBody.addEventListener('click', (event) => {
     document.getElementById('observerHeight').value = target.observerHeight ?? '';
     latitudeInput.value = target.latitude ?? '';
     longitudeInput.value = target.longitude ?? '';
+    locationMap?.setCoordinates({
+      latitude: target.latitude ?? null,
+      longitude: target.longitude ?? null,
+    });
     calculateAndRender();
   }
 });
