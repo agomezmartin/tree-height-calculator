@@ -9,6 +9,7 @@ import {
 } from './calculator.js';
 import { addMeasurement, deleteMeasurementById, getMeasurements, updateMeasurementById } from './storage.js';
 import { exportMeasurementsToXlsx } from './excel.js';
+import { bindGpsCapture, validateCoordinates } from './coordinates.js';
 
 const form = document.getElementById('measurementForm');
 const resultValue = document.getElementById('treeHeightResult');
@@ -19,12 +20,22 @@ const tableBody = document.getElementById('measurementTableBody');
 const measurementDateInput = document.getElementById('measurementDate');
 const saveButton = document.getElementById('saveButton');
 const exportButton = document.getElementById('exportButton');
+const latitudeInput = document.getElementById('latitude');
+const longitudeInput = document.getElementById('longitude');
 
 const state = {
   measurements: getMeasurements(),
   editingId: null,
   lastResult: null,
 };
+
+bindGpsCapture({
+  button: document.getElementById('getLocationButton'),
+  status: document.getElementById('locationStatus'),
+  latitudeInput,
+  longitudeInput,
+  geolocation: navigator.geolocation,
+});
 
 measurementDateInput.value = new Date().toISOString().slice(0, 10);
 
@@ -206,6 +217,10 @@ form.addEventListener('submit', (event) => {
 saveButton.addEventListener('click', () => {
   try {
     const result = buildMeasurementResult();
+    const coordinates = validateCoordinates({
+      latitude: latitudeInput.value,
+      longitude: longitudeInput.value,
+    });
     const measurement = {
       id: state.editingId ?? `tree-${Date.now()}-${Math.random().toString(16).slice(2)}`,
       treeId: result.treeId || 'Sin nombre',
@@ -223,6 +238,7 @@ saveButton.addEventListener('click', () => {
       clinometerAngle: result.clinometerAngle,
       terrainAngle: result.terrainAngle,
       methodDescription: result.methodDescription,
+      ...coordinates,
     };
 
     if (state.editingId) {
@@ -311,6 +327,8 @@ tableBody.addEventListener('click', (event) => {
     document.getElementById('clinometerPercent').value = target.clinometerPercent ?? '';
     document.getElementById('terrainSlopePercent').value = target.terrainSlopePercent ?? '';
     document.getElementById('observerHeight').value = target.observerHeight ?? '';
+    latitudeInput.value = target.latitude ?? '';
+    longitudeInput.value = target.longitude ?? '';
     calculateAndRender();
   }
 });

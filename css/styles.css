@@ -188,6 +188,39 @@ input[type='radio']:focus {
   line-height: 1.4;
 }
 
+.location-help,
+.location-status {
+  margin: 0 0 0.7rem;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.location-status {
+  font-size: 0.9rem;
+}
+
+.location-status[data-state='loading'] {
+  color: var(--primary-strong);
+  font-weight: 600;
+}
+
+.location-status[data-state='success'] {
+  color: var(--primary-strong);
+}
+
+.location-status[data-state='error'] {
+  color: var(--error);
+}
+
+.location-button {
+  margin-bottom: 0.7rem;
+}
+
+.location-button:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+
 .form-actions {
   display: flex;
   flex-wrap: wrap;

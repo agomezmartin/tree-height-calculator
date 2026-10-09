@@ -19,6 +19,8 @@ export function exportMeasurementsToXlsx(measurements) {
     'Altura del instrumento (m)': entry.observerHeight ?? '',
     'Altura estimada del árbol (m)': entry.estimatedHeight ?? '',
     'Fórmula / método utilizado': entry.methodDescription || '',
+    Latitud: entry.latitude ?? '',
+    Longitud: entry.longitude ?? '',
   }));
 
   const worksheet = window.XLSX.utils.json_to_sheet(rows);

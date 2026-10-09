@@ -93,6 +93,26 @@
             </div>
           </fieldset>
 
+          <fieldset>
+            <legend>Localización del árbol</legend>
+
+            <p class="location-help">Sitúate junto a la base del árbol antes de capturar la ubicación. La precisión depende del dispositivo y de la señal GPS.</p>
+            <button id="getLocationButton" class="secondary-button location-button" type="button">Obtener ubicación GPS</button>
+            <p id="locationStatus" class="location-status" role="status" aria-live="polite">La ubicación es opcional. Puedes introducir las coordenadas manualmente.</p>
+
+            <div class="field-grid">
+              <label class="field">
+                <span>Latitud (grados decimales)</span>
+                <input id="latitude" name="latitude" type="text" inputmode="decimal" autocomplete="off" placeholder="Ej. 40,4168" />
+              </label>
+
+              <label class="field">
+                <span>Longitud (grados decimales)</span>
+                <input id="longitude" name="longitude" type="text" inputmode="decimal" autocomplete="off" placeholder="Ej. -3,7038" />
+              </label>
+            </div>
+          </fieldset>
+
           <div class="form-actions">
             <button id="calculateButton" class="primary-button" type="submit">Calcular altura</button>
             <button id="saveButton" class="secondary-button" type="button">Guardar árbol</button>

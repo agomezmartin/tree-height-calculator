@@ -9,6 +9,7 @@ Una pequeña aplicación web para calcular la altura de un árbol a partir de me
 - Calcula la altura estimada del árbol usando una formulación geométrica clara y separada por fases.
 - Guarda mediciones localmente con `localStorage` para editar o revisar datos sin depender de un servidor.
 - Exporta los registros a Excel con archivos `.xlsx` para auditoría posterior.
+- Captura opcionalmente las coordenadas GPS de cada árbol y las incluye en la exportación.
 - Está pensada para funcionar en escritorio, tablet y móvil.
 - Incluye una firma discreta con enlace al perfil del desarrollador.
 
@@ -34,6 +35,24 @@ Después visita:
 ```text
 http://localhost:8000
 ```
+
+`localhost` es un contexto seguro reconocido por los navegadores y permite probar la geolocalización. Para probar desde un móvil, utiliza un sitio de pruebas independiente servido mediante HTTPS; no cambies la publicación de GitHub Pages de producción.
+
+## Localización GPS
+
+En «Localización del árbol», sitúate junto a la base del árbol y pulsa «Obtener ubicación GPS». El navegador puede solicitar permiso; la aplicación pide una captura puntual de alta precisión y no mantiene el GPS activo. También puedes introducir o corregir manualmente la latitud y la longitud en grados decimales, con punto o coma decimal.
+
+Las coordenadas son opcionales: denegar el permiso, no disponer de señal o usar un navegador sin geolocalización no impide calcular ni guardar una medición. Si se introduce una coordenada, ambas son obligatorias. La latitud debe estar entre -90 y 90 y la longitud entre -180 y 180; `0, 0` es una posición válida. Los registros anteriores, que no incluyen estos campos, siguen siendo compatibles y se exportan con las celdas de ubicación vacías.
+
+La posición representa la ubicación estimada por el dispositivo al capturarla, no una garantía de que sea exactamente la base del árbol. La precisión depende del equipo y de las condiciones de recepción y puede empeorar bajo la cubierta forestal. La aplicación requiere un contexto seguro (HTTPS o `localhost`) y el permiso del usuario. No transmite las coordenadas a ningún servicio externo.
+
+### Comprobación de permisos
+
+En Chrome, abre los controles de información del sitio junto a la dirección y permite la ubicación para el sitio de pruebas. Si ya se denegó, cambia ese permiso y vuelve a cargar la página. La API solo se consulta cuando se pulsa el botón de captura.
+
+### Prueba segura en móvil
+
+La geolocalización necesita HTTPS en el móvil. Para evitar publicar una rama experimental sobre el sitio de producción, despliega la rama en un sitio GitHub Pages de pruebas separado (por ejemplo, en un repositorio de staging con su propio dominio) o en otro alojamiento HTTPS de pruebas. Este repositorio no configura un despliegue de previsualización: su workflow actual publica desde `main`. No cambies esa configuración ni apuntes Pages a `feature/coordinates-import`. Al terminar la validación, integra los cambios mediante una pull request a `main`; el despliegue de producción seguirá el flujo existente.
 
 ## Cómo desplegarla en GitHub Pages
 
@@ -148,6 +167,8 @@ La aplicación genera un archivo `.xlsx` con todas las columnas útiles para aud
 
 La exportación usa SheetJS en el navegador y no requiere ningún backend.
 
+La hoja también contiene las columnas numéricas `Latitud` y `Longitud` en grados decimales. Conservan la precisión almacenada; si un registro no tiene ubicación, ambas celdas quedan vacías. Las demás columnas y los registros antiguos se mantienen.
+
 ## Limitaciones del método
 
 - El método asume una medición razonablemente aproximada y una visión clara de la copa.
@@ -172,10 +193,14 @@ calculadora-arboricultura/
 ├── js/
 │   ├── app.js
 │   ├── calculator.js
+│   ├── coordinates.js
 │   ├── storage.js
 │   └── excel.js
 ├── tests/
-│   └── calculator.test.js
+│   ├── calculator.test.js
+│   ├── coordinates.test.js
+│   ├── storage.test.js
+│   └── excel.test.js
 ├── .github/
 │   └── workflows/
 │       └── deploy-pages.yml
@@ -188,6 +213,8 @@ calculadora-arboricultura/
 ```bash
 npm test
 ```
+
+Los tests usan el ejecutor integrado `node:test` y mocks de la API GPS, almacenamiento y SheetJS; no requieren un dispositivo con GPS ni permisos reales. Cubren validación y límites de coordenadas, captura y errores, y persistencia/exportación opcionales. No verifican la precisión real del GPS de un dispositivo.
 
 ## Consideraciones de accesibilidad y responsive
 
