@@ -30,15 +30,15 @@ body {
 }
 
 
-/* Color del texto seleccionado */
+
+/* Selección de texto: verde bosque */
 ::selection {
-  background-color:  rgba(31, 111, 67, 0.24);
+  background-color: #164d32;
   color: #ffffff;
 }
 
-/* Compatibilidad con Firefox */
 ::-moz-selection {
-  background-color:  rgba(31, 111, 67, 0.24);
+  background-color: #164d32;
   color: #ffffff;
 }
 
