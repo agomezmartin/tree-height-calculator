@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#123b2a"/>
+      <stop offset="1" stop-color="#1f6f43"/>
+    </linearGradient>
+    <linearGradient id="canopy" x1="0" y1="0" x2="0.9" y2="1">
+      <stop offset="0" stop-color="#c8e4c2"/>
+      <stop offset="1" stop-color="#75ae79"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#background)"/>
+  <circle cx="1010" cy="120" r="210" fill="#ffffff" opacity=".035"/>
+  <circle cx="1070" cy="145" r="140" fill="#ffffff" opacity=".035"/>
+  <path d="M0 510 Q220 465 420 510 T840 500 T1200 505 V630 H0Z" fill="#0c3022" opacity=".7"/>
+
+  <g fill="none" stroke="#d3e8cf" stroke-linecap="round" opacity=".82">
+    <path d="M790 500 1050 145" stroke-width="4" stroke-dasharray="13 13"/>
+    <path d="M790 500H1050" stroke-width="3" opacity=".75"/>
+    <path d="M824 500 A34 34 0 0 0 815 478" stroke-width="4"/>
+  </g>
+  <g fill="#e8f1dd">
+    <circle cx="790" cy="500" r="9"/>
+    <circle cx="1050" cy="145" r="9"/>
+  </g>
+  <g aria-label="Tree and clinometer illustration">
+    <path d="M922 500h61l-10-170h-42z" fill="#b27b4f"/>
+    <path d="m953 70 83 120h-48l91 112h-58l90 111H819l88-111h-60l92-112h-48z" fill="url(#canopy)"/>
+    <path d="m945 240-67-38m81 119 87-57m-102 5-90-50" fill="none" stroke="#d8ebce" stroke-width="11" stroke-linecap="round" opacity=".55"/>
+  </g>
+  <g transform="translate(746 454) rotate(-29)">
+    <rect width="78" height="45" rx="12" fill="#f1f5e9"/>
+    <rect x="15" y="10" width="47" height="25" rx="5" fill="#275b3d"/>
+    <circle cx="39" cy="22.5" r="8" fill="#d6e8cd"/>
+    <path d="M67 14h12v17H67" fill="#c3d9bd"/>
+  </g>
+  <g fill="#d4e6cd">
+    <path d="M795 492 807 481l8 19z"/>
+  </g>
+
+  <g font-family="Arial, Helvetica, sans-serif">
+    <text x="82" y="128" fill="#c5dfc0" font-size="22" font-weight="700" letter-spacing="4">HERRAMIENTA DE CAMPO</text>
+    <text x="78" y="235" fill="#fff" font-size="68" font-weight="700">Altura de</text>
+    <text x="78" y="315" fill="#fff" font-size="68" font-weight="700">árboles</text>
+    <path d="M82 355h90" stroke="#badaaa" stroke-width="7" stroke-linecap="round"/>
+    <text x="82" y="410" fill="#e2eee0" font-size="27">Calcula con clinómetro o registra</text>
+    <text x="82" y="450" fill="#e2eee0" font-size="27">una altura conocida.</text>
+    <rect x="82" y="500" width="365" height="56" rx="28" fill="#ffffff" opacity=".12"/>
+    <circle cx="111" cy="528" r="7" fill="#c1dda9"/>
+    <text x="132" y="537" fill="#eef5e9" font-size="19" font-weight="600">MEDICIÓN ARBORÍCOLA</text>
+  </g>
+</svg>

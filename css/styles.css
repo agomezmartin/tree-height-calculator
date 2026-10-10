@@ -29,6 +29,19 @@ body {
   color: var(--text);
 }
 
+
+
+/* Selección de texto: verde bosque */
+::selection {
+  background-color: #164d32;
+  color: #ffffff;
+}
+
+::-moz-selection {
+  background-color: #164d32;
+  color: #ffffff;
+}
+
 button,
 input,
 textarea {
