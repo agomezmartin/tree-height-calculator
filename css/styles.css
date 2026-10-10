@@ -29,6 +29,19 @@ body {
   color: var(--text);
 }
 
+
+/* Color del texto seleccionado */
+::selection {
+  background-color:  rgba(31, 111, 67, 0.24);
+  color: #ffffff;
+}
+
+/* Compatibilidad con Firefox */
+::-moz-selection {
+  background-color:  rgba(31, 111, 67, 0.24);
+  color: #ffffff;
+}
+
 button,
 input,
 textarea {
