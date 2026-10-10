@@ -115,6 +115,7 @@ export const entries = [
   ['message.measurementUpdated', 'Measurement updated successfully.'],
   ['message.measurementSaved', 'Measurement saved successfully.'],
   ['message.measurementDeleted', 'Measurement deleted.'],
+  ['message.confirmDelete', 'Are you sure you want to delete the record for “{treeName}”? This action cannot be undone.'],
   ['message.noMeasurementsToExport', 'There are no saved measurements to export.'],
   ['message.exportSuccess', 'File exported successfully: {fileName}'],
   ['message.storageError', 'Changes could not be saved. Check the available browser storage.'],

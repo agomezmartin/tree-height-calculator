@@ -115,6 +115,7 @@ export const entries = [
   ['message.measurementUpdated', 'La mesura s’ha actualitzat correctament.'],
   ['message.measurementSaved', 'La mesura s’ha desat correctament.'],
   ['message.measurementDeleted', 'S’ha eliminat la mesura.'],
+  ['message.confirmDelete', 'Segur que vols eliminar el registre de «{treeName}»? Esta acció no es pot desfer.'],
   ['message.noMeasurementsToExport', 'No hi ha mesures desades per exportar.'],
   ['message.exportSuccess', 'Fitxer exportat correctament: {fileName}'],
   ['message.storageError', 'No s’han pogut desar els canvis. Comprova l’espai d’emmagatzematge disponible al navegador.'],

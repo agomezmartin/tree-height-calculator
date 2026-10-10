@@ -107,8 +107,22 @@ test('el formulario guarda mediciones con y sin GPS, conserva y permite actualiz
     assert.equal(cleared.longitude, null);
 
     document.querySelector(`[data-action="edit"][data-id="${withGps.id}"]`).click();
+    const confirmationMessages = [];
+    dom.window.confirm = (message) => {
+      confirmationMessages.push(message);
+      return false;
+    };
+    document.querySelector(`[data-action="delete"][data-id="${withGps.id}"]`).click();
+    assert.equal(getSavedMeasurements().some((entry) => entry.id === withGps.id), true);
+    assert.match(confirmationMessages[0], /Con GPS/);
+
+    dom.window.confirm = (message) => {
+      confirmationMessages.push(message);
+      return true;
+    };
     document.querySelector(`[data-action="delete"][data-id="${withGps.id}"]`).click();
     assert.equal(getSavedMeasurements().some((entry) => entry.id === withGps.id), false);
+    assert.equal(confirmationMessages.length, 2);
 
     const languageSelect = document.getElementById('languageSelect');
     languageSelect.value = 'en';

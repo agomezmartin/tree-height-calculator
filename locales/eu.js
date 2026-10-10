@@ -115,6 +115,7 @@ export const entries = [
   ['message.measurementUpdated', 'Neurketa behar bezala eguneratu da.'],
   ['message.measurementSaved', 'Neurketa behar bezala gorde da.'],
   ['message.measurementDeleted', 'Neurketa ezabatu da.'],
+  ['message.confirmDelete', 'Ziur zaude «{treeName}» erregistroa ezabatu nahi duzula? Ekintza hau ezin da desegin.'],
   ['message.noMeasurementsToExport', 'Ez dago esportatzeko neurketa gorderik.'],
   ['message.exportSuccess', 'Fitxategia behar bezala esportatu da: {fileName}'],
   ['message.storageError', 'Ezin izan dira aldaketak gorde. Egiaztatu nabigatzailean biltegiratzeko lekurik dagoen.'],

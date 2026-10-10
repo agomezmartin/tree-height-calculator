@@ -423,6 +423,8 @@ tableBody.addEventListener('click', (event) => {
   if (!target) return;
 
   if (action === 'delete') {
+    const treeName = target.treeId || t('table.unnamedTree');
+    if (!window.confirm(t('message.confirmDelete', { treeName }))) return;
     state.measurements = deleteMeasurementById(id);
     renderTable();
     showSuccess('message.measurementDeleted');

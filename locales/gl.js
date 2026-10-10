@@ -115,6 +115,7 @@ export const entries = [
   ['message.measurementUpdated', 'A medición actualizouse correctamente.'],
   ['message.measurementSaved', 'A medición gardouse correctamente.'],
   ['message.measurementDeleted', 'Eliminouse a medición.'],
+  ['message.confirmDelete', 'Tes a certeza de que queres eliminar o rexistro de «{treeName}»? Esta acción non se pode desfacer.'],
   ['message.noMeasurementsToExport', 'Non hai medicións gardadas para exportar.'],
   ['message.exportSuccess', 'Ficheiro exportado correctamente: {fileName}'],
   ['message.storageError', 'Non se puideron gardar os cambios. Comproba o espazo de almacenamento dispoñible no navegador.'],
