@@ -71,6 +71,16 @@ La geolocalización necesita HTTPS en el móvil. Para evitar publicar una rama e
 4. Guarda la configuración y espera a que GitHub publique la URL.
 5. La aplicación usa rutas relativas para las hojas de estilo y los scripts, por lo que es compatible con GitHub Pages.
 
+### Vista previa al compartir
+
+La página pública de este repositorio-proyecto es `https://agomezmartin.github.io/tree-height-calculator/`. Los metadatos de Open Graph y Twitter están en el HTML inicial de [index.html](./index.html), con esa URL canónica y la ruta absoluta HTTPS de la imagen bajo `/tree-height-calculator/`. El workflow publica la raíz del repositorio sin compilación, por lo que [assets/social-preview.png](./assets/social-preview.png) se incluye directamente en el artefacto. El SVG fuente editable está en [assets/social-preview.svg](./assets/social-preview.svg); ambos archivos tienen una composición de 1200 × 630 píxeles.
+
+Para cambiar la tarjeta, actualiza el título y la descripción de `index.html` (incluidos `og:title`, `og:description`, `twitter:title` y `twitter:description`) y mantén sincronizados `og:url`, `rel="canonical"` y las URLs de imagen. Edita el SVG para modificar el gráfico y vuelve a exportarlo como PNG de 1200 × 630 en `assets/social-preview.png`; por ejemplo, con Inkscape: `inkscape assets/social-preview.svg --export-filename=assets/social-preview.png --export-width=1200 --export-height=630`. Ejecuta `npm test` para comprobar los metadatos, las rutas del subdirectorio, la existencia y las dimensiones de la imagen. No hay un paso de compilación de producción separado.
+
+Los metadatos estáticos están en español porque los rastreadores suelen leer el HTML sin ejecutar JavaScript. La aplicación puede traducir el título y la descripción normales en el navegador, pero la vista previa social seguirá usando el español estático en todos los idiomas.
+
+Después de publicar, comprueba la URL en [Facebook Sharing Debugger](https://developers.facebook.com/tools/debug/) o [LinkedIn Post Inspector](https://www.linkedin.com/post-inspector/); en otros servicios, vuelve a compartir la URL pública tras verificar que la imagen HTTPS ya se puede abrir. WhatsApp, Telegram y otras plataformas pueden conservar las tarjetas en caché, así que el cambio puede tardar o requerir volver a solicitar la inspección. Las pruebas locales no confirman cómo cada plataforma presenta la tarjeta en producción.
+
 ## Qué significa la lectura porcentual del clinómetro
 
 Un clinómetro puede dar lecturas en porcentaje porque se está midiendo la tangente del ángulo de elevación:
