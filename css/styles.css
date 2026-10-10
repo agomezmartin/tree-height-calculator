@@ -29,17 +29,19 @@ body {
   color: var(--text);
 }
 
-
-
-/* Selección de texto: verde bosque */
+/* Subrayado de selección de texto */
 ::selection {
-  background-color: #164d32;
-  color: #ffffff;
+  background-color: #e6efe9;
+  color: #17312a;
+  text-decoration: underline;
+  text-decoration-color: #164d32;
 }
 
 ::-moz-selection {
-  background-color: #164d32;
-  color: #ffffff;
+  background-color: #e6efe9;
+  color: #17312a;
+  text-decoration: underline;
+  text-decoration-color: #164d32;
 }
 
 button,
