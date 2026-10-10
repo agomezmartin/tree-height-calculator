@@ -213,16 +213,6 @@ export function setLocalizedText(element, key, parameters = {}) {
 }
 
 const errorKeys = new Map([
-    ['Selecciona un método de medición: distancia horizontal o distancia sobre el terreno.', 'validation.distanceMethod'],
-    ['La distancia debe ser un número mayor que 0 y estar expresada en metros.', 'validation.distance'],
-    ['La lectura del clinómetro debe ser un valor numérico válido.', 'validation.clinometer'],
-    ['La pendiente del terreno debe ser un valor numérico válido.', 'validation.slope'],
-    ['La altura del instrumento debe ser un número mayor o igual a 0.', 'validation.observerHeight'],
-    ['La distancia horizontal debe ser un número válido.', 'validation.horizontalDistance'],
-    ['La distancia debe ser un número mayor que 0 para calcular la proyección horizontal.', 'validation.horizontalDistancePositive'],
-    ['La pendiente del terreno debe ser un número válido.', 'validation.slopeValid'],
-    ['La lectura del clinómetro debe ser un número válido.', 'validation.clinometerValid'],
-    ['Método de medición no soportado.', 'validation.methodUnsupported'],
     ['La librería Excel no está disponible.', 'export.errorLibrary'],
     ['Introduce tanto la latitud como la longitud, o deja ambos campos vacíos.', 'gps.coordinatesPairRequired'],
     ['La latitud debe ser un número entre -90 y 90 grados decimales.', 'gps.invalidLatitude'],
@@ -230,6 +220,7 @@ const errorKeys = new Map([
 ]);
 
 export function getErrorTranslationKey(message) {
+  if (i18n.t(message) !== message) return message;
   return errorKeys.get(message) ?? 'message.genericError';
 }
 

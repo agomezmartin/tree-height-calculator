@@ -40,6 +40,20 @@
 
         <form id="measurementForm" novalidate>
           <fieldset>
+            <legend data-i18n="measurement.type"></legend>
+            <div class="radio-group" role="radiogroup" data-i18n-aria-label="measurement.type">
+              <label class="choice">
+                <input type="radio" name="measurementType" value="clinometer" checked />
+                <span><strong data-i18n="measurement.typeClinometer"></strong></span>
+              </label>
+              <label class="choice">
+                <input type="radio" name="measurementType" value="manual" />
+                <span><strong data-i18n="measurement.typeManual"></strong></span>
+              </label>
+            </div>
+          </fieldset>
+
+          <fieldset>
             <legend data-i18n="tree.section"></legend>
 
             <div class="field-grid">
@@ -60,7 +74,15 @@
             </label>
           </fieldset>
 
-          <fieldset>
+          <fieldset id="manualMeasurementFields" hidden>
+            <legend data-i18n="measurement.manualSection"></legend>
+            <label class="field">
+              <span data-i18n="measurement.manualHeight"></span>
+              <input id="manualHeight" name="manualHeight" type="text" inputmode="decimal" autocomplete="off" data-i18n-placeholder="measurement.manualHeightExample" />
+            </label>
+          </fieldset>
+
+          <fieldset id="distanceMethodFields">
             <legend data-i18n="distance.section"></legend>
 
             <div class="radio-group" role="radiogroup" data-i18n-aria-label="distance.groupLabel">
@@ -82,7 +104,7 @@
             </div>
           </fieldset>
 
-          <fieldset>
+          <fieldset id="clinometerMeasurementFields">
             <legend data-i18n="measurement.section"></legend>
 
             <div class="field-grid">
@@ -143,6 +165,7 @@
 
           <div class="form-actions">
             <button id="calculateButton" class="primary-button" type="submit" data-i18n="action.calculate"></button>
+            <button id="calculateManualButton" class="primary-button" type="button" data-i18n="action.showManualHeight" hidden></button>
             <button id="saveButton" class="secondary-button" type="button" data-i18n="action.save"></button>
             <button id="exportButton" class="ghost-button" type="button" data-i18n="action.exportExcel"></button>
           </div>
@@ -195,6 +218,7 @@
           <thead>
             <tr>
               <th data-i18n="table.id"></th>
+              <th data-i18n="table.measurementType"></th>
               <th data-i18n="table.date"></th>
               <th data-i18n="table.method"></th>
               <th data-i18n="table.distance"></th>
@@ -203,7 +227,7 @@
               <th data-i18n="table.instrumentHeight"></th>
               <th data-i18n="table.calculatedHeight"></th>
               <th data-i18n="table.latitude"></th>
-              <th data-i18n="table.longitude"></th>
+                <th data-i18n="table.longitude"></th>
               <th data-i18n="table.actions"></th>
             </tr>
           </thead>

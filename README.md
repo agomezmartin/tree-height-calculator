@@ -14,6 +14,10 @@ Una pequeña aplicación web para calcular la altura de un árbol a partir de me
 - Incluye una firma discreta con enlace al perfil del desarrollador.
 - Permite cambiar la interfaz entre español, inglés, catalán, euskera, gallego y valenciano; el idioma elegido se guarda localmente y también se aplica a la exportación Excel.
 
+## Registrar una altura conocida
+
+Además del cálculo con clinómetro, puedes seleccionar **Introducir altura conocida** y guardar directamente la altura del árbol en metros. Se aceptan punto o coma decimal; el valor debe ser finito y mayor que cero, sin un límite máximo arbitrario. El registro aparece en la misma tabla, identificado por su origen, y se puede editar como cualquier otra medición. En la exportación Excel se conserva la altura como valor numérico y las columnas de medición con clinómetro quedan vacías, ya que no se aplican a este tipo de registro. Los registros antiguos que no tengan un origen guardado siguen considerándose mediciones con clinómetro.
+
 ## Idiomas
 
 La aplicación detecta el idioma del navegador al iniciarse y permite elegir español, inglés, catalán, euskera, gallego o valenciano desde el selector de la cabecera. La preferencia se guarda en el navegador. La guía para mantener las traducciones está en [docs/INTERNATIONALIZATION.md](./docs/INTERNATIONALIZATION.md).
@@ -156,6 +160,7 @@ donde `h_ojo` es la altura del instrumento o de los ojos del observador sobre el
 La aplicación genera un archivo `.xlsx` con todas las columnas útiles para auditar la medición:
 
 - ID del árbol
+- Origen de la altura (clinómetro o altura conocida)
 - Fecha
 - Observaciones
 - Método de medición

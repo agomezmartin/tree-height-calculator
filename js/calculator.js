@@ -3,6 +3,12 @@ export const DISTANCE_METHODS = {
   SLOPE: 'slope',
 };
 
+function createValidationError(translationKey) {
+  const error = new Error(translationKey);
+  error.translationKey = translationKey;
+  return error;
+}
+
 export function parseNumericInput(value) {
   if (value === null || value === undefined || value === '') {
     return Number.NaN;
@@ -28,6 +34,17 @@ export function parseNumericInput(value) {
   return Number(normalized);
 }
 
+export function validateManualHeight(value) {
+  const height = parseNumericInput(value);
+  if (!Number.isFinite(height)) {
+    throw createValidationError('validation.manualHeight');
+  }
+  if (height <= 0) {
+    throw createValidationError('validation.manualHeightPositive');
+  }
+  return height;
+}
+
 export function convertPercentToRadians(percent) {
   return Math.atan(parseNumericInput(percent) / 100);
 }
@@ -48,27 +65,27 @@ export function validateMeasurement({
     : null;
 
   if (!selectedMethod) {
-    throw new Error('Selecciona un método de medición: distancia horizontal o distancia sobre el terreno.');
+    throw createValidationError('validation.distanceMethod');
   }
 
   const numericDistance = parseNumericInput(distance);
   if (!Number.isFinite(numericDistance) || numericDistance <= 0) {
-    throw new Error('La distancia debe ser un número mayor que 0 y estar expresada en metros.');
+    throw createValidationError('validation.distance');
   }
 
   const numericClinometer = parseNumericInput(clinometerPercent);
   if (!Number.isFinite(numericClinometer)) {
-    throw new Error('La lectura del clinómetro debe ser un valor numérico válido.');
+    throw createValidationError('validation.clinometer');
   }
 
   const numericSlope = parseNumericInput(terrainSlopePercent);
   if (!Number.isFinite(numericSlope)) {
-    throw new Error('La pendiente del terreno debe ser un valor numérico válido.');
+    throw createValidationError('validation.slope');
   }
 
   const numericObserverHeight = parseNumericInput(observerHeight);
   if (!Number.isFinite(numericObserverHeight) || numericObserverHeight < 0) {
-    throw new Error('La altura del instrumento debe ser un número mayor o igual a 0.');
+    throw createValidationError('validation.observerHeight');
   }
 
   return {
@@ -83,12 +100,12 @@ export function validateMeasurement({
 export function calculateHorizontalDistance({ method, distance, terrainSlopePercent = 0 }) {
   const numericDistance = parseNumericInput(distance);
   if (!Number.isFinite(numericDistance) || numericDistance <= 0) {
-    throw new Error('La distancia debe ser un número mayor que 0 para calcular la proyección horizontal.');
+    throw createValidationError('validation.horizontalDistancePositive');
   }
 
   const numericSlope = parseNumericInput(terrainSlopePercent);
   if (!Number.isFinite(numericSlope)) {
-    throw new Error('La pendiente del terreno debe ser un número válido.');
+    throw createValidationError('validation.slopeValid');
   }
 
   if (method === DISTANCE_METHODS.HORIZONTAL) {
@@ -99,7 +116,7 @@ export function calculateHorizontalDistance({ method, distance, terrainSlopePerc
     return numericDistance * Math.cos(convertPercentToRadians(numericSlope));
   }
 
-  throw new Error('Método de medición no soportado.');
+  throw createValidationError('validation.methodUnsupported');
 }
 
 export function calculateTerrainElevationDifference(horizontalDistance, terrainSlopePercent) {
@@ -107,11 +124,11 @@ export function calculateTerrainElevationDifference(horizontalDistance, terrainS
   const numericSlope = parseNumericInput(terrainSlopePercent);
 
   if (!Number.isFinite(numericDistance) || numericDistance < 0) {
-    throw new Error('La distancia horizontal debe ser un número válido.');
+    throw createValidationError('validation.horizontalDistance');
   }
 
   if (!Number.isFinite(numericSlope)) {
-    throw new Error('La pendiente del terreno debe ser un número válido.');
+    throw createValidationError('validation.slopeValid');
   }
 
   return numericDistance * (numericSlope / 100);
@@ -122,11 +139,11 @@ export function calculateCrownElevation(horizontalDistance, clinometerPercent) {
   const numericClinometer = parseNumericInput(clinometerPercent);
 
   if (!Number.isFinite(numericDistance) || numericDistance < 0) {
-    throw new Error('La distancia horizontal debe ser un número válido.');
+    throw createValidationError('validation.horizontalDistance');
   }
 
   if (!Number.isFinite(numericClinometer)) {
-    throw new Error('La lectura del clinómetro debe ser un número válido.');
+    throw createValidationError('validation.clinometerValid');
   }
 
   return numericDistance * Math.tan(convertPercentToRadians(numericClinometer));

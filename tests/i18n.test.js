@@ -149,6 +149,14 @@ test('all six language selections return localized interface strings', () => {
     gl: 'Calculadora da altura das árbores',
     'ca-val': 'Calculadora de l’altura dels arbres',
   };
+  const expectedManualHeightActions = {
+    es: 'Mostrar altura introducida',
+    en: 'Show entered height',
+    ca: 'Mostra l’alçària introduïda',
+    eu: 'Erakutsi sartutako altuera',
+    gl: 'Mostrar a altura introducida',
+    'ca-val': 'Mostra l’altura introduïda',
+  };
   const i18n = createI18n({
     navigatorObject: { language: 'es' },
     storage: undefined,
@@ -158,6 +166,7 @@ test('all six language selections return localized interface strings', () => {
   for (const [language, title] of Object.entries(expectedTitles)) {
     assert.equal(i18n.setLanguage(language, { persist: false }), true);
     assert.equal(i18n.t('app.title'), title);
+    assert.equal(i18n.t('action.showManualHeight'), expectedManualHeightActions[language]);
     if (language !== 'es') {
       assert.notEqual(i18n.t('gps.permissionDenied'), dictionaries.es['gps.permissionDenied']);
     }

@@ -5,6 +5,7 @@ import {
   calculateTreeHeight,
   convertPercentToDegrees,
   parseNumericInput,
+  validateManualHeight,
   validateMeasurement,
 } from './calculator.js';
 import { addMeasurement, deleteMeasurementById, getMeasurements, updateMeasurementById } from './storage.js';
@@ -25,18 +26,46 @@ const errorBox = document.getElementById('formError');
 const tableBody = document.getElementById('measurementTableBody');
 const measurementDateInput = document.getElementById('measurementDate');
 const saveButton = document.getElementById('saveButton');
+const calculateButton = document.getElementById('calculateButton');
+const calculateManualButton = document.getElementById('calculateManualButton');
 const exportButton = document.getElementById('exportButton');
 const latitudeInput = document.getElementById('latitude');
 const longitudeInput = document.getElementById('longitude');
 const mapStatus = document.getElementById('mapStatus');
 const languageSelect = document.getElementById('languageSelect');
+const manualHeightInput = document.getElementById('manualHeight');
+const manualMeasurementFields = document.getElementById('manualMeasurementFields');
+const clinometerMeasurementFields = document.getElementById('clinometerMeasurementFields');
+const distanceMethodFields = document.getElementById('distanceMethodFields');
+const measurementDiagram = document.querySelector('.diagram-wrap');
 const { t } = i18n;
 
 const state = {
   measurements: getMeasurements(),
   editingId: null,
   lastResult: null,
+  lastManualHeight: null,
 };
+
+function getMeasurementType() {
+  return document.querySelector('input[name="measurementType"]:checked')?.value ?? 'clinometer';
+}
+
+function updateMeasurementType() {
+  const manual = getMeasurementType() === 'manual';
+  manualMeasurementFields.hidden = !manual;
+  clinometerMeasurementFields.hidden = manual;
+  distanceMethodFields.hidden = manual;
+  calculateButton.hidden = manual;
+  calculateManualButton.hidden = !manual;
+}
+
+document.querySelectorAll('input[name="measurementType"]').forEach((input) => {
+  input.addEventListener('change', () => {
+    updateMeasurementType();
+    clearError();
+  });
+});
 
 let locationWasAdjusted = false;
 latitudeInput.addEventListener('input', () => {
@@ -282,6 +311,8 @@ function updateDiagram(result) {
 }
 
 function renderResult(result) {
+  state.lastManualHeight = null;
+  measurementDiagram.hidden = false;
   resultValue.textContent = formatMeters(result.estimatedHeight);
   renderResultSummary(result);
   renderFormulaExplanation(result);
@@ -289,8 +320,29 @@ function renderResult(result) {
   state.lastResult = result;
 }
 
+function renderManualResult(height) {
+  state.lastResult = null;
+  state.lastManualHeight = height;
+  measurementDiagram.hidden = true;
+  resultValue.textContent = formatMeters(height);
+
+  const row = document.createElement('div');
+  const label = document.createElement('dt');
+  label.textContent = t('result.estimatedHeight');
+  const definition = document.createElement('dd');
+  definition.textContent = formatMeters(height);
+  row.append(label, definition);
+  resultSummary.replaceChildren(row);
+  formulaExplanation.textContent = t('result.manualExplanation');
+}
+
 function calculateAndRender() {
   try {
+    if (getMeasurementType() === 'manual') {
+      renderManualResult(validateManualHeight(manualHeightInput.value));
+      clearError();
+      return;
+    }
     const result = buildMeasurementResult();
     clearError();
     renderResult(result);
@@ -304,32 +356,62 @@ form.addEventListener('submit', (event) => {
   calculateAndRender();
 });
 
+calculateManualButton.addEventListener('click', calculateAndRender);
+
 saveButton.addEventListener('click', () => {
   try {
     locationWasAdjusted = true;
-    const result = buildMeasurementResult();
     const coordinates = validateCoordinates({
       latitude: latitudeInput.value,
       longitude: longitudeInput.value,
     });
-    const measurement = {
+    const common = {
       id: state.editingId ?? `tree-${Date.now()}-${Math.random().toString(16).slice(2)}`,
-      treeId: result.treeId,
-      date: result.date,
-      notes: result.notes,
-      method: result.method,
-      distance: result.distance,
-      clinometerPercent: result.clinometerPercent,
-      terrainSlopePercent: result.terrainSlopePercent,
-      observerHeight: result.observerHeight,
-      horizontalDistance: result.horizontalDistance,
-      estimatedHeight: result.estimatedHeight,
-      terrainElevationDifference: result.terrainElevationDifference,
-      clinometerAngle: result.clinometerAngle,
-      terrainAngle: result.terrainAngle,
-      methodDescription: result.methodDescription,
+      treeId: document.getElementById('treeId').value.trim(),
+      date: measurementDateInput.value || new Date().toISOString().slice(0, 10),
+      notes: document.getElementById('notes').value.trim(),
       ...coordinates,
     };
+    let measurement;
+    let result;
+
+    if (getMeasurementType() === 'manual') {
+      const estimatedHeight = validateManualHeight(manualHeightInput.value);
+      measurement = {
+        ...common,
+        measurementType: 'manual',
+        method: null,
+        distance: null,
+        clinometerPercent: null,
+        terrainSlopePercent: null,
+        observerHeight: null,
+        horizontalDistance: null,
+        estimatedHeight,
+        terrainElevationDifference: null,
+        clinometerAngle: null,
+        terrainAngle: null,
+        methodDescription: '',
+      };
+      renderManualResult(estimatedHeight);
+    } else {
+      result = buildMeasurementResult();
+      measurement = {
+        ...common,
+        measurementType: 'clinometer',
+        method: result.method,
+        distance: result.distance,
+        clinometerPercent: result.clinometerPercent,
+        terrainSlopePercent: result.terrainSlopePercent,
+        observerHeight: result.observerHeight,
+        horizontalDistance: result.horizontalDistance,
+        estimatedHeight: result.estimatedHeight,
+        terrainElevationDifference: result.terrainElevationDifference,
+        clinometerAngle: result.clinometerAngle,
+        terrainAngle: result.terrainAngle,
+        methodDescription: result.methodDescription,
+      };
+      renderResult(result);
+    }
 
     if (state.editingId) {
       state.measurements = updateMeasurementById(state.editingId, measurement);
@@ -365,7 +447,7 @@ function renderTable() {
   if (!state.measurements.length) {
     const row = document.createElement('tr');
     const cell = document.createElement('td');
-    cell.colSpan = 11;
+    cell.colSpan = 12;
     cell.className = 'empty-state';
     cell.textContent = t('table.empty');
     row.append(cell);
@@ -376,10 +458,14 @@ function renderTable() {
   const fragment = document.createDocumentFragment();
   for (const entry of state.measurements) {
     const row = document.createElement('tr');
+    const measurementType = entry.measurementType === 'manual' ? 'manual' : 'clinometer';
     const values = [
       entry.treeId || t('table.unnamedTree'),
+      t(`measurement.type${measurementType === 'manual' ? 'Manual' : 'Clinometer'}`),
       entry.date ? i18n.formatDate(entry.date) : t('common.notAvailable'),
-      entry.method === 'horizontal' ? t('distance.horizontal') : t('distance.slope'),
+      measurementType === 'manual'
+        ? t('common.notAvailable')
+        : entry.method === 'horizontal' ? t('distance.horizontal') : t('distance.slope'),
       formatMeters(entry.distance),
       formatPercent(entry.clinometerPercent),
       formatPercent(entry.terrainSlopePercent),
@@ -426,6 +512,10 @@ tableBody.addEventListener('click', (event) => {
     const treeName = target.treeId || t('table.unnamedTree');
     if (!window.confirm(t('message.confirmDelete', { treeName }))) return;
     state.measurements = deleteMeasurementById(id);
+    if (state.editingId === id) {
+      state.editingId = null;
+      setLocalizedText(saveButton, 'action.save');
+    }
     renderTable();
     showSuccess('message.measurementDeleted');
     return;
@@ -434,22 +524,35 @@ tableBody.addEventListener('click', (event) => {
   if (action === 'edit') {
     locationWasAdjusted = true;
     state.editingId = id;
+    const measurementType = target.measurementType === 'manual' ? 'manual' : 'clinometer';
+    document.querySelector(`input[name="measurementType"][value="${measurementType}"]`).checked = true;
+    updateMeasurementType();
     setLocalizedText(saveButton, 'action.update');
     document.getElementById('treeId').value = target.treeId || '';
     document.getElementById('measurementDate').value = target.date || new Date().toISOString().slice(0, 10);
     document.getElementById('notes').value = target.notes || '';
-    document.querySelector(`input[name="distanceMethod"][value="${target.method}"]`).checked = true;
+    if (measurementType === 'clinometer') {
+      document.querySelector(`input[name="distanceMethod"][value="${target.method ?? 'horizontal'}"]`).checked = true;
+    }
     document.getElementById('distance').value = target.distance ?? '';
     document.getElementById('clinometerPercent').value = target.clinometerPercent ?? '';
     document.getElementById('terrainSlopePercent').value = target.terrainSlopePercent ?? '';
     document.getElementById('observerHeight').value = target.observerHeight ?? '';
+    manualHeightInput.value = measurementType === 'manual' ? String(target.estimatedHeight) : '';
+    if (measurementType === 'manual') {
+      document.getElementById('distance').value = '';
+      document.getElementById('clinometerPercent').value = '';
+      document.getElementById('terrainSlopePercent').value = '';
+      document.getElementById('observerHeight').value = '';
+    }
     latitudeInput.value = target.latitude ?? '';
     longitudeInput.value = target.longitude ?? '';
     locationMap?.setCoordinates({
       latitude: target.latitude ?? null,
       longitude: target.longitude ?? null,
     });
-    calculateAndRender();
+    if (measurementType === 'manual') renderManualResult(target.estimatedHeight);
+    else calculateAndRender();
   }
 });
 
@@ -458,6 +561,7 @@ languageSelect.addEventListener('change', () => {
   locationMap?.setLanguage();
   renderTable();
   if (state.lastResult) renderResult(state.lastResult);
+  else if (state.lastManualHeight !== null) renderManualResult(state.lastManualHeight);
   if (state.editingId) {
     setLocalizedText(saveButton, 'action.update');
   } else {
@@ -467,3 +571,4 @@ languageSelect.addEventListener('change', () => {
 
 renderTable();
 resultValue.textContent = formatMeters(0);
+updateMeasurementType();

@@ -7,6 +7,7 @@ import {
   calculateTerrainElevationDifference,
   calculateCrownElevation,
   calculateTreeHeight,
+  validateManualHeight,
   validateMeasurement,
 } from '../js/calculator.js';
 
@@ -100,4 +101,22 @@ test('validateMeasurement acepta valores con coma decimal y rechaza datos invál
   assert.throws(() => validateMeasurement({ distance: 0, clinometerPercent: 80, terrainSlopePercent: 0, observerHeight: 1.7 }));
   assert.throws(() => validateMeasurement({ distance: 20, clinometerPercent: 'abc', terrainSlopePercent: 0, observerHeight: 1.7 }));
   assert.throws(() => validateMeasurement({ distance: 20, clinometerPercent: 80, terrainSlopePercent: 0, observerHeight: -1 }));
+});
+
+test('validateManualHeight accepts positive decimal heights and rejects invalid values', () => {
+  assert.equal(validateManualHeight('12,5'), 12.5);
+  assert.equal(validateManualHeight('12.5'), 12.5);
+
+  for (const value of ['', '   ', 'abc', Number.NaN, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY]) {
+    assert.throws(
+      () => validateManualHeight(value),
+      (error) => error.translationKey === 'validation.manualHeight',
+    );
+  }
+  for (const value of [-1, '-0.1', 0]) {
+    assert.throws(
+      () => validateManualHeight(value),
+      (error) => error.translationKey === 'validation.manualHeightPositive',
+    );
+  }
 });

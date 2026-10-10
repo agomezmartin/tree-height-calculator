@@ -111,16 +111,63 @@ test('exportMeasurementsToXlsx localiza encabezados, hoja y nombre sin convertir
     i18n.setLanguage('en');
     exportMeasurementsToXlsx([{
       method: 'slope',
+      measurementType: 'clinometer',
       distance: 12,
       latitude: 40.123,
       longitude: -3.456,
     }]);
     assert.equal(sheetName, 'Measurements');
     assert.equal(exportedRows[0]['Measurement method'], 'Distance along the ground');
+    assert.equal(exportedRows[0]['Height source'], 'Calculate with clinometer');
     assert.match(exportedRows[0]['Formula / method used'], /h_eye/);
     assert.equal(exportedRows[0].Latitude, 40.123);
     assert.equal(exportedRows[0].Longitude, -3.456);
     assert.match(writtenFile, /^tree-measurements-\d{4}-\d{2}-\d{2}\.xlsx$/);
+  } finally {
+    i18n.setLanguage('es');
+    delete globalThis.window;
+  }
+});
+
+test('manual height rows export the numeric height and leave clinometer measurements blank', () => {
+  let exportedRows;
+  globalThis.window = {
+    XLSX: {
+      utils: {
+        json_to_sheet(rows) {
+          exportedRows = rows;
+          return {};
+        },
+        book_new: () => ({}),
+        book_append_sheet() {},
+      },
+      writeFile() {},
+    },
+  };
+
+  try {
+    i18n.setLanguage('en');
+    exportMeasurementsToXlsx([{
+      treeId: 'Manual tree',
+      measurementType: 'manual',
+      estimatedHeight: 12.5,
+      distance: null,
+      clinometerPercent: null,
+      terrainSlopePercent: null,
+      observerHeight: null,
+      latitude: 40.1,
+      longitude: -3.2,
+    }]);
+
+    const [row] = exportedRows;
+    assert.equal(row['Height source'], 'Enter a known height');
+    assert.equal(row['Estimated tree height (m)'], 12.5);
+    assert.equal(row['Entered distance (m)'], '');
+    assert.equal(row['Clinometer (%)'], '');
+    assert.equal(row['Terrain slope (%)'], '');
+    assert.equal(row['Instrument height (m)'], '');
+    assert.equal(row.Latitude, 40.1);
+    assert.equal(row.Longitude, -3.2);
   } finally {
     i18n.setLanguage('es');
     delete globalThis.window;

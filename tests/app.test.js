@@ -39,6 +39,14 @@ test('el formulario guarda mediciones con y sin GPS, conserva y permite actualiz
     };
     const getSavedMeasurements = () => JSON.parse(localStorage.getItem('treeMeasurements'));
     const saveButton = document.getElementById('saveButton');
+    const calculateButton = document.getElementById('calculateButton');
+    const calculateManualButton = document.getElementById('calculateManualButton');
+    const measurementTypeFieldset = document.querySelector('input[name="measurementType"]').closest('fieldset');
+    const treeFieldset = document.querySelector('fieldset > legend[data-i18n="tree.section"]').parentElement;
+    assert.equal(measurementTypeFieldset.nextElementSibling, treeFieldset);
+    assert.equal(treeFieldset.hidden, false);
+    assert.equal(calculateButton.hidden, false);
+    assert.equal(calculateManualButton.hidden, true);
 
     setRequiredMeasurements();
     document.getElementById('treeId').value = 'Sin GPS';
@@ -49,8 +57,8 @@ test('el formulario guarda mediciones con y sin GPS, conserva y permite actualiz
     assert.equal(measurements[0].longitude, null);
     assert.ok(Math.abs(measurements[0].estimatedHeight - 17.7) < 1e-9);
     const noGpsCells = [...document.querySelector('#measurementTableBody tr').cells];
-    assert.equal(noGpsCells[8].textContent, '—');
     assert.equal(noGpsCells[9].textContent, '—');
+    assert.equal(noGpsCells[10].textContent, '—');
 
     setRequiredMeasurements();
     document.getElementById('treeId').value = 'Con GPS';
@@ -63,8 +71,9 @@ test('el formulario guarda mediciones con y sin GPS, conserva y permite actualiz
     assert.equal(withGps.longitude, -3.987654321);
     const gpsRow = [...document.querySelectorAll('#measurementTableBody tr')]
       .find((row) => row.cells[0].textContent === 'Con GPS');
-    assert.equal(gpsRow.cells[8].textContent, '40,123456789');
-    assert.equal(gpsRow.cells[9].textContent, '-3,987654321');
+    assert.equal(gpsRow.cells[1].textContent, 'Calcular con clinómetro');
+    assert.equal(gpsRow.cells[9].textContent, '40,123456789');
+    assert.equal(gpsRow.cells[10].textContent, '-3,987654321');
 
     document.querySelector(`[data-action="edit"][data-id="${withGps.id}"]`).click();
     document.getElementById('notes').value = 'Notas editadas';
@@ -76,8 +85,8 @@ test('el formulario guarda mediciones con y sin GPS, conserva y permite actualiz
     assert.equal(edited.notes, 'Notas editadas');
     const editedRow = [...document.querySelectorAll('#measurementTableBody tr')]
       .find((row) => row.cells[0].textContent === 'Con GPS');
-    assert.equal(editedRow.cells[8].textContent, '40,123456789');
-    assert.equal(editedRow.cells[9].textContent, '-3,987654321');
+    assert.equal(editedRow.cells[9].textContent, '40,123456789');
+    assert.equal(editedRow.cells[10].textContent, '-3,987654321');
 
     document.querySelector(`[data-action="edit"][data-id="${withGps.id}"]`).click();
     document.getElementById('latitude').value = '0';
@@ -130,12 +139,74 @@ test('el formulario guarda mediciones con y sin GPS, conserva y permite actualiz
     assert.equal(document.documentElement.lang, 'en');
     assert.equal(document.querySelector('h1').textContent, 'Tree Height Calculator');
     assert.equal(document.querySelector('#treeHeightResult').textContent, '17.70 m');
-    assert.equal(document.querySelector('#measurementTableBody tr').cells[2].textContent, 'Horizontal distance');
+    assert.equal(document.querySelector('#measurementTableBody tr').cells[3].textContent, 'Horizontal distance');
     assert.match(document.getElementById('locationStatus').textContent, /Location permission was denied/);
     assert.equal(document.getElementById('treeId').value, 'Con GPS');
 
     languageSelect.value = 'es';
     languageSelect.dispatchEvent(new dom.window.Event('change', { bubbles: true }));
+
+    document.querySelector('input[name="measurementType"][value="manual"]').click();
+    assert.equal(treeFieldset.hidden, false);
+    assert.equal(calculateButton.hidden, true);
+    assert.equal(calculateManualButton.hidden, false);
+    assert.equal(calculateManualButton.textContent, 'Mostrar altura introducida');
+    document.getElementById('manualHeight').value = '12,5';
+    document.getElementById('treeId').value = 'Manual';
+    calculateManualButton.click();
+    assert.equal(document.getElementById('treeHeightResult').textContent, '12,50 m');
+    assert.equal(document.querySelector('#resultSummary dd').textContent, '12,50 m');
+    assert.equal(
+      document.getElementById('formulaExplanation').textContent,
+      'Altura introducida directamente por el usuario; no se han realizado mediciones con clinómetro.',
+    );
+
+    languageSelect.value = 'en';
+    languageSelect.dispatchEvent(new dom.window.Event('change', { bubbles: true }));
+    assert.equal(calculateManualButton.textContent, 'Show entered height');
+    calculateManualButton.click();
+    assert.equal(document.getElementById('treeHeightResult').textContent, '12.50 m');
+    assert.equal(document.querySelector('#resultSummary dd').textContent, '12.50 m');
+    languageSelect.value = 'es';
+    languageSelect.dispatchEvent(new dom.window.Event('change', { bubbles: true }));
+
+    saveButton.click();
+    const manual = getSavedMeasurements().find((entry) => entry.treeId === 'Manual');
+    assert.equal(manual.measurementType, 'manual');
+    assert.equal(manual.estimatedHeight, 12.5);
+    assert.equal(manual.method, null);
+    assert.equal(manual.distance, null);
+    assert.equal(manual.clinometerPercent, null);
+    assert.equal(manual.terrainSlopePercent, null);
+    assert.equal(manual.observerHeight, null);
+
+    const manualRow = [...document.querySelectorAll('#measurementTableBody tr')]
+      .find((row) => row.cells[0].textContent === 'Manual');
+    assert.equal(manualRow.cells[1].textContent, 'Introducir altura conocida');
+    assert.equal(manualRow.cells[3].textContent, '—');
+    assert.equal(manualRow.cells[4].textContent, '—');
+    assert.equal(manualRow.cells[5].textContent, '—');
+    assert.equal(manualRow.cells[8].textContent, '12,50 m');
+
+    document.querySelector(`[data-action="edit"][data-id="${manual.id}"]`).click();
+    assert.equal(document.querySelector('input[name="measurementType"][value="manual"]').checked, true);
+    assert.equal(document.getElementById('manualHeight').value, '12.5');
+    document.getElementById('manualHeight').value = '-1';
+    saveButton.click();
+    assert.equal(getSavedMeasurements().find((entry) => entry.id === manual.id).estimatedHeight, 12.5);
+    assert.match(document.getElementById('formError').textContent, /mayor que 0/);
+
+    document.getElementById('manualHeight').value = '';
+    saveButton.click();
+    assert.equal(getSavedMeasurements().find((entry) => entry.id === manual.id).estimatedHeight, 12.5);
+    assert.match(document.getElementById('formError').textContent, /altura válida/);
+
+    document.getElementById('manualHeight').value = '13';
+    saveButton.click();
+    assert.equal(getSavedMeasurements().find((entry) => entry.id === manual.id).estimatedHeight, 13);
+
+    const restoredRows = JSON.parse(localStorage.getItem('treeMeasurements'));
+    assert.equal(restoredRows.find((entry) => entry.id === manual.id).measurementType, 'manual');
   } finally {
     dom.window.close();
     delete globalThis.window;
