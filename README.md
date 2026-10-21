@@ -35,7 +35,7 @@ No requiere instalación de dependencias para usar la aplicación en un navegado
 Puedes abrir `index.html` directamente en el navegador, o bien arrancar un servidor estático local:
 
 ```bash
-cd calculadora-arboricultura
+cd tree-height-calculator
 python -m http.server 8000
 ```
 
