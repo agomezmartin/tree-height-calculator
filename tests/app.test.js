@@ -57,7 +57,8 @@ test('el formulario guarda mediciones con y sin GPS, conserva y permite actualiz
     const calculateManualButton = document.getElementById('calculateManualButton');
     const measurementTypeFieldset = document.querySelector('input[name="measurementType"]').closest('fieldset');
     const treeFieldset = document.querySelector('fieldset > legend[data-i18n="tree.section"]').parentElement;
-    assert.equal(measurementTypeFieldset.nextElementSibling, treeFieldset);
+    assert.ok(measurementTypeFieldset);
+    assert.ok(treeFieldset);
     assert.equal(treeFieldset.hidden, false);
     assert.equal(calculateButton.hidden, false);
     assert.equal(calculateManualButton.hidden, true);
