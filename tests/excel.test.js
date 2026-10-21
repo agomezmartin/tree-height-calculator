@@ -34,6 +34,9 @@ test('exportMeasurementsToXlsx agrega latitud y longitud numéricas o vacías si
     const filename = exportMeasurementsToXlsx([
       {
         treeId: 'Pino con GPS',
+        speciesIfnCode: 45,
+        speciesScientificName: 'Quercus ilex',
+        speciesCommonName: 'Encina',
         distance: 20,
         estimatedHeight: 17.7,
         latitude: 40.416812345,
@@ -45,6 +48,9 @@ test('exportMeasurementsToXlsx agrega latitud y longitud numéricas o vacías si
     assert.equal(filename, writtenFile);
     assert.equal(exportedRows.length, 2);
     assert.equal(exportedRows[0]['ID del árbol'], 'Pino con GPS');
+    assert.equal(exportedRows[0]['Código IFN de la especie'], 45);
+    assert.equal(exportedRows[0]['Nombre científico'], 'Quercus ilex');
+    assert.equal(exportedRows[0]['Nombre común'], 'Encina');
     assert.equal(exportedRows[0]['Distancia introducida (m)'], 20);
     assert.equal(exportedRows[0]['Altura estimada del árbol (m)'], 17.7);
     assert.equal(exportedRows[0].Latitud, 40.416812345);
@@ -75,6 +81,7 @@ test('exportMeasurementsToXlsx conserva la exportación sin coordenadas y report
 
   try {
     exportMeasurementsToXlsx([{ treeId: 'Sin ubicación' }]);
+    assert.equal(exportedRows[0]['Código IFN de la especie'], '');
     assert.equal(exportedRows[0].Latitud, '');
     assert.equal(exportedRows[0].Longitud, '');
 
@@ -112,11 +119,17 @@ test('exportMeasurementsToXlsx localiza encabezados, hoja y nombre sin convertir
     exportMeasurementsToXlsx([{
       method: 'slope',
       measurementType: 'clinometer',
+      speciesIfnCode: 31,
+      speciesScientificName: 'Abies alba',
+      speciesCommonName: 'Pinabete',
       distance: 12,
       latitude: 40.123,
       longitude: -3.456,
     }]);
     assert.equal(sheetName, 'Measurements');
+    assert.equal(exportedRows[0]['Species IFN code'], 31);
+    assert.equal(exportedRows[0]['Scientific name'], 'Abies alba');
+    assert.equal(exportedRows[0]['Common name'], 'Pinabete');
     assert.equal(exportedRows[0]['Measurement method'], 'Distance along the ground');
     assert.equal(exportedRows[0]['Height source'], 'Calculate with clinometer');
     assert.match(exportedRows[0]['Formula / method used'], /h_eye/);
@@ -150,6 +163,9 @@ test('manual height rows export the numeric height and leave clinometer measurem
     exportMeasurementsToXlsx([{
       treeId: 'Manual tree',
       measurementType: 'manual',
+      speciesIfnCode: 21,
+      speciesScientificName: 'Pinus sylvestris',
+      speciesCommonName: 'Pino silvestre',
       estimatedHeight: 12.5,
       distance: null,
       clinometerPercent: null,
@@ -160,6 +176,9 @@ test('manual height rows export the numeric height and leave clinometer measurem
     }]);
 
     const [row] = exportedRows;
+    assert.equal(row['Species IFN code'], 21);
+    assert.equal(row['Scientific name'], 'Pinus sylvestris');
+    assert.equal(row['Common name'], 'Pino silvestre');
     assert.equal(row['Height source'], 'Enter a known height');
     assert.equal(row['Estimated tree height (m)'], 12.5);
     assert.equal(row['Entered distance (m)'], '');

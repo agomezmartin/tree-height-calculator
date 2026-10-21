@@ -195,6 +195,7 @@ legend {
 }
 
 .field input,
+.field select,
 .field textarea {
   width: 100%;
   border: 1px solid var(--border);
@@ -212,6 +213,7 @@ legend {
 }
 
 .field input:focus,
+.field select:focus,
 .field textarea:focus,
 button:focus,
 input[type='radio']:focus {
