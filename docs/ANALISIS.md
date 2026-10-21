@@ -132,6 +132,11 @@ La lógica matemática debe estar en un módulo independiente, puro y comprobabl
 
 - Se usará `localStorage` para conservar mediciones en el navegador durante la sesión y permitir edición.
 - El dato se exportará a Excel desde la colección en memoria y no dependerá de backend.
+- Cada medición puede guardar la especie asociada usando el código IFN del catálogo MITECO, junto con el nombre científico y el nombre común. Si el registro es antiguo o no tiene especie, estos campos quedan nulos y la visualización sigue funcionando sin migración destructiva.
+
+### Catálogo de especies y selector
+
+El catálogo de referencia se almacena en [assets/species.json](../assets/species.json) y se importa como dato independiente de la lógica de interfaz. El formulario expone un selector con opción vacía de "Selecciona una especie" y el texto `Nombre científico — Nombre común` para cada entrada, manteniendo la identidad del catálogo por su código IFN.
 
 ### Exportación Excel
 

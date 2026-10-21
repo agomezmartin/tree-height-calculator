@@ -18,6 +18,18 @@ Una pequeña aplicación web para calcular la altura de un árbol a partir de me
 
 Además del cálculo con clinómetro, puedes seleccionar **Introducir altura conocida** y guardar directamente la altura del árbol en metros. Se aceptan punto o coma decimal; el valor debe ser finito y mayor que cero, sin un límite máximo arbitrario. El registro aparece en la misma tabla, identificado por su origen, y se puede editar como cualquier otra medición. En la exportación Excel se conserva la altura como valor numérico y las columnas de medición con clinómetro quedan vacías, ya que no se aplican a este tipo de registro. Los registros antiguos que no tengan un origen guardado siguen considerándose mediciones con clinómetro.
 
+## Catálogo de especies MITECO
+
+La aplicación incluye el catálogo de especies del MITECO en [assets/species.json](./assets/species.json). El archivo contiene la lista oficial de especies con su código IFN, nombre científico y nombre común en español, y se usa como fuente única para el selector del formulario. La selección se conserva en cada medición con estos campos:
+
+- `speciesIfnCode`: identificador estable del catálogo IFN.
+- `speciesScientificName`: nombre científico original del catálogo.
+- `speciesCommonName`: nombre común del catálogo, cuando existe.
+
+El selector muestra la opción con formato `Quercus ilex — Encina` y, si no hay nombre común, solo el nombre científico. No se localiza ni se traduce el catálogo y el idioma activo solo cambia la interfaz, no la identidad de la especie.
+
+Los registros antiguos siguen siendo compatibles porque el modelo acepta valores nulos para estas propiedades y la lectura desde `localStorage` rellena el estado sin romper mediciones ya guardadas.
+
 ## Idiomas
 
 La aplicación detecta el idioma del navegador al iniciarse y permite elegir español, inglés, catalán, euskera, gallego o valenciano desde el selector de la cabecera. La preferencia se guarda en el navegador. La guía para mantener las traducciones está en [docs/INTERNATIONALIZATION.md](./docs/INTERNATIONALIZATION.md).

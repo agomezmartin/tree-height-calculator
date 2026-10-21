@@ -79,6 +79,20 @@
               </label>
 
               <label class="field">
+                <span data-i18n="tree.species"></span>
+                <input
+                  id="speciesSelect"
+                  name="speciesSelect"
+                  type="text"
+                  list="speciesSuggestions"
+                  autocomplete="off"
+                  data-i18n-placeholder="tree.speciesPlaceholder"
+                  data-i18n-aria-label="tree.species"
+                />
+                <datalist id="speciesSuggestions"></datalist>
+              </label>
+
+              <label class="field">
                 <span data-i18n="tree.date"></span>
                 <input id="measurementDate" name="measurementDate" type="date" />
               </label>
@@ -234,6 +248,7 @@
           <thead>
             <tr>
               <th data-i18n="table.id"></th>
+              <th data-i18n="table.scientificName"></th>
               <th data-i18n="table.measurementType"></th>
               <th data-i18n="table.date"></th>
               <th data-i18n="table.method"></th>
@@ -243,7 +258,7 @@
               <th data-i18n="table.instrumentHeight"></th>
               <th data-i18n="table.calculatedHeight"></th>
               <th data-i18n="table.latitude"></th>
-                <th data-i18n="table.longitude"></th>
+              <th data-i18n="table.longitude"></th>
               <th data-i18n="table.actions"></th>
             </tr>
           </thead>
