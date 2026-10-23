@@ -9,7 +9,7 @@ import {
   validateMeasurement,
 } from './calculator.js';
 import { addMeasurement, deleteMeasurementById, getMeasurements, updateMeasurementById } from './storage.js';
-import { exportMeasurementsToXlsx } from './excel.js';
+import { exportMeasurementsToCsv } from './csv.js';
 import {
   bindGpsCapture,
   createCoordinateMap,
@@ -496,7 +496,7 @@ exportButton.addEventListener('click', () => {
   }
 
   try {
-    const fileName = exportMeasurementsToXlsx(state.measurements);
+    const fileName = exportMeasurementsToCsv(state.measurements);
     showSuccess('message.exportSuccess', { fileName });
   } catch (error) {
     showError(error);

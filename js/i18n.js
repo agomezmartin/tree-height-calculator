@@ -213,7 +213,6 @@ export function setLocalizedText(element, key, parameters = {}) {
 }
 
 const errorKeys = new Map([
-    ['La librería Excel no está disponible.', 'export.errorLibrary'],
     ['Introduce tanto la latitud como la longitud, o deja ambos campos vacíos.', 'gps.coordinatesPairRequired'],
     ['La latitud debe ser un número entre -90 y 90 grados decimales.', 'gps.invalidLatitude'],
     ['La longitud debe ser un número entre -180 y 180 grados decimales.', 'gps.invalidLongitude'],

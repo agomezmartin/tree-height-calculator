@@ -127,7 +127,7 @@ Esto permite:
 
 - comprender mejor la geometría del problema;
 - testear cada etapa independientemente;
-- auditar la medición en Excel;
+- auditar la medición en una hoja de cálculo como Excel, abriendo la exportación CSV;
 - mantener la lógica matemática desacoplada de la interfaz.
 
 ## 8. Limitaciones prácticas

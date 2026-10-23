@@ -8,15 +8,15 @@ Una pequeña aplicación web para calcular la altura de un árbol a partir de me
 - Admite dos métodos de distancia: distancia horizontal o distancia medida sobre el terreno.
 - Calcula la altura estimada del árbol usando una formulación geométrica clara y separada por fases.
 - Guarda mediciones localmente con `localStorage` para editar o revisar datos sin depender de un servidor.
-- Exporta los registros a Excel con archivos `.xlsx` para auditoría posterior.
+- Exporta los registros en archivos `.csv` para auditoría posterior.
 - Captura opcionalmente las coordenadas GPS de cada árbol y las incluye en la exportación; permite elegir mapa estándar, satélite o topográfico y seleccionar la ubicación con un clic o ajustando el marcador.
 - Está pensada para funcionar en escritorio, tablet y móvil.
 - Incluye una firma discreta con enlace al perfil del desarrollador.
-- Permite cambiar la interfaz entre español, inglés, catalán, euskera, gallego y valenciano; el idioma elegido se guarda localmente y también se aplica a la exportación Excel.
+- Permite cambiar la interfaz entre español, inglés, catalán, euskera, gallego y valenciano; el idioma elegido se guarda localmente y también se aplica a los encabezados de la exportación CSV.
 
 ## Registrar una altura conocida
 
-Además del cálculo con clinómetro, puedes seleccionar **Introducir altura conocida** y guardar directamente la altura del árbol en metros. Se aceptan punto o coma decimal; el valor debe ser finito y mayor que cero, sin un límite máximo arbitrario. El registro aparece en la misma tabla, identificado por su origen, y se puede editar como cualquier otra medición. En la exportación Excel se conserva la altura como valor numérico y las columnas de medición con clinómetro quedan vacías, ya que no se aplican a este tipo de registro. Los registros antiguos que no tengan un origen guardado siguen considerándose mediciones con clinómetro.
+Además del cálculo con clinómetro, puedes seleccionar **Introducir altura conocida** y guardar directamente la altura del árbol en metros. Se aceptan punto o coma decimal; el valor debe ser finito y mayor que cero, sin un límite máximo arbitrario. El registro aparece en la misma tabla, identificado por su origen, y se puede editar como cualquier otra medición. En la exportación CSV se conserva la altura como valor numérico y las columnas de medición con clinómetro quedan vacías, ya que no se aplican a este tipo de registro. Los registros antiguos que no tengan un origen guardado siguen considerándose mediciones con clinómetro.
 
 ## Catálogo de especies MITECO
 
@@ -177,29 +177,13 @@ donde `h_ojo` es la altura del instrumento o de los ojos del observador sobre el
 
 `H = 1,70 + 16 - 2 = 15,70 m`
 
-## Exportación Excel
+## Exportación CSV
 
-La aplicación genera un archivo `.xlsx` con todas las columnas útiles para auditar la medición:
+La aplicación genera un archivo `.csv` con las columnas de la medición en este orden: ID del árbol, código IFN, nombre científico, nombre común, origen de la altura, fecha, observaciones, método de medición, distancia introducida, unidad de distancia, distancia horizontal calculada, lectura y ángulo del clinómetro, pendiente y ángulo del terreno, desnivel calculado, altura del instrumento, altura estimada, fórmula o método utilizado, latitud y longitud.
 
-- ID del árbol
-- Origen de la altura (clinómetro o altura conocida)
-- Fecha
-- Observaciones
-- Método de medición
-- Distancia introducida
-- Distancia horizontal calculada
-- Clinómetro (%)
-- Ángulo del clinómetro en grados
-- Pendiente del terreno (%)
-- Ángulo del terreno en grados
-- Desnivel calculado
-- Altura del instrumento
-- Altura estimada
-- Fórmula / método utilizado
+El delimitador es siempre punto y coma (`;`), la codificación es UTF-8 con BOM y los registros se separan mediante CRLF (`\r\n`), para facilitar la apertura directa en Excel. Los campos con punto y coma, comillas dobles o saltos de línea se entrecomillan; las comillas internas se duplican conforme al formato CSV. Los números se exportan sin formato localizado.
 
-La exportación usa SheetJS en el navegador y no requiere ningún backend.
-
-La tabla de registros muestra las columnas `Latitud` y `Longitud` en grados decimales antes de exportar. La hoja Excel también incluye ambas columnas numéricas y conserva la precisión almacenada; si un registro no tiene ubicación, la tabla muestra `—` y las celdas quedan vacías. Las demás columnas y los registros antiguos se mantienen.
+La descarga usa APIs nativas del navegador y no requiere dependencias ni backend. Los encabezados se traducen según el idioma activo; los nombres científicos se exportan sin traducir. Las columnas `Latitud` y `Longitud` conservan los valores decimales almacenados y quedan vacías cuando el registro no tiene coordenadas. En registros de altura conocida, las mediciones de clinómetro que no aplican quedan vacías.
 
 ## Limitaciones del método
 
@@ -246,7 +230,7 @@ calculadora-arboricultura/
 npm test
 ```
 
-Los tests usan el ejecutor integrado `node:test` y mocks de la API GPS, almacenamiento y SheetJS; no requieren un dispositivo con GPS ni permisos reales. Cubren validación y límites de coordenadas, captura y errores, y persistencia/exportación opcionales. No verifican la precisión real del GPS de un dispositivo.
+Los tests usan el ejecutor integrado `node:test` y mocks de las APIs GPS, almacenamiento y descarga del navegador; no requieren un dispositivo con GPS ni permisos reales. Cubren validación y límites de coordenadas, captura y errores, persistencia y exportación CSV (incluidos escapado, codificación, delimitador y saltos de línea). No verifican la precisión real del GPS de un dispositivo.
 
 ## Consideraciones de accesibilidad y responsive
 

@@ -46,12 +46,16 @@ test('el formulario guarda mediciones con y sin GPS, conserva y permite actualiz
     const saveButton = document.getElementById('saveButton');
     const calculateButton = document.getElementById('calculateButton');
     const calculateManualButton = document.getElementById('calculateManualButton');
+    const exportButton = document.getElementById('exportButton');
     const measurementTypeFieldset = document.querySelector('input[name="measurementType"]').closest('fieldset');
     const treeFieldset = document.querySelector('fieldset > legend[data-i18n="tree.section"]').parentElement;
     assert.equal(measurementTypeFieldset.nextElementSibling, treeFieldset);
     assert.equal(treeFieldset.hidden, false);
     assert.equal(calculateButton.hidden, false);
     assert.equal(calculateManualButton.hidden, true);
+
+    exportButton.click();
+    assert.match(document.getElementById('formError').textContent, /No hay mediciones guardadas para exportar/);
 
     setRequiredMeasurements();
     document.getElementById('treeId').value = 'Sin GPS';
@@ -244,6 +248,51 @@ test('el formulario guarda mediciones con y sin GPS, conserva y permite actualiz
 
     const restoredRows = JSON.parse(localStorage.getItem('treeMeasurements'));
     assert.equal(restoredRows.find((entry) => entry.id === manual.id).measurementType, 'manual');
+
+    const originalCreateObjectURL = Object.getOwnPropertyDescriptor(URL, 'createObjectURL');
+    const originalRevokeObjectURL = Object.getOwnPropertyDescriptor(URL, 'revokeObjectURL');
+    const originalSetTimeout = Object.getOwnPropertyDescriptor(globalThis, 'setTimeout');
+    const originalAnchorClick = Object.getOwnPropertyDescriptor(dom.window.HTMLAnchorElement.prototype, 'click');
+    let downloadedBlob;
+    let downloadedFile;
+    Object.defineProperty(URL, 'createObjectURL', {
+      configurable: true,
+      value(blob) {
+        downloadedBlob = blob;
+        return 'blob:app-export';
+      },
+    });
+    Object.defineProperty(URL, 'revokeObjectURL', { configurable: true, value() {} });
+    Object.defineProperty(globalThis, 'setTimeout', {
+      configurable: true,
+      value(callback) {
+        callback();
+        return 1;
+      },
+    });
+    Object.defineProperty(dom.window.HTMLAnchorElement.prototype, 'click', {
+      configurable: true,
+      value() {
+        downloadedFile = this.download;
+      },
+    });
+
+    try {
+      exportButton.click();
+      assert.match(downloadedFile, /^mediciones-arboles-\d{4}-\d{2}-\d{2}\.csv$/);
+      assert.equal(downloadedBlob.type, 'text/csv;charset=utf-8');
+      assert.match(document.getElementById('formError').textContent, /Archivo exportado correctamente/);
+    } finally {
+      for (const [object, key, descriptor] of [
+        [URL, 'createObjectURL', originalCreateObjectURL],
+        [URL, 'revokeObjectURL', originalRevokeObjectURL],
+        [globalThis, 'setTimeout', originalSetTimeout],
+        [dom.window.HTMLAnchorElement.prototype, 'click', originalAnchorClick],
+      ]) {
+        if (descriptor) Object.defineProperty(object, key, descriptor);
+        else delete object[key];
+      }
+    }
   } finally {
     dom.window.close();
     delete globalThis.window;

@@ -131,20 +131,20 @@ La lógica matemática debe estar en un módulo independiente, puro y comprobabl
 ### Almacenamiento
 
 - Se usará `localStorage` para conservar mediciones en el navegador durante la sesión y permitir edición.
-- El dato se exportará a Excel desde la colección en memoria y no dependerá de backend.
+- Los datos se exportan en CSV desde la colección en memoria y no dependen de backend.
 - Cada medición puede guardar la especie asociada usando el código IFN del catálogo MITECO, junto con el nombre científico y el nombre común. Si el registro es antiguo o no tiene especie, estos campos quedan nulos y la visualización sigue funcionando sin migración destructiva.
 
 ### Catálogo de especies y selector
 
 El catálogo de referencia se almacena en [assets/species.json](../assets/species.json) y se importa como dato independiente de la lógica de interfaz. El formulario expone un selector con opción vacía de "Selecciona una especie" y el texto `Nombre científico — Nombre común` para cada entrada, manteniendo la identidad del catálogo por su código IFN.
 
-### Exportación Excel
+### Exportación CSV
 
-Se usará SheetJS en navegador mediante CDN para generar un archivo `.xlsx` sin servidor de aplicación.
+La exportación genera un archivo `.csv` con APIs nativas del navegador, sin dependencias ni servidor. Conserva el orden y los campos del modelo exportado, usa punto y coma (`;`) como delimitador, UTF-8 con BOM y CRLF como separador de registros. Los campos que contienen delimitadores, comillas o saltos de línea se escapan según CSV. Los encabezados respetan el idioma activo y los valores numéricos mantienen su representación sin localizar.
 
 ### Testing
 
-Se ejecutarán pruebas unitarias del cálculo en Node usando `node --test`, sin depender de DOM ni navegador.
+Las pruebas usan `node --test`, con cobertura del cálculo, la integración de interfaz y la exportación CSV, sin depender de un navegador real.
 
 ## 9. Ambigüedades resueltas
 
