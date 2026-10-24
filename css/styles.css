@@ -46,6 +46,8 @@ body {
 
 button,
 input,
+select,
+datalist,
 textarea {
   font: inherit;
 }

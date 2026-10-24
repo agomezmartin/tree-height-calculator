@@ -37,26 +37,33 @@ test('exportMeasurementsToXlsx agrega latitud y longitud numéricas o vacías si
         speciesIfnCode: 45,
         speciesScientificName: 'Quercus ilex',
         speciesCommonName: 'Encina',
+        phytosanitaryStatus: 'acceptable',
         distance: 20,
         estimatedHeight: 17.7,
         latitude: 40.416812345,
         longitude: -3.703790123,
       },
       { treeId: 'Roble sin GPS', distance: 10, estimatedHeight: 8.2 },
+      { treeId: 'Fresno sin evaluar', phytosanitaryStatus: null },
+      { treeId: 'Abedul sin evaluar', phytosanitaryStatus: '' },
     ]);
 
     assert.equal(filename, writtenFile);
-    assert.equal(exportedRows.length, 2);
+    assert.equal(exportedRows.length, 4);
     assert.equal(exportedRows[0]['ID del árbol'], 'Pino con GPS');
     assert.equal(exportedRows[0]['Código IFN de la especie'], 45);
     assert.equal(exportedRows[0]['Nombre científico'], 'Quercus ilex');
     assert.equal(exportedRows[0]['Nombre común'], 'Encina');
+    assert.equal(exportedRows[0]['Estado fitosanitario'], 'Aceptable');
     assert.equal(exportedRows[0]['Distancia introducida (m)'], 20);
     assert.equal(exportedRows[0]['Altura estimada del árbol (m)'], 17.7);
     assert.equal(exportedRows[0].Latitud, 40.416812345);
     assert.equal(exportedRows[0].Longitud, -3.703790123);
     assert.equal(exportedRows[1].Latitud, '');
     assert.equal(exportedRows[1].Longitud, '');
+    assert.equal(exportedRows[1]['Estado fitosanitario'], '');
+    assert.equal(exportedRows[2]['Estado fitosanitario'], '');
+    assert.equal(exportedRows[3]['Estado fitosanitario'], '');
     assert.deepEqual(Object.keys(exportedRows[0]).slice(-2), ['Latitud', 'Longitud']);
   } finally {
     delete globalThis.window;
