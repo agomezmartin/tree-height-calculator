@@ -55,19 +55,6 @@
         </div>
 
         <form id="measurementForm" novalidate>
-          <fieldset>
-            <legend data-i18n="measurement.type"></legend>
-            <div class="radio-group" role="radiogroup" data-i18n-aria-label="measurement.type">
-              <label class="choice">
-                <input type="radio" name="measurementType" value="clinometer" checked />
-                <span><strong data-i18n="measurement.typeClinometer"></strong></span>
-              </label>
-              <label class="choice">
-                <input type="radio" name="measurementType" value="manual" />
-                <span><strong data-i18n="measurement.typeManual"></strong></span>
-              </label>
-            </div>
-          </fieldset>
 
           <fieldset>
             <legend data-i18n="tree.section"></legend>
@@ -93,6 +80,17 @@
               </label>
 
               <label class="field">
+                <span data-i18n="tree.phytosanitaryStatus"></span>
+                <select id="phytosanitaryStatus" name="phytosanitaryStatus">
+                  <option value="" data-i18n="tree.phytosanitaryNotEvaluated"></option>
+                  <option value="good" data-i18n="tree.phytosanitaryGood"></option>
+                  <option value="acceptable" data-i18n="tree.phytosanitaryAcceptable"></option>
+                  <option value="deficient" data-i18n="tree.phytosanitaryDeficient"></option>
+                  <option value="critical" data-i18n="tree.phytosanitaryCritical"></option>
+                </select>
+              </label>
+
+              <label class="field">
                 <span data-i18n="tree.date"></span>
                 <input id="measurementDate" name="measurementDate" type="date" />
               </label>
@@ -102,6 +100,20 @@
               <span data-i18n="tree.notes"></span>
               <textarea id="notes" name="notes" rows="3" data-i18n-placeholder="tree.notesPlaceholder"></textarea>
             </label>
+          </fieldset>
+
+          <fieldset>
+            <legend data-i18n="measurement.type"></legend>
+            <div class="radio-group" role="radiogroup" data-i18n-aria-label="measurement.type">
+              <label class="choice">
+                <input type="radio" name="measurementType" value="clinometer" checked />
+                <span><strong data-i18n="measurement.typeClinometer"></strong></span>
+              </label>
+              <label class="choice">
+                <input type="radio" name="measurementType" value="manual" />
+                <span><strong data-i18n="measurement.typeManual"></strong></span>
+              </label>
+            </div>
           </fieldset>
 
           <fieldset id="manualMeasurementFields" hidden>
@@ -259,6 +271,7 @@
               <th data-i18n="table.calculatedHeight"></th>
               <th data-i18n="table.latitude"></th>
               <th data-i18n="table.longitude"></th>
+              <th data-i18n="tree.phytosanitaryStatus"></th>
               <th data-i18n="table.actions"></th>
             </tr>
           </thead>
