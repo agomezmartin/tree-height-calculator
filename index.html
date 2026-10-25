@@ -103,6 +103,39 @@
           </fieldset>
 
           <fieldset>
+            <legend data-i18n="gps.section"></legend>
+
+            <p class="location-help" data-i18n="gps.intro"></p>
+            <button id="getLocationButton" class="secondary-button location-button" type="button" data-i18n="gps.getLocation"></button>
+            <p id="locationStatus" class="location-status" role="status" aria-live="polite" data-i18n="gps.optional"></p>
+
+            <div class="field-grid">
+              <label class="field">
+                <span data-i18n="gps.latitude"></span>
+                <input id="latitude" name="latitude" type="text" inputmode="decimal" autocomplete="off" data-i18n-placeholder="gps.latitudePlaceholder" />
+              </label>
+
+              <label class="field">
+                <span data-i18n="gps.longitude"></span>
+                <input id="longitude" name="longitude" type="text" inputmode="decimal" autocomplete="off" data-i18n-placeholder="gps.longitudePlaceholder" />
+              </label>
+            </div>
+
+            <p class="location-help map-help" data-i18n="gps.mapHelp"></p>
+            <label class="field map-style-picker">
+              <span data-i18n="gps.mapStyle"></span>
+              <select id="mapStyleSelect" data-i18n-aria-label="gps.mapStyle">
+                <option value="standard" data-i18n="gps.mapStyleStandard"></option>
+                <option value="satellite" data-i18n="gps.mapStyleSatellite"></option>
+                <option value="topographic" data-i18n="gps.mapStyleTopographic"></option>
+              </select>
+            </label>
+            <div id="locationMap" class="location-map" role="region" data-i18n-aria-label="gps.mapLabel"></div>
+            <p id="mapStatus" class="location-status" role="status" aria-live="polite" data-i18n="gps.mapInitialStatus"></p>
+            <p class="map-attribution"><span data-i18n="gps.mapAttribution"></span> <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer" data-i18n="gps.osmContributors"></a></p>
+          </fieldset>
+
+          <fieldset>
             <legend data-i18n="measurement.type"></legend>
             <div class="radio-group" role="radiogroup" data-i18n-aria-label="measurement.type">
               <label class="choice">
@@ -170,39 +203,6 @@
                 <input id="observerHeight" name="observerHeight" type="number" step="0.01" min="0" required data-i18n-placeholder="measurement.observerHeightExample" />
               </label>
             </div>
-          </fieldset>
-
-          <fieldset>
-            <legend data-i18n="gps.section"></legend>
-
-            <p class="location-help" data-i18n="gps.intro"></p>
-            <button id="getLocationButton" class="secondary-button location-button" type="button" data-i18n="gps.getLocation"></button>
-            <p id="locationStatus" class="location-status" role="status" aria-live="polite" data-i18n="gps.optional"></p>
-
-            <div class="field-grid">
-              <label class="field">
-                <span data-i18n="gps.latitude"></span>
-                <input id="latitude" name="latitude" type="text" inputmode="decimal" autocomplete="off" data-i18n-placeholder="gps.latitudePlaceholder" />
-              </label>
-
-              <label class="field">
-                <span data-i18n="gps.longitude"></span>
-                <input id="longitude" name="longitude" type="text" inputmode="decimal" autocomplete="off" data-i18n-placeholder="gps.longitudePlaceholder" />
-              </label>
-            </div>
-
-            <p class="location-help map-help" data-i18n="gps.mapHelp"></p>
-            <label class="field map-style-picker">
-              <span data-i18n="gps.mapStyle"></span>
-              <select id="mapStyleSelect" data-i18n-aria-label="gps.mapStyle">
-                <option value="standard" data-i18n="gps.mapStyleStandard"></option>
-                <option value="satellite" data-i18n="gps.mapStyleSatellite"></option>
-                <option value="topographic" data-i18n="gps.mapStyleTopographic"></option>
-              </select>
-            </label>
-            <div id="locationMap" class="location-map" role="region" data-i18n-aria-label="gps.mapLabel"></div>
-            <p id="mapStatus" class="location-status" role="status" aria-live="polite" data-i18n="gps.mapInitialStatus"></p>
-            <p class="map-attribution"><span data-i18n="gps.mapAttribution"></span> <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer" data-i18n="gps.osmContributors"></a></p>
           </fieldset>
 
           <div class="form-actions">
