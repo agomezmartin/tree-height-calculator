@@ -40,7 +40,9 @@ El formulario permite asignar de forma opcional uno de estos estados a cada árb
 
 El formulario permite añadir un campo por cada tronco para registrar su diámetro a **1,30 m sobre el nivel del suelo** (diámetro a la altura del pecho, DAP), en centímetros. Los diámetros deben ser numéricos y mayores que cero; se pueden añadir o quitar tantos troncos como se necesiten. Los campos vacíos se ignoran y no se convierten en ceros. Un registro sin diámetros representa un árbol aún no medido; uno con un valor representa un tronco y uno con varios valores, un árbol multitronco.
 
-Los valores originales se conservan individualmente y en orden en `trunkDiameters`, por ejemplo `[28.5, 19.25]`. No se suman ni se calcula un diámetro equivalente. La parrilla muestra cada valor con el número de tronco y la unidad; si no hay datos, muestra `—`. Los registros antiguos sin `trunkDiameters` siguen siendo válidos y se muestran como no medidos.
+Los valores se guardan como números en `trunkDiameters` y sus identificadores estables se guardan en la posición correspondiente de `trunkIds`, por ejemplo `[28.5, 19.25]` y `["trunk-a", "trunk-b"]`. No se suman ni se calcula un diámetro equivalente. La parrilla muestra cada valor con el número de tronco y la unidad; si no hay datos, muestra `—`. Los registros antiguos sin `trunkDiameters` siguen siendo válidos y se muestran como no medidos. Se aceptan decimales con punto o coma; la coma se convierte a punto al guardar. Los inputs admiten solo dígitos y un separador decimal, y el guardado exige un valor finito mayor que cero. Los campos vacíos se omiten, no se convierten en cero.
+
+El archivo Excel contiene una sola hoja, `Mediciones`, con una fila por registro. Además de los atributos de medición, incluye columnas dinámicas `Tronco 1 (diámetro en cm)`, `Tronco 2 (diámetro en cm)`, etc. hasta la cantidad máxima de troncos de los registros exportados. Estas columnas aparecen antes de las coordenadas. Cada columna contiene el diámetro numérico de esa posición; los troncos o diámetros ausentes quedan en celdas vacías. Los IDs estables continúan asociados a los diámetros en `trunkIds` y `trunkDiameters` en los datos almacenados; los encabezados de columna solo representan su posición en la tabla.
 
 ## Idiomas
 
@@ -212,7 +214,7 @@ La aplicación genera un archivo `.xlsx` con todas las columnas útiles para aud
 
 La exportación usa SheetJS en el navegador y no requiere ningún backend.
 
-Además de la hoja `Mediciones` (que conserva su estructura), el libro incluye una hoja `Troncos` con una fila por tronco: ID del registro, ID o nombre del árbol, número de tronco y DAP en centímetros. El ID del registro vincula cada diámetro con su medición de origen. Para los árboles sin DAP se exporta una fila con el número y el diámetro vacíos; nunca se exporta cero. Los datos se mantienen numéricos para facilitar su análisis.
+El libro contiene exactamente una hoja `Mediciones`. Cada registro ocupa una única fila, y sus diámetros se añaden como números en columnas independientes `Tronco 1 (diámetro en cm)`, `Tronco 2 (diámetro en cm)`, etc. Estas columnas aparecen antes de las coordenadas y se generan hasta la posición de tronco máxima presente en el conjunto exportado; no se crean columnas innecesarias. Los campos ausentes quedan vacíos, sin convertirse en cero. Los nombres de las columnas de atributos se localizan según el idioma elegido, mientras que el nombre de hoja y los encabezados estructurales de los troncos permanecen fijos.
 
 La tabla de registros muestra las columnas `Latitud` y `Longitud` en grados decimales antes de exportar. La hoja Excel también incluye ambas columnas numéricas y conserva la precisión almacenada; si un registro no tiene ubicación, la tabla muestra `—` y las celdas quedan vacías. Las demás columnas y los registros antiguos se mantienen.
 
@@ -261,7 +263,7 @@ tree-height-calculator/
 npm test
 ```
 
-Los tests usan el ejecutor integrado `node:test` y mocks de la API GPS, almacenamiento y SheetJS; no requieren un dispositivo con GPS ni permisos reales. Cubren validación y límites de coordenadas, captura y errores, y persistencia/exportación opcionales. No verifican la precisión real del GPS de un dispositivo.
+Los tests usan el ejecutor integrado `node:test` y mocks de la API GPS, almacenamiento y SheetJS; no requieren un dispositivo con GPS ni permisos reales. Cubren la persistencia de IDs de tronco, edición y eliminación, filtrado de escritura y pegado, validación decimal y exportación con una única hoja y columnas dinámicas por tronco, además de coordenadas, captura GPS y localización. `npm test` ejecuta la suite completa. No verifican la precisión real del GPS de un dispositivo.
 
 ## Consideraciones de accesibilidad y responsive
 
