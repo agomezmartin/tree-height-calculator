@@ -220,7 +220,7 @@ La aplicación mantiene precisión interna y muestra resultados con dos decimale
 ## Estructura del proyecto
 
 ```text
-calculadora-arboricultura/
+tree-height-calculator/
 ├── index.html
 ├── README.md
 ├── docs/
