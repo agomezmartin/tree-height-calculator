@@ -160,6 +160,72 @@ test('trunk columns are dynamic for one, three, and five trunks', async () => {
   }
 });
 
+test('exportMeasurementsToXlsx creates one fixed-named sheet and one row per tree', async () => {
+  const { rows, workbook, headers, writtenFile } = await captureExport([
+    {
+      id: 'tree-a',
+      treeId: 'Oak A',
+      treeType: 'broadleaf',
+      speciesScientificName: 'Quercus robur',
+      trunkDiameters: [24.5, 18.2],
+      trunkIds: ['trunk-a1', 'trunk-a2'],
+      latitude: 40.123456789,
+      longitude: -3.987654321,
+    },
+    {
+      id: 'tree-b',
+      treeId: 'Oak B',
+      treeType: 'conifer',
+      trunkDiameters: [35],
+      trunkIds: ['trunk-b1'],
+    },
+    {
+      id: 'tree-c',
+      treeId: 'Oak C',
+      treeType: 'palm',
+      trunkDiameters: [12, 15.5, 9],
+      trunkIds: ['trunk-c1', 'trunk-c2', 'trunk-c3'],
+    },
+    { id: 'legacy', treeId: 'Legacy tree' },
+    { id: 'empty', treeId: 'Unmeasured tree', treeType: '', trunkDiameters: [] },
+  ]);
+
+  assert.deepEqual(workbook.worksheets.map((sheet) => sheet.name), ['Mediciones']);
+  assert.equal(rows.length, 5);
+  assert.deepEqual(
+    rows.map((row) => row[i18n.t('export.treeType')]),
+    ['Frondosa', 'Conífera', 'Palmera', '', ''],
+  );
+  assert.equal(rows[0][i18n.t('export.speciesScientificName')], 'Quercus robur');
+  assert.equal(rows[0][i18n.t('export.latitude')], 40.123456789);
+  assert.equal(rows[0][i18n.t('export.longitude')], -3.987654321);
+  assert.deepEqual(
+    rows.map((row) => [
+      row['Tronco 1 (diámetro en cm)'] ?? '',
+      row['Tronco 2 (diámetro en cm)'] ?? '',
+      row['Tronco 3 (diámetro en cm)'] ?? '',
+    ]),
+    [
+      [24.5, 18.2, ''],
+      [35, '', ''],
+      [12, 15.5, 9],
+      ['', '', ''],
+      ['', '', ''],
+    ],
+  );
+  const latitudeIndex = headers.indexOf(i18n.t('export.latitude'));
+  assert.deepEqual(headers.slice(latitudeIndex - 3, latitudeIndex), [
+    'Tronco 1 (diámetro en cm)',
+    'Tronco 2 (diámetro en cm)',
+    'Tronco 3 (diámetro en cm)',
+  ]);
+  assert.deepEqual(headers.slice(latitudeIndex), [
+    i18n.t('export.latitude'),
+    i18n.t('export.longitude'),
+  ]);
+  assert.match(writtenFile, /^mediciones-arboles-\d{4}-\d{2}-\d{2}\.xlsx$/);
+});
+
 test('export keeps translated measurement fields while structural sheet and trunk names stay fixed', async () => {
   i18n.setLanguage('en');
   try {
