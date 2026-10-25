@@ -24,7 +24,7 @@
     <meta name="twitter:image" content="https://agomezmartin.github.io/tree-height-calculator/assets/social-preview.png" />
     <link rel="icon" type="image/svg+xml" href="./assets/favicon.svg" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" />
-    <link rel="stylesheet" href="./css/styles.css?v=3" />
+    <link rel="stylesheet" href="./css/styles.css?v=4" />
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
     <script type="module" src="./js/app.js" defer></script>
@@ -101,6 +101,17 @@
               <textarea id="notes" name="notes" rows="3" data-i18n-placeholder="tree.notesPlaceholder"></textarea>
             </label>
           </fieldset>
+
+          <label class="choice">
+              <input id="includeTrunkDiameters" type="checkbox" />
+              <span data-i18n="tree.includeDiameters"></span>
+            </label>
+            <div id="trunkDiameterSection" class="trunk-diameter-section" role="group" aria-labelledby="trunk-diameter-title" hidden>
+              <span id="trunk-diameter-title" data-i18n="tree.dapTitle"></span>
+              <p class="location-help" data-i18n="tree.dapHelp"></p>
+              <div id="trunkDiameterList" class="trunk-diameter-list"></div>
+              <button id="addTrunkButton" class="secondary-button" type="button" data-i18n="tree.addTrunk"></button>
+            </div>
 
           <fieldset>
             <legend data-i18n="gps.section"></legend>
@@ -272,6 +283,7 @@
               <th data-i18n="table.latitude"></th>
               <th data-i18n="table.longitude"></th>
               <th data-i18n="tree.phytosanitaryStatus"></th>
+              <th data-i18n="table.dap"></th>
               <th data-i18n="table.actions"></th>
             </tr>
           </thead>

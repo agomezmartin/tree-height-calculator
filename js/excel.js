@@ -52,9 +52,25 @@ export function exportMeasurementsToXlsx(measurements) {
     };
   });
 
+  const trunkRows = measurements.flatMap((entry) => {
+    const trunkDiameters = Array.isArray(entry.trunkDiameters) ? entry.trunkDiameters : [];
+    const trunkRecords = trunkDiameters.length
+      ? trunkDiameters.map((diameter, index) => ({ trunkNumber: index + 1, diameter }))
+      : [{ trunkNumber: '', diameter: '' }];
+
+    return trunkRecords.map(({ trunkNumber, diameter }) => ({
+      [t('export.measurementRecordId')]: entry.id ?? '',
+      [t('export.treeId')]: entry.treeId || '',
+      [t('export.trunkNumber')]: trunkNumber,
+      [t('export.dap')]: diameter,
+    }));
+  });
+
   const worksheet = window.XLSX.utils.json_to_sheet(rows);
+  const trunkWorksheet = window.XLSX.utils.json_to_sheet(trunkRows);
   const workbook = window.XLSX.utils.book_new();
   window.XLSX.utils.book_append_sheet(workbook, worksheet, t('export.sheetName'));
+  window.XLSX.utils.book_append_sheet(workbook, trunkWorksheet, t('export.trunksSheetName'));
 
   const fileName = `${t('export.filePrefix')}-${new Date().toISOString().slice(0, 10)}.xlsx`;
   window.XLSX.writeFile(workbook, fileName);
