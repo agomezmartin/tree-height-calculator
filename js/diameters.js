@@ -42,7 +42,6 @@ export function validateTrunkDiameters(values) {
 
   return diameters;
 }
-
 export function validateStoredTrunkDiameter(value) {
   return parseTrunkDiameter(value);
 }

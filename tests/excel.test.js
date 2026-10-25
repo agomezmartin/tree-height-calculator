@@ -177,7 +177,6 @@ test('export keeps translated measurement fields while structural sheet and trun
       latitude: 40.123,
       longitude: -3.456,
     }]);
-
     assert.deepEqual(workbook.worksheets.map((sheet) => sheet.name), ['Mediciones']);
     assert.equal(rows.length, 1);
     assert.equal(rows[0]['Species IFN code'], 31);

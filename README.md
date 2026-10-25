@@ -221,6 +221,8 @@ La exportación usa ExcelJS en el navegador mediante CDN y no requiere backend. 
 
 El libro contiene exactamente una hoja `Mediciones`. Cada registro ocupa una única fila e incluye la columna localizada `Tipo de arbolado`. Los diámetros se añaden como números en columnas independientes `Tronco 1 (diámetro en cm)`, `Tronco 2 (diámetro en cm)`, etc. Estas columnas aparecen antes de las coordenadas y se generan hasta la posición de tronco máxima presente en el conjunto exportado; no se crean columnas innecesarias. Los campos ausentes quedan vacíos, sin convertirse en cero. Los nombres de las columnas de atributos se localizan según el idioma elegido, mientras que el nombre de hoja y los encabezados estructurales de los troncos permanecen fijos.
 
+Además de la hoja `Mediciones` (que conserva su estructura), el libro incluye una hoja `Troncos` con una fila por tronco: ID del registro, ID o nombre del árbol, número de tronco y DAP en centímetros. El ID del registro vincula cada diámetro con su medición de origen. Para los árboles sin DAP se exporta una fila con el número y el diámetro vacíos; nunca se exporta cero. Los datos se mantienen numéricos para facilitar su análisis.
+
 La tabla de registros muestra las columnas `Latitud` y `Longitud` en grados decimales antes de exportar. La hoja Excel también incluye ambas columnas numéricas y conserva la precisión almacenada; si un registro no tiene ubicación, la tabla muestra `—` y las celdas quedan vacías. Las demás columnas y los registros antiguos se mantienen.
 
 ## Limitaciones del método
