@@ -1,0 +1,1106 @@
+{
+  "source": "MITECO",
+  "schemaVersion": 1,
+  "species": [
+    {
+      "ifnCode": 1,
+      "scientificName": "Heberdenia bahamensis",
+      "commonName": "Aderno",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 2,
+      "scientificName": "Amelanchier ovalis",
+      "commonName": "Guillomo",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 3,
+      "scientificName": "Frangula alnus",
+      "commonName": "Arraclán",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 4,
+      "scientificName": "Rhamnus alaternus",
+      "commonName": "Aladierno",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 5,
+      "scientificName": "Euonymus europaeus",
+      "commonName": "Bonetero",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 6,
+      "scientificName": "Myrtus communis",
+      "commonName": "Mirto",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 8,
+      "scientificName": "Phillyrea latifolia",
+      "commonName": "Labiérnago",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 9,
+      "scientificName": "Cornus sanguinea",
+      "commonName": "Cornejo",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 11,
+      "scientificName": "Ailanthus altissima",
+      "commonName": "Ailanto",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 12,
+      "scientificName": "Malus sylvestris",
+      "commonName": "Manzano silvestre",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 13,
+      "scientificName": "Celtis australis",
+      "commonName": "Almez",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 14,
+      "scientificName": "Taxus baccata",
+      "commonName": "Tejo",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 17,
+      "scientificName": "Cedrus atlantica",
+      "commonName": "Cedro",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 18,
+      "scientificName": "Chamaecyparis lawsoniana",
+      "commonName": "Chameciparis",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 21,
+      "scientificName": "Pinus sylvestris",
+      "commonName": "Pino silvestre",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 22,
+      "scientificName": "Pinus uncinata",
+      "commonName": "Pino uncinata",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 23,
+      "scientificName": "Pinus pinea",
+      "commonName": "Pino piñonero",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 24,
+      "scientificName": "Pinus halepensis",
+      "commonName": "Pino halepensis",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 25,
+      "scientificName": "Pinus nigra",
+      "commonName": "Pino laricio",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 26,
+      "scientificName": "Pinus pinaster",
+      "commonName": "Pino pináster",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 27,
+      "scientificName": "Pinus canariensis",
+      "commonName": "Pino canario",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 28,
+      "scientificName": "Pinus radiata",
+      "commonName": "Pino radiata",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 31,
+      "scientificName": "Abies alba",
+      "commonName": "Pinabete",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 32,
+      "scientificName": "Abies pinsapo",
+      "commonName": "Pinsapo",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 33,
+      "scientificName": "Picea abies",
+      "commonName": "Píícea",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 34,
+      "scientificName": "Pseudotsuga menziesii",
+      "commonName": "Seudotsuga",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 36,
+      "scientificName": "Cupressus sempervirens",
+      "commonName": "Ciprés",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 37,
+      "scientificName": "Juniperus communis",
+      "commonName": "Enebro común",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 38,
+      "scientificName": "Juniperus thurifera",
+      "commonName": "Sabina albar",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 39,
+      "scientificName": "Juniperus phoenicea",
+      "commonName": "Sabina negral",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 41,
+      "scientificName": "Quercus robur",
+      "commonName": "Roble pedunculado",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 42,
+      "scientificName": "Quercus petraea",
+      "commonName": "Roble",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 43,
+      "scientificName": "Quercus pyrenaica",
+      "commonName": "Rebollo",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 44,
+      "scientificName": "Quercus faginea",
+      "commonName": "Quejigo fagínea",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 45,
+      "scientificName": "Quercus ilex",
+      "commonName": "Encina",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 46,
+      "scientificName": "Quercus suber",
+      "commonName": "Alcornoque",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 47,
+      "scientificName": "Quercus canariensis",
+      "commonName": "Quejigo bética",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 48,
+      "scientificName": "Quercus rubra",
+      "commonName": "Roble americano",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 51,
+      "scientificName": "Populus alba",
+      "commonName": "Álamo",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 52,
+      "scientificName": "Populus tremula",
+      "commonName": "Chopo temblón",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 54,
+      "scientificName": "Alnus glutinosa",
+      "commonName": "Aliso",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 55,
+      "scientificName": "Fraxinus angustifolia",
+      "commonName": "Fresno",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 56,
+      "scientificName": "Ulmus minor",
+      "commonName": "Olmo",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 58,
+      "scientificName": "Populus nigra",
+      "commonName": "Chopo",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 61,
+      "scientificName": "Eucalyptus globulus",
+      "commonName": "Eucalipto globulus",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 62,
+      "scientificName": "Eucalyptus camaldulensis",
+      "commonName": "Eucalipto rostrata",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 64,
+      "scientificName": "Eucalyptus nitens",
+      "commonName": "Eucalipto nitens",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 65,
+      "scientificName": "Ilex aquifolium",
+      "commonName": "Acebo",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 66,
+      "scientificName": "Olea europaea",
+      "commonName": "Acebuche",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 67,
+      "scientificName": "Ceratonia siliqua",
+      "commonName": "Algarrobo",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 68,
+      "scientificName": "Arbutus unedo",
+      "commonName": "Madroño",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 71,
+      "scientificName": "Fagus sylvatica",
+      "commonName": "Haya",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 72,
+      "scientificName": "Castanea sativa",
+      "commonName": "Castaño",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 74,
+      "scientificName": "Corylus avellana",
+      "commonName": "Avellano",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 75,
+      "scientificName": "Juglans regia",
+      "commonName": "Nogal",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 76,
+      "scientificName": "Acer campestre",
+      "commonName": "Arce",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 79,
+      "scientificName": "Platanus hispanica",
+      "commonName": "Plátano",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 81,
+      "scientificName": "Myrica faya",
+      "commonName": "Faya",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 82,
+      "scientificName": "Ilex canariensis",
+      "commonName": "Acebiño",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 83,
+      "scientificName": "Erica arborea",
+      "commonName": "Brezo arbóreo",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 84,
+      "scientificName": "Persea indica",
+      "commonName": "Viñátigo",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 85,
+      "scientificName": "Sideroxylon marmulano",
+      "commonName": "Marmulan",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 86,
+      "scientificName": "Picconia excelsa",
+      "commonName": "Palo blanco",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 87,
+      "scientificName": "Ocotea phoetens",
+      "commonName": "Til",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 88,
+      "scientificName": "Apollonias canariensis",
+      "commonName": "Barbusano",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 91,
+      "scientificName": "Buxus sempervirens",
+      "commonName": "Boj",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 92,
+      "scientificName": "Robinia pseudacacia",
+      "commonName": "Acacia robinia",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 93,
+      "scientificName": "Pistacia terebinthus",
+      "commonName": "Cornicabra",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 94,
+      "scientificName": "Laurus nobilis",
+      "commonName": "Laurel",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 96,
+      "scientificName": "Rhus coriaria",
+      "commonName": "Zumaque",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 97,
+      "scientificName": "Sambucus nigra",
+      "commonName": "Saúco negro",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 98,
+      "scientificName": "Carpinus betulus",
+      "commonName": "Carpe",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 207,
+      "scientificName": "Acacia melanoxylon",
+      "commonName": "Acacia melanoxylon",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 215,
+      "scientificName": "Crataegus monogyna",
+      "commonName": "Majuelo",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 217,
+      "scientificName": "Cedrus deodara",
+      "commonName": "Cedrus deodara",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 219,
+      "scientificName": "Tetraclinis articulata",
+      "commonName": "Tetraclinis articulata",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 235,
+      "scientificName": "Larix decidua",
+      "commonName": "Alerce común",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 236,
+      "scientificName": "Cupressus arizonica",
+      "commonName": "Ciprés arizónica",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 237,
+      "scientificName": "Juniperus oxycedrus",
+      "commonName": "Enebro oxicedro",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 238,
+      "scientificName": "Juniperus turbinata",
+      "commonName": "Sabina canaria",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 239,
+      "scientificName": "Juniperus sabina",
+      "commonName": "Sabina rastrera",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 243,
+      "scientificName": "Quercus pubescens (Q. humilis)",
+      "commonName": "Quercus humilis",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 244,
+      "scientificName": "Quercus lusitanica",
+      "commonName": "Quejigueta",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 253,
+      "scientificName": "Tamarix canariensis",
+      "commonName": "Tarajal",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 255,
+      "scientificName": "Fraxinus excelsior",
+      "commonName": "Fresno excelsior",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 256,
+      "scientificName": "Ulmus glabra",
+      "commonName": "Olmo montano",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 257,
+      "scientificName": "Salix alba",
+      "commonName": "Sauce blanco",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 258,
+      "scientificName": "Populus x canadensis",
+      "commonName": "Chopo híbrido",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 264,
+      "scientificName": "Eucalyptus viminalis",
+      "commonName": "Eucalipto viminalis",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 268,
+      "scientificName": "Arbutus canariensis",
+      "commonName": "Madroño canario",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 273,
+      "scientificName": "Betula alba",
+      "commonName": "Abedul pubescens",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 275,
+      "scientificName": "Juglans nigra",
+      "commonName": "Nogal",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 276,
+      "scientificName": "Acer monspessulanum",
+      "commonName": "Arce de Montpelier",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 277,
+      "scientificName": "Tilia cordata",
+      "commonName": "Tilo cordata",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 278,
+      "scientificName": "Sorbus aria",
+      "commonName": "Mostajo",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 279,
+      "scientificName": "Platanus orientalis",
+      "commonName": "Plátano oriental",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 282,
+      "scientificName": "Ilex platyphylla",
+      "commonName": "Naranjero",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 283,
+      "scientificName": "Erica escoparia",
+      "commonName": "Tejo, brezo arbóreo escopario",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 289,
+      "scientificName": "Pleiomeris canariensis",
+      "commonName": "Delfino",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 291,
+      "scientificName": "Buxus balearica",
+      "commonName": "Boj de Baleares",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 292,
+      "scientificName": "Sophora japonica",
+      "commonName": "Acacia sofora",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 293,
+      "scientificName": "Pistacia atlantica",
+      "commonName": "Cornicabra canaria",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 294,
+      "scientificName": "Laurus azorica",
+      "commonName": "Laurel canario",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 295,
+      "scientificName": "Prunus spinosa",
+      "commonName": "Espino negro",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 297,
+      "scientificName": "Sambucus racemosa",
+      "commonName": "Saúco racemosa",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 299,
+      "scientificName": "Ficus carica",
+      "commonName": "Higuera",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 307,
+      "scientificName": "Acacia dealbata",
+      "commonName": "Acacia dealbata",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 315,
+      "scientificName": "Crataegus laevigata",
+      "commonName": "Espino majuelo",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 317,
+      "scientificName": "Cedrus libani",
+      "commonName": "Cedrus libani",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 335,
+      "scientificName": "Larix leptolepis",
+      "commonName": "Alerce leptolepis",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 336,
+      "scientificName": "Cupressus lusitanica",
+      "commonName": "Ciprés lambertiana",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 337,
+      "scientificName": "Juniperus cedrus",
+      "commonName": "Enebro canario",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 355,
+      "scientificName": "Fraxinus ornus",
+      "commonName": "Fresno orno",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 356,
+      "scientificName": "Ulmus pumila",
+      "commonName": "Olmo pumilo",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 357,
+      "scientificName": "Salix atrocinerea",
+      "commonName": "Bardaguera",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 364,
+      "scientificName": "Eucalyptus gomphocephalus",
+      "commonName": "Eucalipto gonfo",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 369,
+      "scientificName": "Chamaerops humilis",
+      "commonName": "Palmito",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 373,
+      "scientificName": "Betula pendula",
+      "commonName": "Abedul péndula",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 376,
+      "scientificName": "Acer negundo",
+      "commonName": "Arce negundo",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 377,
+      "scientificName": "Tilia platyphyllos",
+      "commonName": "Tilo común",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 378,
+      "scientificName": "Sorbus aucuparia",
+      "commonName": "Serbal de cazadores",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 389,
+      "scientificName": "Rhamnus glandulosa",
+      "commonName": "Sanguino",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 392,
+      "scientificName": "Gleditsia triacanthos",
+      "commonName": "Acacia gleditsia",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 395,
+      "scientificName": "Prunus avium",
+      "commonName": "Cerezo silvestre",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 415,
+      "scientificName": "Crataegus lacinata",
+      "commonName": "Majoleto",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 435,
+      "scientificName": "Larix x eurolepis",
+      "commonName": "Alerce híbrido",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 436,
+      "scientificName": "Cupressus macrocarpa",
+      "commonName": "Ciprés americano",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 469,
+      "scientificName": "Phoenix canariensis",
+      "commonName": "Palmera canaria",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 457,
+      "scientificName": "Salix babylonica",
+      "commonName": "Sauce llorón",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 476,
+      "scientificName": "Acer opalus",
+      "commonName": "Arce ópalus",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 478,
+      "scientificName": "Sorbus domestica",
+      "commonName": "Serbal común",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 489,
+      "scientificName": "Visnea mocanera",
+      "commonName": "Mocan",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 495,
+      "scientificName": "Prunus lusitanica",
+      "commonName": "Loro, hija",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 499,
+      "scientificName": "Morus alba",
+      "commonName": "Morera",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 515,
+      "scientificName": "Crataegus azarolus",
+      "commonName": "Espino",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 557,
+      "scientificName": "Salix cantabrica",
+      "commonName": "Sauce cantábrico",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 569,
+      "scientificName": "Dracaena drago",
+      "commonName": "Drago",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 576,
+      "scientificName": "Acer pseudoplatanus",
+      "commonName": "Arce seudoplátano",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 578,
+      "scientificName": "Sorbus torminalis",
+      "commonName": "Serbal torminal",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 595,
+      "scientificName": "Prunus padus",
+      "commonName": "Prunus",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 599,
+      "scientificName": "Morus nigra",
+      "commonName": "Morera",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 657,
+      "scientificName": "Salix caprea",
+      "commonName": "Sauce cabruno",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 676,
+      "scientificName": "Acer platanoides",
+      "commonName": "Arce platanoide",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 678,
+      "scientificName": "Sorbus latifolia",
+      "commonName": "Serbal de hoja ancha",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 757,
+      "scientificName": "Salix elaeagnos",
+      "commonName": "Sarga",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 778,
+      "scientificName": "Sorbus chamaemespilus",
+      "commonName": "Serbal chame",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 857,
+      "scientificName": "Salix fragilis",
+      "commonName": "Mimbre",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 858,
+      "scientificName": "Salix canariensis",
+      "commonName": "Sauce canario",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 957,
+      "scientificName": "Salix purpurea",
+      "commonName": "Mimbrera",
+      "source": "MITECO"
+    }
+  ],
+  "categories": [
+    {
+      "ifnCode": 7,
+      "scientificName": "Acacia spp.",
+      "commonName": "Acacia",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 10,
+      "scientificName": "Sin asignar",
+      "commonName": "Sin asignar",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 15,
+      "scientificName": "Crataegus spp.",
+      "commonName": "Crataegus",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 16,
+      "scientificName": "Pyrus spp.",
+      "commonName": "Peral silvestre",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 19,
+      "scientificName": "Otras coníferas",
+      "commonName": "Otras coníferas",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 20,
+      "scientificName": "Pinos",
+      "commonName": "Pinos",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 29,
+      "scientificName": "Otros pinos",
+      "commonName": "Otros pinos",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 30,
+      "scientificName": "Mezcla de coníferas",
+      "commonName": "Coníferas, excepto pinos",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 35,
+      "scientificName": "Larix spp.",
+      "commonName": "Alerce",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 40,
+      "scientificName": "Quercus",
+      "commonName": "Quercus",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 49,
+      "scientificName": "Otros quercus",
+      "commonName": "Otros quercus",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 50,
+      "scientificName": "Mezcla de árboles de ribera",
+      "commonName": "Árboles ripícolas",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 53,
+      "scientificName": "Tamarix spp.",
+      "commonName": "Taraje",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 57,
+      "scientificName": "Salix spp.",
+      "commonName": "Sauce",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 59,
+      "scientificName": "Otros árboles ripícolas",
+      "commonName": "Otros árboles ripícolas",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 60,
+      "scientificName": "Mezcla de eucaliptos",
+      "commonName": "Eucaliptos",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 63,
+      "scientificName": "Otros eucaliptos",
+      "commonName": "Otros eucaliptos",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 69,
+      "scientificName": "Phoenix spp.",
+      "commonName": "Palmera",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 70,
+      "scientificName": "Mezcla de frondosas de gran porte",
+      "commonName": "Frondosas de gran porte excepto quercus (H.t. >10 m)",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 73,
+      "scientificName": "Betula spp.",
+      "commonName": "Abedul",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 77,
+      "scientificName": "Tilia spp.",
+      "commonName": "Tilo",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 78,
+      "scientificName": "Sorbus spp.",
+      "commonName": "Sorbus",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 80,
+      "scientificName": "Laurisilva",
+      "commonName": "Laurisilva",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 89,
+      "scientificName": "Otras laurisilvas",
+      "commonName": "Otras laurisilvas.",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 90,
+      "scientificName": "Mezcla de pequeñas frondosas",
+      "commonName": "Frondosas de pequeño porte (H.t. £ 10m)",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 95,
+      "scientificName": "Prunus spp.",
+      "commonName": "Prunus",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 99,
+      "scientificName": "Otras frondosas",
+      "commonName": "Otras frondosas",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 319,
+      "scientificName": "Thuja spp.",
+      "commonName": "Thuja",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 399,
+      "scientificName": "Morus spp.",
+      "commonName": "Morera",
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 1500,
+      "scientificName": "Cultivo en mosaico",
+      "commonName": null,
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 8000,
+      "scientificName": "Matorral en mosaico",
+      "commonName": null,
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 9000,
+      "scientificName": "Herbazal en mosaico",
+      "commonName": null,
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 3400,
+      "scientificName": "Prado en mosaico",
+      "commonName": null,
+      "source": "MITECO"
+    },
+    {
+      "ifnCode": 3500,
+      "scientificName": "Pastizal-Matorral en mosaico",
+      "commonName": null,
+      "source": "MITECO"
+    }
+  ]
+}

@@ -17,6 +17,13 @@ import {
   validateCoordinates,
 } from './coordinates.js';
 import { getErrorTranslationKey, i18n, setLocalizedText } from './i18n.js';
+import { getPhytosanitaryStatusLabel } from './phytosanitary.js';
+import {
+  findSpeciesByDisplayName,
+  findSpeciesByIfnCode,
+  getSpeciesCatalog,
+  getSpeciesDisplayName,
+} from './species.js';
 
 const form = document.getElementById('measurementForm');
 const resultValue = document.getElementById('treeHeightResult');
@@ -31,6 +38,8 @@ const calculateManualButton = document.getElementById('calculateManualButton');
 const exportButton = document.getElementById('exportButton');
 const latitudeInput = document.getElementById('latitude');
 const longitudeInput = document.getElementById('longitude');
+const speciesSelect = document.getElementById('speciesSelect');
+const phytosanitaryStatusSelect = document.getElementById('phytosanitaryStatus');
 const mapStatus = document.getElementById('mapStatus');
 const languageSelect = document.getElementById('languageSelect');
 const manualHeightInput = document.getElementById('manualHeight');
@@ -124,6 +133,36 @@ void locateUserOnLoad({
 measurementDateInput.value = new Date().toISOString().slice(0, 10);
 i18n.applyTranslations();
 
+function populateSpeciesOptions() {
+  if (!speciesSelect) {
+    return;
+  }
+
+  const previousSelection = speciesSelect.value || '';
+  const datalist = document.getElementById('speciesSuggestions');
+  if (!datalist) {
+    return;
+  }
+
+  const fragment = document.createDocumentFragment();
+  for (const species of getSpeciesCatalog()) {
+    const option = document.createElement('option');
+    option.value = getSpeciesDisplayName(species);
+    fragment.append(option);
+  }
+
+  datalist.replaceChildren(fragment);
+  if (previousSelection) {
+    const matchingSpecies = findSpeciesByDisplayName(previousSelection)
+      ?? findSpeciesByIfnCode(previousSelection);
+    speciesSelect.value = matchingSpecies ? getSpeciesDisplayName(matchingSpecies) : previousSelection;
+  } else {
+    speciesSelect.value = '';
+  }
+}
+
+populateSpeciesOptions();
+
 function formatMeters(value) {
   if (!Number.isFinite(value)) return t('common.notAvailable');
   return `${i18n.formatNumber(value, {
@@ -174,6 +213,27 @@ function showSuccess(key, parameters = {}) {
   errorBox.classList.add('success');
 }
 
+function getSelectedSpecies() {
+  const selectedSpeciesName = speciesSelect?.value?.trim();
+  if (!selectedSpeciesName) {
+    return null;
+  }
+
+  return findSpeciesByDisplayName(selectedSpeciesName)
+    ?? findSpeciesByIfnCode(selectedSpeciesName);
+}
+
+function getSpeciesFields() {
+  const selectedSpecies = getSelectedSpecies();
+  const enteredName = speciesSelect?.value?.trim() ?? '';
+
+  return {
+    speciesIfnCode: selectedSpecies?.ifnCode ?? null,
+    speciesScientificName: selectedSpecies?.scientificName ?? (enteredName || null),
+    speciesCommonName: selectedSpecies?.commonName ?? null,
+  };
+}
+
 function readFormValues() {
   const selectedMethod = document.querySelector('input[name="distanceMethod"]:checked')?.value ?? 'horizontal';
 
@@ -181,6 +241,7 @@ function readFormValues() {
     treeId: document.getElementById('treeId').value.trim(),
     date: document.getElementById('measurementDate').value,
     notes: document.getElementById('notes').value.trim(),
+    ...getSpeciesFields(),
     method: selectedMethod,
     distance: parseNumericInput(document.getElementById('distance').value),
     clinometerPercent: parseNumericInput(document.getElementById('clinometerPercent').value),
@@ -370,6 +431,8 @@ saveButton.addEventListener('click', () => {
       treeId: document.getElementById('treeId').value.trim(),
       date: measurementDateInput.value || new Date().toISOString().slice(0, 10),
       notes: document.getElementById('notes').value.trim(),
+      phytosanitaryStatus: phytosanitaryStatusSelect.value || null,
+      ...getSpeciesFields(),
       ...coordinates,
     };
     let measurement;
@@ -447,7 +510,7 @@ function renderTable() {
   if (!state.measurements.length) {
     const row = document.createElement('tr');
     const cell = document.createElement('td');
-    cell.colSpan = 12;
+    cell.colSpan = 14;
     cell.className = 'empty-state';
     cell.textContent = t('table.empty');
     row.append(cell);
@@ -459,8 +522,13 @@ function renderTable() {
   for (const entry of state.measurements) {
     const row = document.createElement('tr');
     const measurementType = entry.measurementType === 'manual' ? 'manual' : 'clinometer';
+    const treeLabel = entry.treeId || t('table.unnamedTree');
+    const scientificName = entry.speciesScientificName
+      || findSpeciesByIfnCode(entry.speciesIfnCode)?.scientificName
+      || '';
     const values = [
-      entry.treeId || t('table.unnamedTree'),
+      treeLabel,
+      scientificName,
       t(`measurement.type${measurementType === 'manual' ? 'Manual' : 'Clinometer'}`),
       entry.date ? i18n.formatDate(entry.date) : t('common.notAvailable'),
       measurementType === 'manual'
@@ -473,6 +541,11 @@ function renderTable() {
       formatMeters(entry.estimatedHeight),
       formatCoordinate(entry.latitude),
       formatCoordinate(entry.longitude),
+      getPhytosanitaryStatusLabel(
+        entry.phytosanitaryStatus,
+        t,
+        t('tree.phytosanitaryNotEvaluated'),
+      ),
     ];
     for (const value of values) {
       const cell = document.createElement('td');
@@ -529,6 +602,13 @@ tableBody.addEventListener('click', (event) => {
     updateMeasurementType();
     setLocalizedText(saveButton, 'action.update');
     document.getElementById('treeId').value = target.treeId || '';
+    const targetSpecies = target.speciesIfnCode != null && target.speciesIfnCode !== ''
+      ? findSpeciesByIfnCode(target.speciesIfnCode)
+      : null;
+    speciesSelect.value = targetSpecies
+      ? getSpeciesDisplayName(targetSpecies)
+      : target.speciesScientificName || '';
+    phytosanitaryStatusSelect.value = target.phytosanitaryStatus || '';
     document.getElementById('measurementDate').value = target.date || new Date().toISOString().slice(0, 10);
     document.getElementById('notes').value = target.notes || '';
     if (measurementType === 'clinometer') {
@@ -558,6 +638,7 @@ tableBody.addEventListener('click', (event) => {
 
 languageSelect.addEventListener('change', () => {
   i18n.setLanguage(languageSelect.value);
+  populateSpeciesOptions();
   locationMap?.setLanguage();
   renderTable();
   if (state.lastResult) renderResult(state.lastResult);

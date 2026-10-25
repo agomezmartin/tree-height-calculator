@@ -1,4 +1,5 @@
 import { i18n } from './i18n.js';
+import { getPhytosanitaryStatusLabel } from './phytosanitary.js';
 
 export function exportMeasurementsToXlsx(measurements) {
   const { t } = i18n;
@@ -11,8 +12,16 @@ export function exportMeasurementsToXlsx(measurements) {
 
   const rows = measurements.map((entry) => {
     const isManual = entry.measurementType === 'manual';
+    const speciesIfnCode = entry.speciesIfnCode ?? entry.species?.ifnCode ?? '';
+    const speciesScientificName = entry.speciesScientificName ?? entry.species?.scientificName ?? '';
+    const speciesCommonName = entry.speciesCommonName ?? entry.species?.commonName ?? '';
+
     return {
       [t('export.treeId')]: entry.treeId || '',
+      [t('export.speciesIfnCode')]: speciesIfnCode ?? '',
+      [t('export.speciesScientificName')]: speciesScientificName ?? '',
+      [t('export.speciesCommonName')]: speciesCommonName ?? '',
+      [t('tree.phytosanitaryStatus')]: getPhytosanitaryStatusLabel(entry.phytosanitaryStatus, t),
       [t('export.measurementType')]: t(isManual ? 'measurement.typeManual' : 'measurement.typeClinometer'),
       [t('export.date')]: entry.date || '',
       [t('export.notes')]: entry.notes || '',

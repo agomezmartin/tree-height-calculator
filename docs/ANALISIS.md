@@ -132,10 +132,20 @@ La lógica matemática debe estar en un módulo independiente, puro y comprobabl
 
 - Se usará `localStorage` para conservar mediciones en el navegador durante la sesión y permitir edición.
 - El dato se exportará a Excel desde la colección en memoria y no dependerá de backend.
+- Cada medición puede guardar la especie asociada usando el código IFN del catálogo MITECO, junto con el nombre científico y el nombre común. Si el registro es antiguo o no tiene especie, estos campos quedan nulos y la visualización sigue funcionando sin migración destructiva.
+- Cada medición puede guardar `phytosanitaryStatus` con uno de los valores `good`, `acceptable`, `deficient` o `critical`. El campo es opcional; los registros antiguos sin este dato permanecen sin evaluar, se muestran como "Sin evaluar" y se exportan con una celda vacía.
+
+### Catálogo de especies y selector
+
+El catálogo de referencia se almacena en [assets/species.json](../assets/species.json) y se importa como dato independiente de la lógica de interfaz. El formulario expone un selector con opción vacía de "Selecciona una especie" y el texto `Nombre científico — Nombre común` para cada entrada, manteniendo la identidad del catálogo por su código IFN.
+
+### Estado fitosanitario
+
+El formulario dispone de un desplegable opcional con los estados Bueno, Aceptable, Deficiente y Crítico, además de la opción inicial "Sin evaluar". Esta última se almacena como `null`, se presenta como "Sin evaluar" en la parrilla y se exporta como celda vacía. Los registros anteriores sin propiedad `phytosanitaryStatus` se siguen leyendo sin migración.
 
 ### Exportación Excel
 
-Se usará SheetJS en navegador mediante CDN para generar un archivo `.xlsx` sin servidor de aplicación.
+SheetJS en navegador mediante CDN genera un archivo `.xlsx` sin servidor de aplicación. La exportación incluye una columna localizada para el estado fitosanitario; los registros sin estado mantienen la celda vacía.
 
 ### Testing
 

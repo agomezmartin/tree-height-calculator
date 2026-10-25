@@ -8,6 +8,7 @@ Una pequeña aplicación web para calcular la altura de un árbol a partir de me
 - Admite dos métodos de distancia: distancia horizontal o distancia medida sobre el terreno.
 - Calcula la altura estimada del árbol usando una formulación geométrica clara y separada por fases.
 - Guarda mediciones localmente con `localStorage` para editar o revisar datos sin depender de un servidor.
+- Permite registrar opcionalmente el estado fitosanitario de cada árbol: Bueno, Aceptable, Deficiente o Crítico.
 - Exporta los registros a Excel con archivos `.xlsx` para auditoría posterior.
 - Captura opcionalmente las coordenadas GPS de cada árbol y las incluye en la exportación; permite elegir mapa estándar, satélite o topográfico y seleccionar la ubicación con un clic o ajustando el marcador.
 - Está pensada para funcionar en escritorio, tablet y móvil.
@@ -17,6 +18,22 @@ Una pequeña aplicación web para calcular la altura de un árbol a partir de me
 ## Registrar una altura conocida
 
 Además del cálculo con clinómetro, puedes seleccionar **Introducir altura conocida** y guardar directamente la altura del árbol en metros. Se aceptan punto o coma decimal; el valor debe ser finito y mayor que cero, sin un límite máximo arbitrario. El registro aparece en la misma tabla, identificado por su origen, y se puede editar como cualquier otra medición. En la exportación Excel se conserva la altura como valor numérico y las columnas de medición con clinómetro quedan vacías, ya que no se aplican a este tipo de registro. Los registros antiguos que no tengan un origen guardado siguen considerándose mediciones con clinómetro.
+
+## Catálogo de especies MITECO
+
+La aplicación incluye el catálogo de especies del MITECO en [assets/species.json](./assets/species.json). El archivo contiene la lista oficial de especies con su código IFN, nombre científico y nombre común en español, y se usa como fuente única para el selector del formulario. La selección se conserva en cada medición con estos campos:
+
+- `speciesIfnCode`: identificador estable del catálogo IFN.
+- `speciesScientificName`: nombre científico original del catálogo.
+- `speciesCommonName`: nombre común del catálogo, cuando existe.
+
+El selector muestra la opción con formato `Quercus ilex — Encina` y, si no hay nombre común, solo el nombre científico. No se localiza ni se traduce el catálogo y el idioma activo solo cambia la interfaz, no la identidad de la especie.
+
+Los registros antiguos siguen siendo compatibles porque el modelo acepta valores nulos para estas propiedades y la lectura desde `localStorage` rellena el estado sin romper mediciones ya guardadas.
+
+## Estado fitosanitario
+
+El formulario permite asignar de forma opcional uno de estos estados a cada árbol: **Bueno**, **Aceptable**, **Deficiente** o **Crítico**. La opción inicial es **Sin evaluar** y se guarda como `null`; no asigna automáticamente un estado. El estado se conserva en `phytosanitaryStatus`, se muestra en su propia columna de la parrilla y se incluye en la exportación Excel. Los registros anteriores sin este campo, así como los valores vacíos o nulos, se muestran como «Sin evaluar» y se exportan con la celda vacía.
 
 ## Idiomas
 
@@ -170,6 +187,7 @@ donde `h_ojo` es la altura del instrumento o de los ojos del observador sobre el
 La aplicación genera un archivo `.xlsx` con todas las columnas útiles para auditar la medición:
 
 - ID del árbol
+- Estado fitosanitario
 - Origen de la altura (clinómetro o altura conocida)
 - Fecha
 - Observaciones
@@ -202,7 +220,7 @@ La aplicación mantiene precisión interna y muestra resultados con dos decimale
 ## Estructura del proyecto
 
 ```text
-calculadora-arboricultura/
+tree-height-calculator/
 ├── index.html
 ├── README.md
 ├── docs/

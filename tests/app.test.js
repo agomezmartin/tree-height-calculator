@@ -37,6 +37,20 @@ test('el formulario guarda mediciones con y sin GPS, conserva y permite actualiz
       document.getElementById('terrainSlopePercent').value = '0';
       document.getElementById('observerHeight').value = '1.7';
     };
+    const speciesSelect = document.getElementById('speciesSelect');
+    const phytosanitaryStatusSelect = document.getElementById('phytosanitaryStatus');
+    const speciesSuggestions = document.getElementById('speciesSuggestions');
+    assert.equal(speciesSuggestions.options.length > 1, true);
+    assert.equal(speciesSelect.value, '');
+    assert.match([...speciesSuggestions.options].find((option) => option.value.includes('Quercus ilex')).value, /Quercus ilex/);
+    assert.deepEqual(
+      [...phytosanitaryStatusSelect.options].map((option) => option.value),
+      ['', 'good', 'acceptable', 'deficient', 'critical'],
+    );
+    assert.deepEqual(
+      [...phytosanitaryStatusSelect.options].map((option) => option.textContent),
+      ['Sin evaluar', 'Bueno', 'Aceptable', 'Deficiente', 'Crítico'],
+    );
     const getSavedMeasurements = () => JSON.parse(localStorage.getItem('treeMeasurements'));
     const saveButton = document.getElementById('saveButton');
     const calculateButton = document.getElementById('calculateButton');
@@ -55,38 +69,78 @@ test('el formulario guarda mediciones con y sin GPS, conserva y permite actualiz
     assert.equal(measurements.length, 1);
     assert.equal(measurements[0].latitude, null);
     assert.equal(measurements[0].longitude, null);
+    assert.equal(measurements[0].phytosanitaryStatus, null);
     assert.ok(Math.abs(measurements[0].estimatedHeight - 17.7) < 1e-9);
     const noGpsCells = [...document.querySelector('#measurementTableBody tr').cells];
-    assert.equal(noGpsCells[9].textContent, '—');
     assert.equal(noGpsCells[10].textContent, '—');
+    assert.equal(noGpsCells[11].textContent, '—');
+    assert.equal(noGpsCells[12].textContent, 'Sin evaluar');
 
     setRequiredMeasurements();
+    speciesSelect.value = 'Quercus ilex — Encina';
+    phytosanitaryStatusSelect.value = 'good';
     document.getElementById('treeId').value = 'Con GPS';
     document.getElementById('latitude').value = '40,123456789';
     document.getElementById('longitude').value = '-3,987654321';
     saveButton.click();
     measurements = getSavedMeasurements();
     const withGps = measurements.find((entry) => entry.treeId === 'Con GPS');
+    assert.equal(measurements.find((entry) => entry.treeId === 'Sin GPS').phytosanitaryStatus, null);
+    assert.equal(withGps.speciesIfnCode, 45);
+    assert.equal(withGps.speciesScientificName, 'Quercus ilex');
+    assert.equal(withGps.speciesCommonName, 'Encina');
+    assert.equal(withGps.phytosanitaryStatus, 'good');
     assert.equal(withGps.latitude, 40.123456789);
     assert.equal(withGps.longitude, -3.987654321);
     const gpsRow = [...document.querySelectorAll('#measurementTableBody tr')]
-      .find((row) => row.cells[0].textContent === 'Con GPS');
-    assert.equal(gpsRow.cells[1].textContent, 'Calcular con clinómetro');
-    assert.equal(gpsRow.cells[9].textContent, '40,123456789');
-    assert.equal(gpsRow.cells[10].textContent, '-3,987654321');
+      .find((row) => row.cells[0].textContent.includes('Con GPS'));
+    assert.equal(gpsRow.cells[0].textContent, 'Con GPS');
+    assert.equal(gpsRow.cells[1].textContent, 'Quercus ilex');
+    assert.equal(gpsRow.cells[2].textContent, 'Calcular con clinómetro');
+    assert.equal(gpsRow.cells[10].textContent, '40,123456789');
+    assert.equal(gpsRow.cells[11].textContent, '-3,987654321');
+    assert.equal(gpsRow.cells[12].textContent, 'Bueno');
+
+    setRequiredMeasurements();
+    speciesSelect.value = 'Especie personalizada';
+    document.getElementById('treeId').value = 'Árbol personalizado';
+    saveButton.click();
+    measurements = getSavedMeasurements();
+    const customSpeciesTree = measurements.find((entry) => entry.treeId === 'Árbol personalizado');
+    assert.equal(customSpeciesTree.speciesIfnCode, null);
+    assert.equal(customSpeciesTree.speciesScientificName, 'Especie personalizada');
+    const customSpeciesRow = [...document.querySelectorAll('#measurementTableBody tr')]
+      .find((row) => row.cells[0].textContent === 'Árbol personalizado');
+    assert.equal(customSpeciesRow.cells[1].textContent, 'Especie personalizada');
+
+    document.querySelector(`[data-action="edit"][data-id="${customSpeciesTree.id}"]`).click();
+    assert.equal(speciesSelect.value, 'Especie personalizada');
+    document.getElementById('notes').value = 'Especie no catalogada';
+    saveButton.click();
+    assert.equal(
+      getSavedMeasurements().find((entry) => entry.id === customSpeciesTree.id).speciesScientificName,
+      'Especie personalizada',
+    );
 
     document.querySelector(`[data-action="edit"][data-id="${withGps.id}"]`).click();
+    assert.equal(speciesSelect.value, 'Quercus ilex — Encina');
+    assert.equal(phytosanitaryStatusSelect.value, 'good');
     document.getElementById('notes').value = 'Notas editadas';
     saveButton.click();
     measurements = getSavedMeasurements();
     const edited = measurements.find((entry) => entry.id === withGps.id);
+    assert.equal(edited.speciesIfnCode, 45);
+    assert.equal(edited.speciesScientificName, 'Quercus ilex');
+    assert.equal(edited.phytosanitaryStatus, 'good');
     assert.equal(edited.latitude, 40.123456789);
     assert.equal(edited.longitude, -3.987654321);
     assert.equal(edited.notes, 'Notas editadas');
     const editedRow = [...document.querySelectorAll('#measurementTableBody tr')]
-      .find((row) => row.cells[0].textContent === 'Con GPS');
-    assert.equal(editedRow.cells[9].textContent, '40,123456789');
-    assert.equal(editedRow.cells[10].textContent, '-3,987654321');
+      .find((row) => row.cells[0].textContent.includes('Con GPS'));
+    assert.equal(editedRow.cells[1].textContent, 'Quercus ilex');
+    assert.equal(editedRow.cells[10].textContent, '40,123456789');
+    assert.equal(editedRow.cells[11].textContent, '-3,987654321');
+    assert.equal(editedRow.cells[12].textContent, 'Bueno');
 
     document.querySelector(`[data-action="edit"][data-id="${withGps.id}"]`).click();
     document.getElementById('latitude').value = '0';
@@ -139,7 +193,7 @@ test('el formulario guarda mediciones con y sin GPS, conserva y permite actualiz
     assert.equal(document.documentElement.lang, 'en');
     assert.equal(document.querySelector('h1').textContent, 'Tree Height Calculator');
     assert.equal(document.querySelector('#treeHeightResult').textContent, '17.70 m');
-    assert.equal(document.querySelector('#measurementTableBody tr').cells[3].textContent, 'Horizontal distance');
+    assert.equal(document.querySelector('#measurementTableBody tr').cells[4].textContent, 'Horizontal distance');
     assert.match(document.getElementById('locationStatus').textContent, /Location permission was denied/);
     assert.equal(document.getElementById('treeId').value, 'Con GPS');
 
@@ -170,6 +224,7 @@ test('el formulario guarda mediciones con y sin GPS, conserva y permite actualiz
     languageSelect.value = 'es';
     languageSelect.dispatchEvent(new dom.window.Event('change', { bubbles: true }));
 
+    phytosanitaryStatusSelect.value = '';
     saveButton.click();
     const manual = getSavedMeasurements().find((entry) => entry.treeId === 'Manual');
     assert.equal(manual.measurementType, 'manual');
@@ -181,16 +236,19 @@ test('el formulario guarda mediciones con y sin GPS, conserva y permite actualiz
     assert.equal(manual.observerHeight, null);
 
     const manualRow = [...document.querySelectorAll('#measurementTableBody tr')]
-      .find((row) => row.cells[0].textContent === 'Manual');
-    assert.equal(manualRow.cells[1].textContent, 'Introducir altura conocida');
-    assert.equal(manualRow.cells[3].textContent, '—');
+      .find((row) => row.cells[0].textContent.includes('Manual'));
+    assert.match(manualRow.cells[0].textContent, /Manual/);
+    assert.equal(manualRow.cells[2].textContent, 'Introducir altura conocida');
     assert.equal(manualRow.cells[4].textContent, '—');
     assert.equal(manualRow.cells[5].textContent, '—');
-    assert.equal(manualRow.cells[8].textContent, '12,50 m');
+    assert.equal(manualRow.cells[6].textContent, '—');
+    assert.equal(manualRow.cells[9].textContent, '12,50 m');
+    assert.equal(manualRow.cells[12].textContent, 'Sin evaluar');
 
     document.querySelector(`[data-action="edit"][data-id="${manual.id}"]`).click();
     assert.equal(document.querySelector('input[name="measurementType"][value="manual"]').checked, true);
     assert.equal(document.getElementById('manualHeight').value, '12.5');
+    phytosanitaryStatusSelect.value = '';
     document.getElementById('manualHeight').value = '-1';
     saveButton.click();
     assert.equal(getSavedMeasurements().find((entry) => entry.id === manual.id).estimatedHeight, 12.5);
@@ -207,6 +265,7 @@ test('el formulario guarda mediciones con y sin GPS, conserva y permite actualiz
 
     const restoredRows = JSON.parse(localStorage.getItem('treeMeasurements'));
     assert.equal(restoredRows.find((entry) => entry.id === manual.id).measurementType, 'manual');
+    assert.equal(restoredRows.find((entry) => entry.id === manual.id).phytosanitaryStatus, null);
   } finally {
     dom.window.close();
     delete globalThis.window;
