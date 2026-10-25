@@ -134,6 +134,7 @@ La lógica matemática debe estar en un módulo independiente, puro y comprobabl
 - El dato se exportará a Excel desde la colección en memoria y no dependerá de backend.
 - Cada medición puede guardar la especie asociada usando el código IFN del catálogo MITECO, junto con el nombre científico y el nombre común. Si el registro es antiguo o no tiene especie, estos campos quedan nulos y la visualización sigue funcionando sin migración destructiva.
 - Cada medición puede guardar `phytosanitaryStatus` con uno de los valores `good`, `acceptable`, `deficient` o `critical`. El campo es opcional; los registros antiguos sin este dato permanecen sin evaluar, se muestran como "Sin evaluar" y se exportan con una celda vacía.
+- Cada medición puede guardar `trunkDiameters` como una lista ordenada de diámetros DAP numéricos, en centímetros. Una lista vacía o una propiedad ausente significa que no se ha medido; cada posición identifica el número de tronco dentro del registro.
 
 ### Catálogo de especies y selector
 
@@ -143,13 +144,17 @@ El catálogo de referencia se almacena en [assets/species.json](../assets/specie
 
 El formulario dispone de un desplegable opcional con los estados Bueno, Aceptable, Deficiente y Crítico, además de la opción inicial "Sin evaluar". Esta última se almacena como `null`, se presenta como "Sin evaluar" en la parrilla y se exporta como celda vacía. Los registros anteriores sin propiedad `phytosanitaryStatus` se siguen leyendo sin migración.
 
+### DAP y árboles multitronco
+
+El formulario admite un diámetro positivo por tronco, medido a 1,30 m sobre el nivel del suelo y expresado en centímetros. Se pueden añadir y quitar campos sin un máximo artificial. Los campos vacíos no representan troncos ni diámetros de cero; si todos están vacíos, se almacena `trunkDiameters: []`. Los valores se conservan como números ordenados por tronco, sin sumarlos ni calcular un diámetro equivalente. La parrilla numera cada diámetro y muestra `—` cuando no existen datos. La ausencia de la propiedad en registros antiguos también se trata como no medido.
+
 ### Exportación Excel
 
-SheetJS en navegador mediante CDN genera un archivo `.xlsx` sin servidor de aplicación. La exportación incluye una columna localizada para el estado fitosanitario; los registros sin estado mantienen la celda vacía.
+SheetJS en navegador mediante CDN genera un archivo `.xlsx` sin servidor de aplicación. La hoja existente `Mediciones` mantiene sus columnas y orden. Se añade `Troncos`, con una fila por cada diámetro y las columnas ID del registro, ID/nombre del árbol, número de tronco y DAP a 1,30 m (cm). La combinación del ID del registro y el número del tronco permite identificar cada dato sin empaquetar una cantidad variable de diámetros en una sola celda. Los árboles sin diámetros tienen una fila con número y valor vacíos; los datos numéricos se conservan como tales. La hoja de mediciones mantiene la columna localizada de estado fitosanitario, dejando vacíos los registros no evaluados.
 
 ### Testing
 
-Se ejecutarán pruebas unitarias del cálculo en Node usando `node --test`, sin depender de DOM ni navegador.
+Las pruebas se ejecutan con `npm test` (`node --test`) y cubren la validación de diámetros, la edición y visualización del formulario, la persistencia y ambas hojas de exportación.
 
 ## 9. Ambigüedades resueltas
 

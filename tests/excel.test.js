@@ -6,21 +6,27 @@ import { i18n } from '../js/i18n.js';
 
 test('exportMeasurementsToXlsx agrega latitud y longitud numéricas o vacías sin alterar columnas previas', () => {
   let exportedRows;
+  let exportedTrunkRows;
   let writtenFile;
   const worksheet = {};
+  const trunkWorksheet = {};
   const workbook = {};
+  const appendedSheets = [];
   globalThis.window = {
     XLSX: {
       utils: {
         json_to_sheet(rows) {
-          exportedRows = rows;
-          return worksheet;
+          if (!exportedRows) {
+            exportedRows = rows;
+            return worksheet;
+          }
+          exportedTrunkRows = rows;
+          return trunkWorksheet;
         },
         book_new: () => workbook,
         book_append_sheet(receivedWorkbook, receivedWorksheet, name) {
           assert.equal(receivedWorkbook, workbook);
-          assert.equal(receivedWorksheet, worksheet);
-          assert.equal(name, 'Mediciones');
+          appendedSheets.push({ receivedWorksheet, name });
         },
       },
       writeFile(receivedWorkbook, fileName) {
@@ -33,19 +39,21 @@ test('exportMeasurementsToXlsx agrega latitud y longitud numéricas o vacías si
   try {
     const filename = exportMeasurementsToXlsx([
       {
+        id: 'record-1',
         treeId: 'Pino con GPS',
         speciesIfnCode: 45,
         speciesScientificName: 'Quercus ilex',
         speciesCommonName: 'Encina',
         phytosanitaryStatus: 'acceptable',
+        trunkDiameters: [30, 24],
         distance: 20,
         estimatedHeight: 17.7,
         latitude: 40.416812345,
         longitude: -3.703790123,
       },
-      { treeId: 'Roble sin GPS', distance: 10, estimatedHeight: 8.2 },
-      { treeId: 'Fresno sin evaluar', phytosanitaryStatus: null },
-      { treeId: 'Abedul sin evaluar', phytosanitaryStatus: '' },
+      { id: 'record-2', treeId: 'Roble sin GPS', distance: 10, estimatedHeight: 8.2 },
+      { id: 'record-3', treeId: 'Fresno sin evaluar', phytosanitaryStatus: null },
+      { id: 'record-4', treeId: 'Abedul sin evaluar', phytosanitaryStatus: '' },
     ]);
 
     assert.equal(filename, writtenFile);
@@ -65,6 +73,30 @@ test('exportMeasurementsToXlsx agrega latitud y longitud numéricas o vacías si
     assert.equal(exportedRows[2]['Estado fitosanitario'], '');
     assert.equal(exportedRows[3]['Estado fitosanitario'], '');
     assert.deepEqual(Object.keys(exportedRows[0]).slice(-2), ['Latitud', 'Longitud']);
+    assert.deepEqual(appendedSheets, [
+      { receivedWorksheet: worksheet, name: 'Mediciones' },
+      { receivedWorksheet: trunkWorksheet, name: 'Troncos' },
+    ]);
+    assert.equal(exportedTrunkRows.length, 5);
+    assert.deepEqual(exportedTrunkRows.slice(0, 2), [
+      {
+        'ID del registro': 'record-1',
+        'ID del árbol': 'Pino con GPS',
+        'Número de tronco': 1,
+        'DAP a 1,30 m (cm)': 30,
+      },
+      {
+        'ID del registro': 'record-1',
+        'ID del árbol': 'Pino con GPS',
+        'Número de tronco': 2,
+        'DAP a 1,30 m (cm)': 24,
+      },
+    ]);
+    assert.deepEqual(exportedTrunkRows.slice(2), [
+      { 'ID del registro': 'record-2', 'ID del árbol': 'Roble sin GPS', 'Número de tronco': '', 'DAP a 1,30 m (cm)': '' },
+      { 'ID del registro': 'record-3', 'ID del árbol': 'Fresno sin evaluar', 'Número de tronco': '', 'DAP a 1,30 m (cm)': '' },
+      { 'ID del registro': 'record-4', 'ID del árbol': 'Abedul sin evaluar', 'Número de tronco': '', 'DAP a 1,30 m (cm)': '' },
+    ]);
   } finally {
     delete globalThis.window;
   }
@@ -76,7 +108,7 @@ test('exportMeasurementsToXlsx conserva la exportación sin coordenadas y report
     XLSX: {
       utils: {
         json_to_sheet(rows) {
-          exportedRows = rows;
+          if (!exportedRows) exportedRows = rows;
           return {};
         },
         book_new: () => ({}),
@@ -101,18 +133,19 @@ test('exportMeasurementsToXlsx conserva la exportación sin coordenadas y report
 
 test('exportMeasurementsToXlsx localiza encabezados, hoja y nombre sin convertir coordenadas numéricas', () => {
   let exportedRows;
-  let sheetName;
+  const exportedSheets = [];
   let writtenFile;
   globalThis.window = {
     XLSX: {
       utils: {
         json_to_sheet(rows) {
-          exportedRows = rows;
+          exportedSheets.push(rows);
+          if (!exportedRows) exportedRows = rows;
           return {};
         },
         book_new: () => ({}),
         book_append_sheet(_workbook, _worksheet, name) {
-          sheetName = name;
+          exportedSheets.push(name);
         },
       },
       writeFile(_workbook, fileName) {
@@ -124,6 +157,9 @@ test('exportMeasurementsToXlsx localiza encabezados, hoja y nombre sin convertir
   try {
     i18n.setLanguage('en');
     exportMeasurementsToXlsx([{
+      id: 'record-1',
+      treeId: 'Oak',
+      trunkDiameters: [31, 20],
       method: 'slope',
       measurementType: 'clinometer',
       speciesIfnCode: 31,
@@ -133,7 +169,8 @@ test('exportMeasurementsToXlsx localiza encabezados, hoja y nombre sin convertir
       latitude: 40.123,
       longitude: -3.456,
     }]);
-    assert.equal(sheetName, 'Measurements');
+    assert.equal(exportedSheets[2], 'Measurements');
+    assert.equal(exportedSheets[3], 'Trunks');
     assert.equal(exportedRows[0]['Species IFN code'], 31);
     assert.equal(exportedRows[0]['Scientific name'], 'Abies alba');
     assert.equal(exportedRows[0]['Common name'], 'Pinabete');
@@ -142,6 +179,20 @@ test('exportMeasurementsToXlsx localiza encabezados, hoja y nombre sin convertir
     assert.match(exportedRows[0]['Formula / method used'], /h_eye/);
     assert.equal(exportedRows[0].Latitude, 40.123);
     assert.equal(exportedRows[0].Longitude, -3.456);
+    assert.deepEqual(exportedSheets[1], [
+      {
+        'Measurement record ID': 'record-1',
+        'Tree ID': 'Oak',
+        'Trunk number': 1,
+        'DBH at 1.30 m (cm)': 31,
+      },
+      {
+        'Measurement record ID': 'record-1',
+        'Tree ID': 'Oak',
+        'Trunk number': 2,
+        'DBH at 1.30 m (cm)': 20,
+      },
+    ]);
     assert.match(writtenFile, /^tree-measurements-\d{4}-\d{2}-\d{2}\.xlsx$/);
   } finally {
     i18n.setLanguage('es');
@@ -155,7 +206,7 @@ test('manual height rows export the numeric height and leave clinometer measurem
     XLSX: {
       utils: {
         json_to_sheet(rows) {
-          exportedRows = rows;
+          if (!exportedRows) exportedRows = rows;
           return {};
         },
         book_new: () => ({}),
