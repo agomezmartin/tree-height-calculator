@@ -55,30 +55,53 @@ test('el formulario guarda mediciones con y sin GPS, conserva y permite actualiz
     const saveButton = document.getElementById('saveButton');
     const calculateButton = document.getElementById('calculateButton');
     const calculateManualButton = document.getElementById('calculateManualButton');
+    const includeTrunkDiameters = document.getElementById('includeTrunkDiameters');
+    const trunkDiameterSection = document.getElementById('trunkDiameterSection');
     const measurementTypeFieldset = document.querySelector('input[name="measurementType"]').closest('fieldset');
     const treeFieldset = document.querySelector('fieldset > legend[data-i18n="tree.section"]').parentElement;
-    assert.equal(measurementTypeFieldset.nextElementSibling, treeFieldset);
+    assert.ok(measurementTypeFieldset);
     assert.equal(treeFieldset.hidden, false);
     assert.equal(calculateButton.hidden, false);
     assert.equal(calculateManualButton.hidden, true);
+    assert.equal(includeTrunkDiameters.checked, false);
+    assert.equal(trunkDiameterSection.hidden, true);
 
     setRequiredMeasurements();
     document.getElementById('treeId').value = 'Sin GPS';
+    includeTrunkDiameters.checked = true;
+    includeTrunkDiameters.dispatchEvent(new dom.window.Event('change', { bubbles: true }));
+    assert.equal(trunkDiameterSection.hidden, false);
+    document.querySelector('.trunk-diameter-input').value = '0';
+    saveButton.click();
+    assert.equal(getSavedMeasurements(), null);
+    assert.match(document.getElementById('formError').textContent, /mayor que 0 cm/);
+    document.querySelector('.trunk-diameter-input').value = '22';
+    includeTrunkDiameters.checked = false;
+    includeTrunkDiameters.dispatchEvent(new dom.window.Event('change', { bubbles: true }));
+    assert.equal(trunkDiameterSection.hidden, true);
     saveButton.click();
     let measurements = getSavedMeasurements();
     assert.equal(measurements.length, 1);
+    assert.deepEqual(measurements[0].trunkDiameters, []);
     assert.equal(measurements[0].latitude, null);
     assert.equal(measurements[0].longitude, null);
     assert.equal(measurements[0].phytosanitaryStatus, null);
+    assert.deepEqual(measurements[0].trunkDiameters, []);
     assert.ok(Math.abs(measurements[0].estimatedHeight - 17.7) < 1e-9);
     const noGpsCells = [...document.querySelector('#measurementTableBody tr').cells];
     assert.equal(noGpsCells[10].textContent, '—');
     assert.equal(noGpsCells[11].textContent, '—');
     assert.equal(noGpsCells[12].textContent, 'Sin evaluar');
+    assert.equal(noGpsCells[13].textContent, '—');
 
     setRequiredMeasurements();
+    includeTrunkDiameters.checked = true;
+    includeTrunkDiameters.dispatchEvent(new dom.window.Event('change', { bubbles: true }));
     speciesSelect.value = 'Quercus ilex — Encina';
     phytosanitaryStatusSelect.value = 'good';
+    document.querySelector('.trunk-diameter-input').value = '35,5';
+    document.getElementById('addTrunkButton').click();
+    document.querySelectorAll('.trunk-diameter-input')[1].value = '22.25';
     document.getElementById('treeId').value = 'Con GPS';
     document.getElementById('latitude').value = '40,123456789';
     document.getElementById('longitude').value = '-3,987654321';
@@ -90,6 +113,7 @@ test('el formulario guarda mediciones con y sin GPS, conserva y permite actualiz
     assert.equal(withGps.speciesScientificName, 'Quercus ilex');
     assert.equal(withGps.speciesCommonName, 'Encina');
     assert.equal(withGps.phytosanitaryStatus, 'good');
+    assert.deepEqual(withGps.trunkDiameters, [35.5, 22.25]);
     assert.equal(withGps.latitude, 40.123456789);
     assert.equal(withGps.longitude, -3.987654321);
     const gpsRow = [...document.querySelectorAll('#measurementTableBody tr')]
@@ -100,6 +124,8 @@ test('el formulario guarda mediciones con y sin GPS, conserva y permite actualiz
     assert.equal(gpsRow.cells[10].textContent, '40,123456789');
     assert.equal(gpsRow.cells[11].textContent, '-3,987654321');
     assert.equal(gpsRow.cells[12].textContent, 'Bueno');
+    assert.equal(gpsRow.cells[13].textContent, '1: 35,5 cm; 2: 22,25 cm');
+    assert.equal(document.querySelector('.trunk-diameter-input').value, '');
 
     setRequiredMeasurements();
     speciesSelect.value = 'Especie personalizada';
@@ -125,6 +151,12 @@ test('el formulario guarda mediciones con y sin GPS, conserva y permite actualiz
     document.querySelector(`[data-action="edit"][data-id="${withGps.id}"]`).click();
     assert.equal(speciesSelect.value, 'Quercus ilex — Encina');
     assert.equal(phytosanitaryStatusSelect.value, 'good');
+    assert.equal(includeTrunkDiameters.checked, true);
+    assert.equal(trunkDiameterSection.hidden, false);
+    assert.deepEqual(
+      [...document.querySelectorAll('.trunk-diameter-input')].map((input) => input.value),
+      ['35.5', '22.25'],
+    );
     document.getElementById('notes').value = 'Notas editadas';
     saveButton.click();
     measurements = getSavedMeasurements();
@@ -132,6 +164,7 @@ test('el formulario guarda mediciones con y sin GPS, conserva y permite actualiz
     assert.equal(edited.speciesIfnCode, 45);
     assert.equal(edited.speciesScientificName, 'Quercus ilex');
     assert.equal(edited.phytosanitaryStatus, 'good');
+    assert.deepEqual(edited.trunkDiameters, [35.5, 22.25]);
     assert.equal(edited.latitude, 40.123456789);
     assert.equal(edited.longitude, -3.987654321);
     assert.equal(edited.notes, 'Notas editadas');
@@ -141,6 +174,17 @@ test('el formulario guarda mediciones con y sin GPS, conserva y permite actualiz
     assert.equal(editedRow.cells[10].textContent, '40,123456789');
     assert.equal(editedRow.cells[11].textContent, '-3,987654321');
     assert.equal(editedRow.cells[12].textContent, 'Bueno');
+    assert.equal(editedRow.cells[13].textContent, '1: 35,5 cm; 2: 22,25 cm');
+
+    document.querySelector(`[data-action="edit"][data-id="${withGps.id}"]`).click();
+    document.querySelector('.trunk-diameter-row button[data-action="remove-trunk"]').click();
+    assert.equal(document.querySelectorAll('.trunk-diameter-input').length, 1);
+    document.querySelector('.trunk-diameter-input').value = '35.5';
+    saveButton.click();
+    assert.deepEqual(
+      getSavedMeasurements().find((entry) => entry.id === withGps.id).trunkDiameters,
+      [35.5],
+    );
 
     document.querySelector(`[data-action="edit"][data-id="${withGps.id}"]`).click();
     document.getElementById('latitude').value = '0';

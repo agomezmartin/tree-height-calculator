@@ -9,6 +9,7 @@ Una pequeña aplicación web para calcular la altura de un árbol a partir de me
 - Calcula la altura estimada del árbol usando una formulación geométrica clara y separada por fases.
 - Guarda mediciones localmente con `localStorage` para editar o revisar datos sin depender de un servidor.
 - Permite registrar opcionalmente el estado fitosanitario de cada árbol: Bueno, Aceptable, Deficiente o Crítico.
+- Permite registrar el DAP de cada tronco a 1,30 m de altura en centímetros, incluidos árboles multitronco.
 - Exporta los registros a Excel con archivos `.xlsx` para auditoría posterior.
 - Captura opcionalmente las coordenadas GPS de cada árbol y las incluye en la exportación; permite elegir mapa estándar, satélite o topográfico y seleccionar la ubicación con un clic o ajustando el marcador.
 - Está pensada para funcionar en escritorio, tablet y móvil.
@@ -34,6 +35,12 @@ Los registros antiguos siguen siendo compatibles porque el modelo acepta valores
 ## Estado fitosanitario
 
 El formulario permite asignar de forma opcional uno de estos estados a cada árbol: **Bueno**, **Aceptable**, **Deficiente** o **Crítico**. La opción inicial es **Sin evaluar** y se guarda como `null`; no asigna automáticamente un estado. El estado se conserva en `phytosanitaryStatus`, se muestra en su propia columna de la parrilla y se incluye en la exportación Excel. Los registros anteriores sin este campo, así como los valores vacíos o nulos, se muestran como «Sin evaluar» y se exportan con la celda vacía.
+
+## DAP y árboles multitronco
+
+El formulario permite añadir un campo por cada tronco para registrar su diámetro a **1,30 m sobre el nivel del suelo** (diámetro a la altura del pecho, DAP), en centímetros. Los diámetros deben ser numéricos y mayores que cero; se pueden añadir o quitar tantos troncos como se necesiten. Los campos vacíos se ignoran y no se convierten en ceros. Un registro sin diámetros representa un árbol aún no medido; uno con un valor representa un tronco y uno con varios valores, un árbol multitronco.
+
+Los valores originales se conservan individualmente y en orden en `trunkDiameters`, por ejemplo `[28.5, 19.25]`. No se suman ni se calcula un diámetro equivalente. La parrilla muestra cada valor con el número de tronco y la unidad; si no hay datos, muestra `—`. Los registros antiguos sin `trunkDiameters` siguen siendo válidos y se muestran como no medidos.
 
 ## Idiomas
 
@@ -204,6 +211,8 @@ La aplicación genera un archivo `.xlsx` con todas las columnas útiles para aud
 - Fórmula / método utilizado
 
 La exportación usa SheetJS en el navegador y no requiere ningún backend.
+
+Además de la hoja `Mediciones` (que conserva su estructura), el libro incluye una hoja `Troncos` con una fila por tronco: ID del registro, ID o nombre del árbol, número de tronco y DAP en centímetros. El ID del registro vincula cada diámetro con su medición de origen. Para los árboles sin DAP se exporta una fila con el número y el diámetro vacíos; nunca se exporta cero. Los datos se mantienen numéricos para facilitar su análisis.
 
 La tabla de registros muestra las columnas `Latitud` y `Longitud` en grados decimales antes de exportar. La hoja Excel también incluye ambas columnas numéricas y conserva la precisión almacenada; si un registro no tiene ubicación, la tabla muestra `—` y las celdas quedan vacías. Las demás columnas y los registros antiguos se mantienen.
 

@@ -26,12 +26,14 @@ test('storage conserva coordenadas opcionales, edita registros existentes y lee 
       treeId: 'Roble',
       latitude: 40.123456789,
       longitude: -3.987654321,
+      trunkDiameters: [28.5, 19.25],
     });
     addMeasurement({ id: 'no-gps', treeId: 'Abedul', latitude: null, longitude: null });
 
     const edited = updateMeasurementById('gps', { treeId: 'Roble editado' });
     assert.equal(edited.find((entry) => entry.id === 'gps').latitude, 40.123456789);
     assert.equal(edited.find((entry) => entry.id === 'gps').longitude, -3.987654321);
+    assert.deepEqual(edited.find((entry) => entry.id === 'gps').trunkDiameters, [28.5, 19.25]);
     assert.equal(edited.find((entry) => entry.id === 'gps').treeId, 'Roble editado');
 
     const updatedCoordinates = updateMeasurementById('gps', { latitude: 0, longitude: 0 });

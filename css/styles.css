@@ -196,6 +196,40 @@ legend {
   color: var(--text);
 }
 
+.trunk-diameter-section {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.trunk-diameter-section[hidden] {
+  display: none;
+}
+
+.trunk-diameter-section h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.trunk-diameter-section p {
+  margin: 0;
+}
+
+.trunk-diameter-list {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.trunk-diameter-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 0.55rem;
+}
+
+.trunk-diameter-row .icon-button {
+  min-height: 44px;
+}
+
 .field input,
 .field select,
 .field textarea {
