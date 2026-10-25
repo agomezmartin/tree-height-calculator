@@ -18,7 +18,7 @@ import {
 } from './coordinates.js';
 import { getErrorTranslationKey, i18n, setLocalizedText } from './i18n.js';
 import { getPhytosanitaryStatusLabel } from './phytosanitary.js';
-import { validateTrunkDiameters } from './diameters.js';
+import { isPartialTrunkDiameter, validateTrunkDiameters } from './diameters.js';
 import {
   findSpeciesByDisplayName,
   findSpeciesByIfnCode,
@@ -203,7 +203,16 @@ function getTrunkDiameterInputValues() {
     .map((input) => input.value);
 }
 
-function renderTrunkDiameterInputs(values = ['']) {
+function getTrunkDiameterInputIds() {
+  return [...trunkDiameterList.querySelectorAll('.trunk-diameter-input')]
+    .map((input) => input.dataset.trunkId);
+}
+
+function createTrunkId() {
+  return `trunk-${window.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(16).slice(2)}`}`;
+}
+
+function renderTrunkDiameterInputs(values = [''], ids = []) {
   const fragment = document.createDocumentFragment();
 
   values.forEach((value, index) => {
@@ -223,6 +232,40 @@ function renderTrunkDiameterInputs(values = ['']) {
     input.inputMode = 'decimal';
     input.autocomplete = 'off';
     input.value = value;
+    input.dataset.trunkId = ids[index] || createTrunkId();
+    let lastValidValue = input.value;
+    input.addEventListener('beforeinput', (event) => {
+      if (event.data === null || event.data === undefined) {
+        return;
+      }
+
+      const start = input.selectionStart ?? input.value.length;
+      const end = input.selectionEnd ?? start;
+      const candidate = `${input.value.slice(0, start)}${event.data}${input.value.slice(end)}`;
+      if (!isPartialTrunkDiameter(candidate)) {
+        event.preventDefault();
+      }
+    });
+    input.addEventListener('paste', (event) => {
+      const pastedValue = event.clipboardData?.getData('text');
+      if (pastedValue === undefined) {
+        return;
+      }
+
+      const start = input.selectionStart ?? input.value.length;
+      const end = input.selectionEnd ?? start;
+      const candidate = `${input.value.slice(0, start)}${pastedValue}${input.value.slice(end)}`;
+      if (!isPartialTrunkDiameter(candidate)) {
+        event.preventDefault();
+      }
+    });
+    input.addEventListener('input', () => {
+      if (isPartialTrunkDiameter(input.value)) {
+        lastValidValue = input.value;
+      } else {
+        input.value = lastValidValue;
+      }
+    });
     label.append(labelText, input);
 
     const removeButton = document.createElement('button');
@@ -266,8 +309,10 @@ function showSuccess(key, parameters = {}) {
 
 addTrunkButton.addEventListener('click', () => {
   const values = getTrunkDiameterInputValues();
+  const ids = getTrunkDiameterInputIds();
   values.push('');
-  renderTrunkDiameterInputs(values);
+  ids.push(createTrunkId());
+  renderTrunkDiameterInputs(values, ids);
   trunkDiameterList.lastElementChild?.querySelector('.trunk-diameter-input')?.focus();
 });
 
@@ -283,9 +328,13 @@ trunkDiameterList.addEventListener('click', (event) => {
   if (!removeButton) return;
 
   const values = getTrunkDiameterInputValues();
+  const ids = getTrunkDiameterInputIds();
   const rowIndex = [...trunkDiameterList.children].indexOf(removeButton.closest('.trunk-diameter-row'));
-  if (rowIndex >= 0) values.splice(rowIndex, 1);
-  renderTrunkDiameterInputs(values);
+  if (rowIndex >= 0) {
+    values.splice(rowIndex, 1);
+    ids.splice(rowIndex, 1);
+  }
+  renderTrunkDiameterInputs(values, ids);
 });
 
 function getSelectedSpecies() {
@@ -501,13 +550,17 @@ saveButton.addEventListener('click', () => {
       latitude: latitudeInput.value,
       longitude: longitudeInput.value,
     });
+    const trunkDiameterValues = getTrunkDiameterInputValues();
+    const trunkInputIds = getTrunkDiameterInputIds();
     const common = {
       id: state.editingId ?? `tree-${Date.now()}-${Math.random().toString(16).slice(2)}`,
       treeId: document.getElementById('treeId').value.trim(),
       date: measurementDateInput.value || new Date().toISOString().slice(0, 10),
       notes: document.getElementById('notes').value.trim(),
       phytosanitaryStatus: phytosanitaryStatusSelect.value || null,
-      trunkDiameters: validateTrunkDiameters(getTrunkDiameterInputValues()),
+      trunkDiameters: validateTrunkDiameters(trunkDiameterValues),
+      trunkIds: trunkDiameterValues
+        .flatMap((value, index) => String(value).trim() ? [trunkInputIds[index]] : []),
       ...getSpeciesFields(),
       ...coordinates,
     };
@@ -700,9 +753,13 @@ tableBody.addEventListener('click', (event) => {
       : target.speciesScientificName || '';
     phytosanitaryStatusSelect.value = target.phytosanitaryStatus || '';
     const trunkDiameters = Array.isArray(target.trunkDiameters) ? target.trunkDiameters : [];
+    const trunkIds = Array.isArray(target.trunkIds) ? target.trunkIds : [];
     includeTrunkDiameters.checked = trunkDiameters.length > 0;
     trunkDiameterSection.hidden = !includeTrunkDiameters.checked;
-    renderTrunkDiameterInputs(trunkDiameters.length ? trunkDiameters.map(String) : ['']);
+    renderTrunkDiameterInputs(
+      trunkDiameters.length ? trunkDiameters.map(String) : [''],
+      trunkDiameters.length ? trunkDiameters.map((_diameter, index) => trunkIds[index]) : [],
+    );
     document.getElementById('measurementDate').value = target.date || new Date().toISOString().slice(0, 10);
     document.getElementById('notes').value = target.notes || '';
     if (measurementType === 'clinometer') {
@@ -733,7 +790,7 @@ tableBody.addEventListener('click', (event) => {
 languageSelect.addEventListener('change', () => {
   i18n.setLanguage(languageSelect.value);
   populateSpeciesOptions();
-  renderTrunkDiameterInputs(getTrunkDiameterInputValues());
+  renderTrunkDiameterInputs(getTrunkDiameterInputValues(), getTrunkDiameterInputIds());
   locationMap?.setLanguage();
   renderTable();
   if (state.lastResult) renderResult(state.lastResult);

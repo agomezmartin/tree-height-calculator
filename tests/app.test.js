@@ -71,11 +71,41 @@ test('el formulario guarda mediciones con y sin GPS, conserva y permite actualiz
     includeTrunkDiameters.checked = true;
     includeTrunkDiameters.dispatchEvent(new dom.window.Event('change', { bubbles: true }));
     assert.equal(trunkDiameterSection.hidden, false);
-    document.querySelector('.trunk-diameter-input').value = '0';
+    const trunkInput = document.querySelector('.trunk-diameter-input');
+    const invalidBeforeInput = new dom.window.InputEvent('beforeinput', {
+      data: '1e3',
+      inputType: 'insertFromPaste',
+      bubbles: true,
+      cancelable: true,
+    });
+    trunkInput.dispatchEvent(invalidBeforeInput);
+    assert.equal(invalidBeforeInput.defaultPrevented, true);
+    const invalidPaste = new dom.window.Event('paste', { bubbles: true, cancelable: true });
+    Object.defineProperty(invalidPaste, 'clipboardData', {
+      value: { getData: () => '12cm' },
+    });
+    trunkInput.dispatchEvent(invalidPaste);
+    assert.equal(invalidPaste.defaultPrevented, true);
+
+    const validPaste = new dom.window.Event('paste', { bubbles: true, cancelable: true });
+    Object.defineProperty(validPaste, 'clipboardData', {
+      value: { getData: () => '12,5' },
+    });
+    trunkInput.dispatchEvent(validPaste);
+    assert.equal(validPaste.defaultPrevented, false);
+    trunkInput.value = '12,5';
+    trunkInput.dispatchEvent(new dom.window.Event('input', { bubbles: true }));
+    trunkInput.value = '12cm';
+    trunkInput.dispatchEvent(new dom.window.Event('input', { bubbles: true }));
+    assert.equal(trunkInput.value, '12,5');
+    trunkInput.value = '1e3';
     saveButton.click();
     assert.equal(getSavedMeasurements(), null);
+    assert.match(document.getElementById('formError').textContent, /DAP/);
+    trunkInput.value = '0';
+    saveButton.click();
     assert.match(document.getElementById('formError').textContent, /mayor que 0 cm/);
-    document.querySelector('.trunk-diameter-input').value = '22';
+    trunkInput.value = '22';
     includeTrunkDiameters.checked = false;
     includeTrunkDiameters.dispatchEvent(new dom.window.Event('change', { bubbles: true }));
     assert.equal(trunkDiameterSection.hidden, true);
@@ -114,6 +144,8 @@ test('el formulario guarda mediciones con y sin GPS, conserva y permite actualiz
     assert.equal(withGps.speciesCommonName, 'Encina');
     assert.equal(withGps.phytosanitaryStatus, 'good');
     assert.deepEqual(withGps.trunkDiameters, [35.5, 22.25]);
+    assert.equal(withGps.trunkIds.length, 2);
+    assert.notEqual(withGps.trunkIds[0], withGps.trunkIds[1]);
     assert.equal(withGps.latitude, 40.123456789);
     assert.equal(withGps.longitude, -3.987654321);
     const gpsRow = [...document.querySelectorAll('#measurementTableBody tr')]
@@ -165,6 +197,7 @@ test('el formulario guarda mediciones con y sin GPS, conserva y permite actualiz
     assert.equal(edited.speciesScientificName, 'Quercus ilex');
     assert.equal(edited.phytosanitaryStatus, 'good');
     assert.deepEqual(edited.trunkDiameters, [35.5, 22.25]);
+    assert.deepEqual(edited.trunkIds, withGps.trunkIds);
     assert.equal(edited.latitude, 40.123456789);
     assert.equal(edited.longitude, -3.987654321);
     assert.equal(edited.notes, 'Notas editadas');
@@ -184,6 +217,10 @@ test('el formulario guarda mediciones con y sin GPS, conserva y permite actualiz
     assert.deepEqual(
       getSavedMeasurements().find((entry) => entry.id === withGps.id).trunkDiameters,
       [35.5],
+    );
+    assert.deepEqual(
+      getSavedMeasurements().find((entry) => entry.id === withGps.id).trunkIds,
+      [withGps.trunkIds[1]],
     );
 
     document.querySelector(`[data-action="edit"][data-id="${withGps.id}"]`).click();
