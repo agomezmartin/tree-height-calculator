@@ -1,5 +1,6 @@
 import { i18n } from './i18n.js';
 import { getPhytosanitaryStatusLabel } from './phytosanitary.js';
+import { validateStoredTrunkDiameter } from './diameters.js';
 
 export function exportMeasurementsToXlsx(measurements) {
   const { t } = i18n;
@@ -47,30 +48,28 @@ export function exportMeasurementsToXlsx(measurements) {
           : entry.method === 'slope'
             ? t('export.formulaSlope')
             : entry.methodDescription || '',
-      [t('export.latitude')]: entry.latitude ?? '',
-      [t('export.longitude')]: entry.longitude ?? '',
     };
   });
 
-  const trunkRows = measurements.flatMap((entry) => {
-    const trunkDiameters = Array.isArray(entry.trunkDiameters) ? entry.trunkDiameters : [];
-    const trunkRecords = trunkDiameters.length
-      ? trunkDiameters.map((diameter, index) => ({ trunkNumber: index + 1, diameter }))
-      : [{ trunkNumber: '', diameter: '' }];
+  const trunkCount = measurements.reduce((maximum, entry) => {
+    const diameters = Array.isArray(entry.trunkDiameters) ? entry.trunkDiameters : [];
+    const ids = Array.isArray(entry.trunkIds) ? entry.trunkIds : [];
+    return Math.max(maximum, diameters.length, ids.length);
+  }, 0);
+  rows.forEach((row, rowIndex) => {
+    const entry = measurements[rowIndex];
+    const diameters = Array.isArray(entry.trunkDiameters) ? entry.trunkDiameters : [];
 
-    return trunkRecords.map(({ trunkNumber, diameter }) => ({
-      [t('export.measurementRecordId')]: entry.id ?? '',
-      [t('export.treeId')]: entry.treeId || '',
-      [t('export.trunkNumber')]: trunkNumber,
-      [t('export.dap')]: diameter,
-    }));
+    for (let index = 0; index < trunkCount; index += 1) {
+      row[`Tronco ${index + 1} (diámetro en cm)`] = validateStoredTrunkDiameter(diameters[index]) ?? '';
+    }
+    row[t('export.latitude')] = entry.latitude ?? '';
+    row[t('export.longitude')] = entry.longitude ?? '';
   });
 
   const worksheet = window.XLSX.utils.json_to_sheet(rows);
-  const trunkWorksheet = window.XLSX.utils.json_to_sheet(trunkRows);
   const workbook = window.XLSX.utils.book_new();
-  window.XLSX.utils.book_append_sheet(workbook, worksheet, t('export.sheetName'));
-  window.XLSX.utils.book_append_sheet(workbook, trunkWorksheet, t('export.trunksSheetName'));
+  window.XLSX.utils.book_append_sheet(workbook, worksheet, 'Mediciones');
 
   const fileName = `${t('export.filePrefix')}-${new Date().toISOString().slice(0, 10)}.xlsx`;
   window.XLSX.writeFile(workbook, fileName);
