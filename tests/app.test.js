@@ -26,6 +26,11 @@ test('el formulario guarda mediciones con y sin GPS, conserva y permite actualiz
   try {
     await import(`../js/app.js?integration=${Date.now()}`);
     const { document } = dom.window;
+    document.getElementById('exportButton').click();
+    assert.equal(
+      document.getElementById('formError').textContent,
+      'No hay mediciones guardadas para exportar.',
+    );
     assert.deepEqual(initialGpsRequest, {
       enableHighAccuracy: true,
       timeout: 15000,
