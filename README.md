@@ -42,7 +42,7 @@ El formulario permite añadir un campo por cada tronco para registrar su diámet
 
 Los valores se guardan como números en `trunkDiameters` y sus identificadores estables se guardan en la posición correspondiente de `trunkIds`, por ejemplo `[28.5, 19.25]` y `["trunk-a", "trunk-b"]`. No se suman ni se calcula un diámetro equivalente. La parrilla muestra cada valor con el número de tronco y la unidad; si no hay datos, muestra `—`. Los registros antiguos sin `trunkDiameters` siguen siendo válidos y se muestran como no medidos. Se aceptan decimales con punto o coma; la coma se convierte a punto al guardar. Los inputs admiten solo dígitos y un separador decimal, y el guardado exige un valor finito mayor que cero. Los campos vacíos se omiten, no se convierten en cero.
 
-El archivo Excel contiene una sola hoja, `Mediciones`, con una fila por registro. Además de los atributos de medición, incluye columnas dinámicas `Tronco 1 (diámetro en cm)`, `Tronco 2 (diámetro en cm)`, etc. hasta la cantidad máxima de troncos de los registros exportados. Estas columnas aparecen antes de las coordenadas. Cada columna contiene el diámetro numérico de esa posición; los troncos o diámetros ausentes quedan en celdas vacías. Los IDs estables continúan asociados a los diámetros en `trunkIds` y `trunkDiameters` en los datos almacenados; los encabezados de columna solo representan su posición en la tabla.
+El archivo Excel contiene una sola hoja, `Mediciones`, con una fila por registro. Además de los atributos de medición, incluye columnas dinámicas `Tronco 1 (diámetro en cm)`, `Tronco 2 (diámetro en cm)`, etc. hasta la cantidad máxima de troncos de los registros exportados. Estas columnas aparecen antes de las coordenadas. Cada columna contiene el diámetro numérico de esa posición; los troncos o diámetros ausentes quedan en celdas vacías. Los IDs estables continúan asociados a los diámetros en `trunkIds` y `trunkDiameters` en los datos almacenados; los encabezados de columna solo representan su posición en la tabla. La hoja oculta las líneas de cuadrícula y usa una tabla nativa de Excel con estilo **Table Style Light 11 (Olive Green)** y filtros. Las columnas se dimensionan según el encabezado (con un mínimo de 12 caracteres y un margen de 2); los valores pueden ampliar el ancho hasta 60 caracteres, pero un encabezado más largo amplía la columna sin límite para permanecer en una línea. Todas las celdas tienen ajuste de texto activado. Si un nombre de columna localizado está vacío o repetido, se asigna un nombre único sin descartar los datos de esa columna.
 
 ## Idiomas
 
@@ -212,7 +212,7 @@ La aplicación genera un archivo `.xlsx` con todas las columnas útiles para aud
 - Altura estimada
 - Fórmula / método utilizado
 
-La exportación usa SheetJS en el navegador y no requiere ningún backend.
+La exportación usa ExcelJS en el navegador mediante CDN y no requiere backend. ExcelJS crea una tabla estructurada real, no solo colores aplicados a celdas.
 
 El libro contiene exactamente una hoja `Mediciones`. Cada registro ocupa una única fila, y sus diámetros se añaden como números en columnas independientes `Tronco 1 (diámetro en cm)`, `Tronco 2 (diámetro en cm)`, etc. Estas columnas aparecen antes de las coordenadas y se generan hasta la posición de tronco máxima presente en el conjunto exportado; no se crean columnas innecesarias. Los campos ausentes quedan vacíos, sin convertirse en cero. Los nombres de las columnas de atributos se localizan según el idioma elegido, mientras que el nombre de hoja y los encabezados estructurales de los troncos permanecen fijos.
 
@@ -263,7 +263,7 @@ tree-height-calculator/
 npm test
 ```
 
-Los tests usan el ejecutor integrado `node:test` y mocks de la API GPS, almacenamiento y SheetJS; no requieren un dispositivo con GPS ni permisos reales. Cubren la persistencia de IDs de tronco, edición y eliminación, filtrado de escritura y pegado, validación decimal y exportación con una única hoja y columnas dinámicas por tronco, además de coordenadas, captura GPS y localización. `npm test` ejecuta la suite completa. No verifican la precisión real del GPS de un dispositivo.
+Los tests usan el ejecutor integrado `node:test` y mocks de la API GPS y almacenamiento; las pruebas de exportación escriben y vuelven a abrir archivos `.xlsx` con ExcelJS para inspeccionar su formato nativo. No requieren un dispositivo con GPS ni permisos reales. Cubren la persistencia de IDs de tronco, edición y eliminación, filtrado de escritura y pegado, validación decimal, la exportación con columnas dinámicas y formato de tabla, además de coordenadas, captura GPS y localización. `npm test` ejecuta la suite completa. No verifican la precisión real del GPS de un dispositivo.
 
 ## Consideraciones de accesibilidad y responsive
 

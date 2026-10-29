@@ -149,7 +149,9 @@ El formulario admite un diámetro positivo por tronco, medido a 1,30 m sobre el 
 
 ### Exportación Excel
 
-SheetJS en navegador mediante CDN genera un archivo `.xlsx` con una única hoja llamada `Mediciones`. Cada registro exportado ocupa una fila; las columnas de atributos conservan su traducción, y se añaden columnas de diámetro dinámicas `Tronco 1 (diámetro en cm)`, `Tronco 2 (diámetro en cm)`, etc. según el mayor número de posiciones de tronco presente. Estas columnas se colocan antes de latitud y longitud. Los diámetros se exportan como valores numéricos; los que faltan y las posiciones no existentes quedan vacíos, no como cero.
+ExcelJS 4.4.0, cargado mediante CDN en el navegador, genera un archivo `.xlsx` con una única hoja llamada `Mediciones`. Cada registro exportado ocupa una fila; las columnas de atributos conservan su traducción, y se añaden columnas de diámetro dinámicas `Tronco 1 (diámetro en cm)`, `Tronco 2 (diámetro en cm)`, etc. según el mayor número de posiciones de tronco presente. Estas columnas se colocan antes de latitud y longitud. Los diámetros se exportan como valores numéricos; los que faltan y las posiciones no existentes quedan vacíos, no como cero.
+
+La hoja oculta las líneas de cuadrícula. Se añade una tabla estructurada nativa llamada `TablaMedicionesArbolado`, con encabezado, filtros en cada columna y el estilo `TableStyleLight11` (Olive Green, Table Style Light 11). Los nombres de encabezado vacíos se sustituyen por `Columna N` y los duplicados reciben un sufijo numérico para cumplir el requisito de unicidad sin perder el contenido de ninguna columna. Todas las celdas de la tabla activan `wrapText`. El ancho se calcula para mostrar el encabezado en una línea con dos caracteres de margen y un mínimo de 12 caracteres; los datos pueden ampliar la columna hasta 60 caracteres, mientras que los encabezados más largos prevalecen sobre ese máximo para no cortarse.
 
 Los valores de `trunkDiameters` se corresponden por posición con los IDs persistentes en `trunkIds`. La posición en Excel determina qué columna `Tronco N` ocupa un diámetro, pero no reemplaza el ID del tronco en el modelo. Los registros antiguos sin datos de tronco se exportan sin error ni columnas con mediciones inventadas.
 
@@ -157,7 +159,7 @@ Las coordenadas se exportan en grados decimales sin redondeo adicional. La Geolo
 
 ### Testing
 
-Las pruebas se ejecutan con `npm test` (`node --test`) y cubren la validación de diámetros, la edición y visualización del formulario, la persistencia, la hoja única de exportación, las columnas dinámicas y la posición de las columnas de tronco antes de las coordenadas.
+Las pruebas se ejecutan con `npm test` (`node --test`) y cubren la validación de diámetros, la edición y visualización del formulario, la persistencia, la hoja única de exportación, las columnas dinámicas y la posición de las columnas de tronco antes de las coordenadas. Las pruebas del Excel escriben y vuelven a abrir el `.xlsx` con ExcelJS para inspeccionar las propiedades generadas y verificar la tabla estructurada.
 
 ## 9. Ambigüedades resueltas
 
