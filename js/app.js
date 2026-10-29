@@ -624,14 +624,14 @@ saveButton.addEventListener('click', () => {
   }
 });
 
-exportButton.addEventListener('click', () => {
+exportButton.addEventListener('click', async () => {
   if (!state.measurements.length) {
     showError('message.noMeasurementsToExport');
     return;
   }
 
   try {
-    const fileName = exportMeasurementsToXlsx(state.measurements);
+    const fileName = await exportMeasurementsToXlsx(state.measurements);
     showSuccess('message.exportSuccess', { fileName });
   } catch (error) {
     showError(error);
