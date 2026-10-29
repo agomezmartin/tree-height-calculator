@@ -218,10 +218,7 @@ La aplicación genera un archivo `.xlsx` con todas las columnas útiles para aud
 - Fórmula / método utilizado
 
 La exportación usa ExcelJS en el navegador mediante CDN y no requiere backend. ExcelJS crea una tabla estructurada real, no solo colores aplicados a celdas.
-
 El libro contiene exactamente una hoja `Mediciones`. Cada registro ocupa una única fila e incluye la columna localizada `Tipo de arbolado`. Los diámetros se añaden como números en columnas independientes `Tronco 1 (diámetro en cm)`, `Tronco 2 (diámetro en cm)`, etc. Estas columnas aparecen antes de las coordenadas y se generan hasta la posición de tronco máxima presente en el conjunto exportado; no se crean columnas innecesarias. Los campos ausentes quedan vacíos, sin convertirse en cero. Los nombres de las columnas de atributos se localizan según el idioma elegido, mientras que el nombre de hoja y los encabezados estructurales de los troncos permanecen fijos.
-
-El libro contiene exactamente una hoja `Mediciones`. Cada registro ocupa una única fila, y sus diámetros se añaden como números en columnas independientes `Tronco 1 (diámetro en cm)`, `Tronco 2 (diámetro en cm)`, etc. Estas columnas aparecen antes de las coordenadas y se generan hasta la posición de tronco máxima presente en el conjunto exportado; no se crean columnas innecesarias. Los campos ausentes quedan vacíos, sin convertirse en cero. Los nombres de las columnas de atributos se localizan según el idioma elegido, mientras que el nombre de hoja y los encabezados estructurales de los troncos permanecen fijos.
 
 La tabla de registros muestra las columnas `Latitud` y `Longitud` en grados decimales antes de exportar. La hoja Excel también incluye ambas columnas numéricas y conserva la precisión almacenada; si un registro no tiene ubicación, la tabla muestra `—` y las celdas quedan vacías. Las demás columnas y los registros antiguos se mantienen.
 
