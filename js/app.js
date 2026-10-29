@@ -18,6 +18,7 @@ import {
 } from './coordinates.js';
 import { getErrorTranslationKey, i18n, setLocalizedText } from './i18n.js';
 import { getPhytosanitaryStatusLabel } from './phytosanitary.js';
+import { isPartialTrunkDiameter, validateTrunkDiameters } from './diameters.js';
 import {
   findSpeciesByDisplayName,
   findSpeciesByIfnCode,
@@ -31,8 +32,12 @@ const resultSummary = document.getElementById('resultSummary');
 const formulaExplanation = document.getElementById('formulaExplanation');
 const errorBox = document.getElementById('formError');
 const tableBody = document.getElementById('measurementTableBody');
+const trunkDiameterList = document.getElementById('trunkDiameterList');
+const trunkDiameterSection = document.getElementById('trunkDiameterSection');
+const includeTrunkDiameters = document.getElementById('includeTrunkDiameters');
 const measurementDateInput = document.getElementById('measurementDate');
 const saveButton = document.getElementById('saveButton');
+const addTrunkButton = document.getElementById('addTrunkButton');
 const calculateButton = document.getElementById('calculateButton');
 const calculateManualButton = document.getElementById('calculateManualButton');
 const exportButton = document.getElementById('exportButton');
@@ -189,6 +194,95 @@ function formatCoordinate(value) {
   });
 }
 
+function getTrunkDiameterInputValues() {
+  if (!includeTrunkDiameters.checked) {
+    return [];
+  }
+
+  return [...trunkDiameterList.querySelectorAll('.trunk-diameter-input')]
+    .map((input) => input.value);
+}
+
+function getTrunkDiameterInputIds() {
+  return [...trunkDiameterList.querySelectorAll('.trunk-diameter-input')]
+    .map((input) => input.dataset.trunkId);
+}
+
+function createTrunkId() {
+  return `trunk-${window.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(16).slice(2)}`}`;
+}
+
+function renderTrunkDiameterInputs(values = [''], ids = []) {
+  const fragment = document.createDocumentFragment();
+
+  values.forEach((value, index) => {
+    const row = document.createElement('div');
+    row.className = 'trunk-diameter-row';
+
+    const label = document.createElement('label');
+    label.className = 'field';
+    const labelText = document.createElement('span');
+    labelText.dataset.i18n = 'tree.trunkNumber';
+    labelText.textContent = t('tree.trunkNumber', { number: index + 1 });
+
+    const input = document.createElement('input');
+    input.className = 'trunk-diameter-input';
+    input.name = 'trunkDiameters[]';
+    input.type = 'text';
+    input.inputMode = 'decimal';
+    input.autocomplete = 'off';
+    input.value = value;
+    input.dataset.trunkId = ids[index] || createTrunkId();
+    let lastValidValue = input.value;
+    input.addEventListener('beforeinput', (event) => {
+      if (event.data === null || event.data === undefined) {
+        return;
+      }
+
+      const start = input.selectionStart ?? input.value.length;
+      const end = input.selectionEnd ?? start;
+      const candidate = `${input.value.slice(0, start)}${event.data}${input.value.slice(end)}`;
+      if (!isPartialTrunkDiameter(candidate)) {
+        event.preventDefault();
+      }
+    });
+    input.addEventListener('paste', (event) => {
+      const pastedValue = event.clipboardData?.getData('text');
+      if (pastedValue === undefined) {
+        return;
+      }
+
+      const start = input.selectionStart ?? input.value.length;
+      const end = input.selectionEnd ?? start;
+      const candidate = `${input.value.slice(0, start)}${pastedValue}${input.value.slice(end)}`;
+      if (!isPartialTrunkDiameter(candidate)) {
+        event.preventDefault();
+      }
+    });
+    input.addEventListener('input', () => {
+      if (isPartialTrunkDiameter(input.value)) {
+        lastValidValue = input.value;
+      } else {
+        input.value = lastValidValue;
+      }
+    });
+    label.append(labelText, input);
+
+    const removeButton = document.createElement('button');
+    removeButton.className = 'icon-button';
+    removeButton.type = 'button';
+    removeButton.dataset.action = 'remove-trunk';
+    removeButton.dataset.i18n = 'tree.removeTrunk';
+    removeButton.dataset.i18nAriaLabel = 'tree.removeTrunk';
+    removeButton.textContent = t('tree.removeTrunk');
+
+    row.append(label, removeButton);
+    fragment.append(row);
+  });
+
+  trunkDiameterList.replaceChildren(fragment);
+}
+
 function clearError() {
   errorBox.hidden = true;
   errorBox.textContent = '';
@@ -212,6 +306,36 @@ function showSuccess(key, parameters = {}) {
   errorBox.classList.remove('error');
   errorBox.classList.add('success');
 }
+
+addTrunkButton.addEventListener('click', () => {
+  const values = getTrunkDiameterInputValues();
+  const ids = getTrunkDiameterInputIds();
+  values.push('');
+  ids.push(createTrunkId());
+  renderTrunkDiameterInputs(values, ids);
+  trunkDiameterList.lastElementChild?.querySelector('.trunk-diameter-input')?.focus();
+});
+
+includeTrunkDiameters.addEventListener('change', () => {
+  trunkDiameterSection.hidden = !includeTrunkDiameters.checked;
+  if (includeTrunkDiameters.checked && trunkDiameterList.children.length === 0) {
+    renderTrunkDiameterInputs();
+  }
+});
+
+trunkDiameterList.addEventListener('click', (event) => {
+  const removeButton = event.target.closest('button[data-action="remove-trunk"]');
+  if (!removeButton) return;
+
+  const values = getTrunkDiameterInputValues();
+  const ids = getTrunkDiameterInputIds();
+  const rowIndex = [...trunkDiameterList.children].indexOf(removeButton.closest('.trunk-diameter-row'));
+  if (rowIndex >= 0) {
+    values.splice(rowIndex, 1);
+    ids.splice(rowIndex, 1);
+  }
+  renderTrunkDiameterInputs(values, ids);
+});
 
 function getSelectedSpecies() {
   const selectedSpeciesName = speciesSelect?.value?.trim();
@@ -426,12 +550,17 @@ saveButton.addEventListener('click', () => {
       latitude: latitudeInput.value,
       longitude: longitudeInput.value,
     });
+    const trunkDiameterValues = getTrunkDiameterInputValues();
+    const trunkInputIds = getTrunkDiameterInputIds();
     const common = {
       id: state.editingId ?? `tree-${Date.now()}-${Math.random().toString(16).slice(2)}`,
       treeId: document.getElementById('treeId').value.trim(),
       date: measurementDateInput.value || new Date().toISOString().slice(0, 10),
       notes: document.getElementById('notes').value.trim(),
       phytosanitaryStatus: phytosanitaryStatusSelect.value || null,
+      trunkDiameters: validateTrunkDiameters(trunkDiameterValues),
+      trunkIds: trunkDiameterValues
+        .flatMap((value, index) => String(value).trim() ? [trunkInputIds[index]] : []),
       ...getSpeciesFields(),
       ...coordinates,
     };
@@ -483,6 +612,9 @@ saveButton.addEventListener('click', () => {
       showSuccess('message.measurementUpdated');
     } else {
       state.measurements = addMeasurement(measurement);
+      includeTrunkDiameters.checked = false;
+      trunkDiameterSection.hidden = true;
+      renderTrunkDiameterInputs();
       showSuccess('message.measurementSaved');
     }
 
@@ -510,7 +642,7 @@ function renderTable() {
   if (!state.measurements.length) {
     const row = document.createElement('tr');
     const cell = document.createElement('td');
-    cell.colSpan = 14;
+    cell.colSpan = 15;
     cell.className = 'empty-state';
     cell.textContent = t('table.empty');
     row.append(cell);
@@ -546,6 +678,7 @@ function renderTable() {
         t,
         t('tree.phytosanitaryNotEvaluated'),
       ),
+      formatTrunkDiameters(entry.trunkDiameters),
     ];
     for (const value of values) {
       const cell = document.createElement('td');
@@ -571,6 +704,16 @@ function renderTable() {
     fragment.append(row);
   }
   tableBody.replaceChildren(fragment);
+}
+
+function formatTrunkDiameters(diameters) {
+  if (!Array.isArray(diameters) || diameters.length === 0) {
+    return t('common.notAvailable');
+  }
+
+  return diameters
+    .map((diameter, index) => `${index + 1}: ${i18n.formatNumber(diameter, { maximumFractionDigits: 3 })} cm`)
+    .join('; ');
 }
 
 tableBody.addEventListener('click', (event) => {
@@ -609,6 +752,14 @@ tableBody.addEventListener('click', (event) => {
       ? getSpeciesDisplayName(targetSpecies)
       : target.speciesScientificName || '';
     phytosanitaryStatusSelect.value = target.phytosanitaryStatus || '';
+    const trunkDiameters = Array.isArray(target.trunkDiameters) ? target.trunkDiameters : [];
+    const trunkIds = Array.isArray(target.trunkIds) ? target.trunkIds : [];
+    includeTrunkDiameters.checked = trunkDiameters.length > 0;
+    trunkDiameterSection.hidden = !includeTrunkDiameters.checked;
+    renderTrunkDiameterInputs(
+      trunkDiameters.length ? trunkDiameters.map(String) : [''],
+      trunkDiameters.length ? trunkDiameters.map((_diameter, index) => trunkIds[index]) : [],
+    );
     document.getElementById('measurementDate').value = target.date || new Date().toISOString().slice(0, 10);
     document.getElementById('notes').value = target.notes || '';
     if (measurementType === 'clinometer') {
@@ -639,6 +790,7 @@ tableBody.addEventListener('click', (event) => {
 languageSelect.addEventListener('change', () => {
   i18n.setLanguage(languageSelect.value);
   populateSpeciesOptions();
+  renderTrunkDiameterInputs(getTrunkDiameterInputValues(), getTrunkDiameterInputIds());
   locationMap?.setLanguage();
   renderTable();
   if (state.lastResult) renderResult(state.lastResult);
@@ -650,6 +802,7 @@ languageSelect.addEventListener('change', () => {
   }
 });
 
+renderTrunkDiameterInputs();
 renderTable();
 resultValue.textContent = formatMeters(0);
 updateMeasurementType();
