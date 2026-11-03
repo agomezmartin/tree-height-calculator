@@ -32,6 +32,10 @@ El selector muestra la opción con formato `Quercus ilex — Encina` y, si no ha
 
 Los registros antiguos siguen siendo compatibles porque el modelo acepta valores nulos para estas propiedades y la lectura desde `localStorage` rellena el estado sin romper mediciones ya guardadas.
 
+## Tipo de arbolado
+
+El formulario permite seleccionar **Frondosa**, **Conífera** o **Palmera**. La selección se guarda en cada medición como `treeType` (`broadleaf`, `conifer` o `palm`); la opción inicial está vacía y se guarda como `""`, sin asignar una categoría. Los registros antiguos sin `treeType` siguen siendo compatibles y se muestran sin valor de tipo. La parrilla muestra la categoría en su propia columna y Excel la incluye en una columna localizada; los valores vacíos o ausentes quedan en blanco en ambas vistas.
+
 ## Estado fitosanitario
 
 El formulario permite asignar de forma opcional uno de estos estados a cada árbol: **Bueno**, **Aceptable**, **Deficiente** o **Crítico**. La opción inicial es **Sin evaluar** y se guarda como `null`; no asigna automáticamente un estado. El estado se conserva en `phytosanitaryStatus`, se muestra en su propia columna de la parrilla y se incluye en la exportación Excel. Los registros anteriores sin este campo, así como los valores vacíos o nulos, se muestran como «Sin evaluar» y se exportan con la celda vacía.
@@ -196,6 +200,7 @@ donde `h_ojo` es la altura del instrumento o de los ojos del observador sobre el
 La aplicación genera un archivo `.xlsx` con todas las columnas útiles para auditar la medición:
 
 - ID del árbol
+- Tipo de arbolado
 - Estado fitosanitario
 - Origen de la altura (clinómetro o altura conocida)
 - Fecha
@@ -214,7 +219,7 @@ La aplicación genera un archivo `.xlsx` con todas las columnas útiles para aud
 
 La exportación usa ExcelJS en el navegador mediante CDN y no requiere backend. ExcelJS crea una tabla estructurada real, no solo colores aplicados a celdas.
 
-El libro contiene exactamente una hoja `Mediciones`. Cada registro ocupa una única fila, y sus diámetros se añaden como números en columnas independientes `Tronco 1 (diámetro en cm)`, `Tronco 2 (diámetro en cm)`, etc. Estas columnas aparecen antes de las coordenadas y se generan hasta la posición de tronco máxima presente en el conjunto exportado; no se crean columnas innecesarias. Los campos ausentes quedan vacíos, sin convertirse en cero. Los nombres de las columnas de atributos se localizan según el idioma elegido, mientras que el nombre de hoja y los encabezados estructurales de los troncos permanecen fijos.
+El libro contiene exactamente una hoja `Mediciones`. Cada registro ocupa una única fila e incluye la columna localizada `Tipo de arbolado`. Los diámetros se añaden como números en columnas independientes `Tronco 1 (diámetro en cm)`, `Tronco 2 (diámetro en cm)`, etc. Estas columnas aparecen antes de las coordenadas y se generan hasta la posición de tronco máxima presente en el conjunto exportado; no se crean columnas innecesarias. Los campos ausentes quedan vacíos, sin convertirse en cero. Los nombres de las columnas de atributos se localizan según el idioma elegido, mientras que el nombre de hoja y los encabezados estructurales de los troncos permanecen fijos.
 
 La tabla de registros muestra las columnas `Latitud` y `Longitud` en grados decimales antes de exportar. La hoja Excel también incluye ambas columnas numéricas y conserva la precisión almacenada; si un registro no tiene ubicación, la tabla muestra `—` y las celdas quedan vacías. Las demás columnas y los registros antiguos se mantienen.
 

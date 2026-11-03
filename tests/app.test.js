@@ -44,6 +44,7 @@ test('el formulario guarda mediciones con y sin GPS, conserva y permite actualiz
     };
     const speciesSelect = document.getElementById('speciesSelect');
     const phytosanitaryStatusSelect = document.getElementById('phytosanitaryStatus');
+    const treeTypeSelect = document.getElementById('treeType');
     const speciesSuggestions = document.getElementById('speciesSuggestions');
     assert.equal(speciesSuggestions.options.length > 1, true);
     assert.equal(speciesSelect.value, '');
@@ -55,6 +56,15 @@ test('el formulario guarda mediciones con y sin GPS, conserva y permite actualiz
     assert.deepEqual(
       [...phytosanitaryStatusSelect.options].map((option) => option.textContent),
       ['Sin evaluar', 'Bueno', 'Aceptable', 'Deficiente', 'Crítico'],
+    );
+    assert.ok(treeTypeSelect);
+    assert.deepEqual(
+      [...treeTypeSelect.options].map((option) => option.value),
+      ['', 'broadleaf', 'conifer', 'palm'],
+    );
+    assert.deepEqual(
+      [...treeTypeSelect.options].map((option) => option.textContent),
+      ['Selecciona un tipo de arbolado', 'Frondosa', 'Conífera', 'Palmera'],
     );
     const getSavedMeasurements = () => JSON.parse(localStorage.getItem('treeMeasurements'));
     const saveButton = document.getElementById('saveButton');
@@ -122,19 +132,21 @@ test('el formulario guarda mediciones con y sin GPS, conserva y permite actualiz
     assert.equal(measurements[0].latitude, null);
     assert.equal(measurements[0].longitude, null);
     assert.equal(measurements[0].phytosanitaryStatus, null);
-    assert.deepEqual(measurements[0].trunkDiameters, []);
+    assert.equal(measurements[0].treeType, '');
     assert.ok(Math.abs(measurements[0].estimatedHeight - 17.7) < 1e-9);
     const noGpsCells = [...document.querySelector('#measurementTableBody tr').cells];
     assert.equal(noGpsCells[10].textContent, '—');
     assert.equal(noGpsCells[11].textContent, '—');
     assert.equal(noGpsCells[12].textContent, 'Sin evaluar');
-    assert.equal(noGpsCells[13].textContent, '—');
+    assert.equal(noGpsCells[13].textContent, '');
+    assert.equal(noGpsCells[14].textContent, '—');
 
     setRequiredMeasurements();
     includeTrunkDiameters.checked = true;
     includeTrunkDiameters.dispatchEvent(new dom.window.Event('change', { bubbles: true }));
     speciesSelect.value = 'Quercus ilex — Encina';
     phytosanitaryStatusSelect.value = 'good';
+    treeTypeSelect.value = 'conifer';
     document.querySelector('.trunk-diameter-input').value = '35,5';
     document.getElementById('addTrunkButton').click();
     document.querySelectorAll('.trunk-diameter-input')[1].value = '22.25';
@@ -149,6 +161,7 @@ test('el formulario guarda mediciones con y sin GPS, conserva y permite actualiz
     assert.equal(withGps.speciesScientificName, 'Quercus ilex');
     assert.equal(withGps.speciesCommonName, 'Encina');
     assert.equal(withGps.phytosanitaryStatus, 'good');
+    assert.equal(withGps.treeType, 'conifer');
     assert.deepEqual(withGps.trunkDiameters, [35.5, 22.25]);
     assert.equal(withGps.trunkIds.length, 2);
     assert.notEqual(withGps.trunkIds[0], withGps.trunkIds[1]);
@@ -162,20 +175,24 @@ test('el formulario guarda mediciones con y sin GPS, conserva y permite actualiz
     assert.equal(gpsRow.cells[10].textContent, '40,123456789');
     assert.equal(gpsRow.cells[11].textContent, '-3,987654321');
     assert.equal(gpsRow.cells[12].textContent, 'Bueno');
-    assert.equal(gpsRow.cells[13].textContent, '1: 35,5 cm; 2: 22,25 cm');
+    assert.equal(gpsRow.cells[13].textContent, 'Conífera');
+    assert.equal(gpsRow.cells[14].textContent, '1: 35,5 cm; 2: 22,25 cm');
     assert.equal(document.querySelector('.trunk-diameter-input').value, '');
 
     setRequiredMeasurements();
     speciesSelect.value = 'Especie personalizada';
+    treeTypeSelect.value = 'broadleaf';
     document.getElementById('treeId').value = 'Árbol personalizado';
     saveButton.click();
     measurements = getSavedMeasurements();
     const customSpeciesTree = measurements.find((entry) => entry.treeId === 'Árbol personalizado');
     assert.equal(customSpeciesTree.speciesIfnCode, null);
     assert.equal(customSpeciesTree.speciesScientificName, 'Especie personalizada');
+    assert.equal(customSpeciesTree.treeType, 'broadleaf');
     const customSpeciesRow = [...document.querySelectorAll('#measurementTableBody tr')]
       .find((row) => row.cells[0].textContent === 'Árbol personalizado');
     assert.equal(customSpeciesRow.cells[1].textContent, 'Especie personalizada');
+    assert.equal(customSpeciesRow.cells[13].textContent, 'Frondosa');
 
     document.querySelector(`[data-action="edit"][data-id="${customSpeciesTree.id}"]`).click();
     assert.equal(speciesSelect.value, 'Especie personalizada');
@@ -202,6 +219,7 @@ test('el formulario guarda mediciones con y sin GPS, conserva y permite actualiz
     assert.equal(edited.speciesIfnCode, 45);
     assert.equal(edited.speciesScientificName, 'Quercus ilex');
     assert.equal(edited.phytosanitaryStatus, 'good');
+    assert.equal(edited.treeType, 'conifer');
     assert.deepEqual(edited.trunkDiameters, [35.5, 22.25]);
     assert.deepEqual(edited.trunkIds, withGps.trunkIds);
     assert.equal(edited.latitude, 40.123456789);
@@ -213,7 +231,8 @@ test('el formulario guarda mediciones con y sin GPS, conserva y permite actualiz
     assert.equal(editedRow.cells[10].textContent, '40,123456789');
     assert.equal(editedRow.cells[11].textContent, '-3,987654321');
     assert.equal(editedRow.cells[12].textContent, 'Bueno');
-    assert.equal(editedRow.cells[13].textContent, '1: 35,5 cm; 2: 22,25 cm');
+    assert.equal(editedRow.cells[13].textContent, 'Conífera');
+    assert.equal(editedRow.cells[14].textContent, '1: 35,5 cm; 2: 22,25 cm');
 
     document.querySelector(`[data-action="edit"][data-id="${withGps.id}"]`).click();
     document.querySelector('.trunk-diameter-row button[data-action="remove-trunk"]').click();
@@ -281,6 +300,12 @@ test('el formulario guarda mediciones con y sin GPS, conserva y permite actualiz
     assert.equal(document.querySelector('h1').textContent, 'Tree Height Calculator');
     assert.equal(document.querySelector('#treeHeightResult').textContent, '17.70 m');
     assert.equal(document.querySelector('#measurementTableBody tr').cells[4].textContent, 'Horizontal distance');
+    assert.equal(
+      [...document.querySelectorAll('#measurementTableBody tr')]
+        .find((row) => row.cells[0].textContent === 'Árbol personalizado').cells[13].textContent,
+      'Broadleaf',
+    );
+    assert.equal(treeTypeSelect.options[1].textContent, 'Broadleaf');
     assert.match(document.getElementById('locationStatus').textContent, /Location permission was denied/);
     assert.equal(document.getElementById('treeId').value, 'Con GPS');
 
@@ -294,6 +319,7 @@ test('el formulario guarda mediciones con y sin GPS, conserva y permite actualiz
     assert.equal(calculateManualButton.textContent, 'Mostrar altura introducida');
     document.getElementById('manualHeight').value = '12,5';
     document.getElementById('treeId').value = 'Manual';
+    treeTypeSelect.value = 'palm';
     calculateManualButton.click();
     assert.equal(document.getElementById('treeHeightResult').textContent, '12,50 m');
     assert.equal(document.querySelector('#resultSummary dd').textContent, '12,50 m');
@@ -316,6 +342,7 @@ test('el formulario guarda mediciones con y sin GPS, conserva y permite actualiz
     const manual = getSavedMeasurements().find((entry) => entry.treeId === 'Manual');
     assert.equal(manual.measurementType, 'manual');
     assert.equal(manual.estimatedHeight, 12.5);
+    assert.equal(manual.treeType, 'palm');
     assert.equal(manual.method, null);
     assert.equal(manual.distance, null);
     assert.equal(manual.clinometerPercent, null);
@@ -331,6 +358,7 @@ test('el formulario guarda mediciones con y sin GPS, conserva y permite actualiz
     assert.equal(manualRow.cells[6].textContent, '—');
     assert.equal(manualRow.cells[9].textContent, '12,50 m');
     assert.equal(manualRow.cells[12].textContent, 'Sin evaluar');
+    assert.equal(manualRow.cells[13].textContent, 'Palmera');
 
     document.querySelector(`[data-action="edit"][data-id="${manual.id}"]`).click();
     assert.equal(document.querySelector('input[name="measurementType"][value="manual"]').checked, true);
@@ -353,6 +381,7 @@ test('el formulario guarda mediciones con y sin GPS, conserva y permite actualiz
     const restoredRows = JSON.parse(localStorage.getItem('treeMeasurements'));
     assert.equal(restoredRows.find((entry) => entry.id === manual.id).measurementType, 'manual');
     assert.equal(restoredRows.find((entry) => entry.id === manual.id).phytosanitaryStatus, null);
+    assert.equal(restoredRows.find((entry) => entry.id === manual.id).treeType, 'palm');
   } finally {
     dom.window.close();
     delete globalThis.window;

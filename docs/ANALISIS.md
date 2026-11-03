@@ -134,6 +134,7 @@ La lógica matemática debe estar en un módulo independiente, puro y comprobabl
 - El dato se exportará a Excel desde la colección en memoria y no dependerá de backend.
 - Cada medición puede guardar la especie asociada usando el código IFN del catálogo MITECO, junto con el nombre científico y el nombre común. Si el registro es antiguo o no tiene especie, estos campos quedan nulos y la visualización sigue funcionando sin migración destructiva.
 - Cada medición puede guardar `phytosanitaryStatus` con uno de los valores `good`, `acceptable`, `deficient` o `critical`. El campo es opcional; los registros antiguos sin este dato permanecen sin evaluar, se muestran como "Sin evaluar" y se exportan con una celda vacía.
+- Cada medición puede guardar `treeType` con uno de los valores `broadleaf`, `conifer` o `palm`. La opción inicial vacía se guarda como `""`; los registros antiguos sin esta propiedad siguen siendo compatibles y no reciben una categoría automática.
 - Cada medición puede guardar `trunkDiameters` como una lista ordenada de diámetros DAP numéricos, en centímetros, y `trunkIds` como una lista paralela con el ID persistente de cada tronco. Una lista vacía o una propiedad ausente significa que no se ha medido; el orden conserva la relación con el número mostrado en el formulario.
 
 ### Catálogo de especies y selector
@@ -144,13 +145,17 @@ El catálogo de referencia se almacena en [assets/species.json](../assets/specie
 
 El formulario dispone de un desplegable opcional con los estados Bueno, Aceptable, Deficiente y Crítico, además de la opción inicial "Sin evaluar". Esta última se almacena como `null`, se presenta como "Sin evaluar" en la parrilla y se exporta como celda vacía. Los registros anteriores sin propiedad `phytosanitaryStatus` se siguen leyendo sin migración.
 
+### Tipo de arbolado
+
+El formulario incorpora, después del identificador del árbol, un desplegable para seleccionar Frondosa, Conífera o Palmera. El modelo guarda `treeType` como `broadleaf`, `conifer` o `palm`; la opción inicial vacía permanece como `""`. Las etiquetas se traducen en la interfaz y la exportación, mientras que los valores guardados no dependen del idioma. La parrilla muestra el tipo en una columna propia; un valor ausente o vacío se muestra vacío y se exporta como celda vacía.
+
 ### DAP y árboles multitronco
 
 El formulario admite un diámetro positivo por tronco, medido a 1,30 m sobre el nivel del suelo y expresado en centímetros. Se pueden añadir y quitar campos sin un máximo artificial. Los campos vacíos no representan troncos ni diámetros de cero; si todos están vacíos, se almacena `trunkDiameters: []`. Los valores se conservan como números ordenados por tronco, sin sumarlos ni calcular un diámetro equivalente. La parrilla numera cada diámetro y muestra `—` cuando no existen datos. La ausencia de la propiedad en registros antiguos también se trata como no medido.
 
 ### Exportación Excel
 
-ExcelJS 4.4.0, cargado mediante CDN en el navegador, genera un archivo `.xlsx` con una única hoja llamada `Mediciones`. Cada registro exportado ocupa una fila; las columnas de atributos conservan su traducción, y se añaden columnas de diámetro dinámicas `Tronco 1 (diámetro en cm)`, `Tronco 2 (diámetro en cm)`, etc. según el mayor número de posiciones de tronco presente. Estas columnas se colocan antes de latitud y longitud. Los diámetros se exportan como valores numéricos; los que faltan y las posiciones no existentes quedan vacíos, no como cero.
+ExcelJS 4.4.0, cargado mediante CDN en el navegador, genera un archivo `.xlsx` con una única hoja llamada `Mediciones`. Cada registro exportado ocupa una fila e incluye `Tipo de arbolado` como columna localizada; el valor se traduce para su presentación y, si falta o está vacío, la celda queda vacía. Las columnas de atributos conservan su traducción, y se añaden columnas de diámetro dinámicas `Tronco 1 (diámetro en cm)`, `Tronco 2 (diámetro en cm)`, etc. según el mayor número de posiciones de tronco presente. Estas columnas se colocan antes de latitud y longitud. Los diámetros se exportan como valores numéricos; los que faltan y las posiciones no existentes quedan vacíos, no como cero.
 
 La hoja oculta las líneas de cuadrícula. Se añade una tabla estructurada nativa llamada `TablaMedicionesArbolado`, con encabezado, filtros en cada columna y el estilo `TableStyleLight11` (Olive Green, Table Style Light 11). Los nombres de encabezado vacíos se sustituyen por `Columna N` y los duplicados reciben un sufijo numérico para cumplir el requisito de unicidad sin perder el contenido de ninguna columna. Todas las celdas de la tabla activan `wrapText`. El ancho se calcula para mostrar el encabezado en una línea con dos caracteres de margen y un mínimo de 12 caracteres; los datos pueden ampliar la columna hasta 60 caracteres, mientras que los encabezados más largos prevalecen sobre ese máximo para no cortarse.
 

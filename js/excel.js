@@ -1,5 +1,6 @@
 import { i18n } from './i18n.js';
 import { getPhytosanitaryStatusLabel } from './phytosanitary.js';
+import { getTreeTypeLabel } from './tree-types.js';
 import { validateStoredTrunkDiameter } from './diameters.js';
 
 const MIN_COLUMN_WIDTH = 12;
@@ -71,6 +72,7 @@ export async function exportMeasurementsToXlsx(measurements) {
 
   const headers = getUniqueHeaders([
     t('export.treeId'),
+    t('export.treeType'),
     t('export.speciesIfnCode'),
     t('export.speciesScientificName'),
     t('export.speciesCommonName'),
@@ -106,6 +108,7 @@ export async function exportMeasurementsToXlsx(measurements) {
 
     return [
       entry.treeId || '',
+      getTreeTypeLabel(entry.treeType, t),
       speciesIfnCode,
       speciesScientificName,
       speciesCommonName,

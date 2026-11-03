@@ -72,6 +72,7 @@ test('exportMeasurementsToXlsx creates one fixed-named sheet and one row per tre
     {
       id: 'tree-a',
       treeId: 'Oak A',
+      treeType: 'broadleaf',
       speciesScientificName: 'Quercus robur',
       trunkDiameters: [24.5, 18.2],
       trunkIds: ['trunk-a1', 'trunk-a2'],
@@ -81,21 +82,27 @@ test('exportMeasurementsToXlsx creates one fixed-named sheet and one row per tre
     {
       id: 'tree-b',
       treeId: 'Oak B',
+      treeType: 'conifer',
       trunkDiameters: [35],
       trunkIds: ['trunk-b1'],
     },
     {
       id: 'tree-c',
       treeId: 'Oak C',
+      treeType: 'palm',
       trunkDiameters: [12, 15.5, 9],
       trunkIds: ['trunk-c1', 'trunk-c2', 'trunk-c3'],
     },
     { id: 'legacy', treeId: 'Legacy tree' },
-    { id: 'empty', treeId: 'Unmeasured tree', trunkDiameters: [] },
+    { id: 'empty', treeId: 'Unmeasured tree', treeType: '', trunkDiameters: [] },
   ]);
 
   assert.deepEqual(workbook.worksheets.map((sheet) => sheet.name), ['Mediciones']);
   assert.equal(rows.length, 5);
+  assert.deepEqual(
+    rows.map((row) => row[i18n.t('export.treeType')]),
+    ['Frondosa', 'Conífera', 'Palmera', '', ''],
+  );
   assert.equal(rows[0][i18n.t('export.speciesScientificName')], 'Quercus robur');
   assert.equal(rows[0][i18n.t('export.latitude')], 40.123456789);
   assert.equal(rows[0][i18n.t('export.longitude')], -3.987654321);
@@ -159,6 +166,7 @@ test('export keeps translated measurement fields while structural sheet and trun
     const { rows, workbook } = await captureExport([{
       id: 'record-1',
       treeId: 'Oak',
+      treeType: 'conifer',
       trunkDiameters: [31, 20],
       method: 'slope',
       measurementType: 'clinometer',
@@ -175,6 +183,7 @@ test('export keeps translated measurement fields while structural sheet and trun
     assert.equal(rows[0]['Species IFN code'], 31);
     assert.equal(rows[0]['Scientific name'], 'Abies alba');
     assert.equal(rows[0]['Common name'], 'Pinabete');
+    assert.equal(rows[0]['Tree type'], 'Conifer');
     assert.equal(rows[0]['Measurement method'], 'Distance along the ground');
     assert.equal(rows[0]['Height source'], 'Calculate with clinometer');
     assert.match(rows[0]['Formula / method used'], /h_eye/);
@@ -302,7 +311,12 @@ test('duplicate translated headers are made unique without dropping their column
       speciesIfnCode: 31,
     }]);
 
-    assert.deepEqual(headers.slice(0, 3), ['Campo', 'Campo (2)', originalTranslate('export.speciesScientificName')]);
+    assert.deepEqual(headers.slice(0, 4), [
+      'Campo',
+      originalTranslate('export.treeType'),
+      'Campo (2)',
+      originalTranslate('export.speciesScientificName'),
+    ]);
     assert.equal(rows[0].Campo, 'Oak A');
     assert.equal(rows[0]['Campo (2)'], 31);
   } finally {
