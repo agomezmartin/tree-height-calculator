@@ -75,8 +75,8 @@
                 </select>
               </label>
 
-              <label class="field">
-                <span data-i18n="tree.species"></span>
+              <div class="field species-field">
+                <label for="speciesSelect" data-i18n="tree.species"></label>
                 <input
                   id="speciesSelect"
                   name="speciesSelect"
@@ -87,7 +87,17 @@
                   data-i18n-aria-label="tree.species"
                 />
                 <datalist id="speciesSuggestions"></datalist>
-              </label>
+                <p class="location-help species-source">
+                  <span data-i18n="tree.speciesSourcePrefix"></span>
+                  <a
+                    href="https://www.miteco.gob.es/es/biodiversidad/temas/inventarios-nacionales/mapa-forestal-espana/especies_arboreas.html?utm_source=chatgpt.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    data-i18n="tree.speciesSourceName"
+                    data-i18n-aria-label="tree.speciesSourceLinkLabel"
+                  ></a>
+                </p>
+              </div>
 
               <label class="field">
                 <span data-i18n="tree.phytosanitaryStatus"></span>
