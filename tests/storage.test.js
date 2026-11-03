@@ -20,10 +20,12 @@ test('storage conserva coordenadas opcionales, edita registros existentes y lee 
     const legacy = { id: 'old', treeId: 'Pino antiguo', estimatedHeight: 12.5 };
     saveMeasurements([legacy]);
     assert.deepEqual(getMeasurements(), [legacy]);
+    assert.equal(Object.hasOwn(getMeasurements()[0], 'treeType'), false);
 
     addMeasurement({
       id: 'gps',
       treeId: 'Roble',
+      treeType: 'broadleaf',
       latitude: 40.123456789,
       longitude: -3.987654321,
       trunkDiameters: [28.5, 19.25],
@@ -35,6 +37,7 @@ test('storage conserva coordenadas opcionales, edita registros existentes y lee 
     assert.equal(edited.find((entry) => entry.id === 'gps').longitude, -3.987654321);
     assert.deepEqual(edited.find((entry) => entry.id === 'gps').trunkDiameters, [28.5, 19.25]);
     assert.equal(edited.find((entry) => entry.id === 'gps').treeId, 'Roble editado');
+    assert.equal(edited.find((entry) => entry.id === 'gps').treeType, 'broadleaf');
 
     const updatedCoordinates = updateMeasurementById('gps', { latitude: 0, longitude: 0 });
     assert.equal(updatedCoordinates.find((entry) => entry.id === 'gps').latitude, 0);
