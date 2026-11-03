@@ -113,6 +113,12 @@ test('the species source link is secure, accessible, and translated in every lan
     assert.ok(link.getAttribute('aria-label').length > 0);
   }
 
+  const speciesField = dom.window.document.querySelector('.species-field');
+  assert.ok(speciesField.querySelector('.species-field-heading').contains(link));
+  assert.equal(speciesField.querySelector('.species-field-heading label').htmlFor, 'speciesSelect');
+  assert.equal(speciesField.querySelector('#speciesSelect').previousElementSibling.className, 'species-field-heading');
+  assert.ok(speciesField.querySelector('#speciesSuggestions'));
+
   dom.window.close();
 });
 

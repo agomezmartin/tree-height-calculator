@@ -295,9 +295,18 @@ input[type='radio']:focus {
   line-height: 1.45;
 }
 
+.species-field-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.4rem;
+  min-width: 0;
+}
+
 .species-source {
   margin: 0;
-  font-size: 0.82rem;
+  font-size: 0.75rem;
+  white-space: nowrap;
 }
 
 .species-source a {
