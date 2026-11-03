@@ -22,7 +22,7 @@ Además del cálculo con clinómetro, puedes seleccionar **Introducir altura con
 
 ## Catálogo de especies MITECO
 
-La aplicación incluye el catálogo de especies del MITECO en [assets/species.json](./assets/species.json). El archivo contiene la lista oficial de especies con su código IFN, nombre científico y nombre común en español, y se usa como fuente única para el selector del formulario. La selección se conserva en cada medición con estos campos:
+La aplicación incluye el catálogo de especies del [Ministerio para la Transición Ecológica y el Reto Demográfico (MITECO)](https://www.miteco.gob.es/es/biodiversidad/temas/inventarios-nacionales/mapa-forestal-espana/especies_arboreas.html) en [assets/species.json](./assets/species.json). El archivo contiene la lista oficial de especies con su código IFN, nombre científico y nombre común en español, y se usa como fuente única para el selector del formulario. La selección se conserva en cada medición con estos campos:
 
 - `speciesIfnCode`: identificador estable del catálogo IFN.
 - `speciesScientificName`: nombre científico original del catálogo.

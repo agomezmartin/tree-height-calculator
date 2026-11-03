@@ -295,6 +295,21 @@ input[type='radio']:focus {
   line-height: 1.45;
 }
 
+.species-source {
+  margin: 0;
+  font-size: 0.82rem;
+}
+
+.species-source a {
+  color: var(--primary-strong);
+}
+
+.species-source a:focus-visible {
+  outline: 3px solid rgba(31, 111, 67, 0.24);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
 .location-status {
   font-size: 0.9rem;
 }

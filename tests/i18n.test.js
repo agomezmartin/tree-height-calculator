@@ -82,6 +82,40 @@ test('all translation keys used by the HTML exist in every dictionary', async ()
   }
 });
 
+test('the species source link is secure, accessible, and translated in every language', async () => {
+  const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
+  const dom = new JSDOM(html);
+  const link = dom.window.document.querySelector('.species-source a');
+  const expectedHref = 'https://www.miteco.gob.es/es/biodiversidad/temas/inventarios-nacionales/mapa-forestal-espana/especies_arboreas.html?utm_source=chatgpt.com';
+  const i18n = createI18n({
+    navigatorObject: { language: 'es' },
+    storage: undefined,
+    documentObject: dom.window.document,
+  });
+
+  assert.ok(link);
+  assert.equal(link.getAttribute('href'), expectedHref);
+  assert.equal(link.target, '_blank');
+  assert.equal(link.rel, 'noopener noreferrer');
+  assert.equal(link.tabIndex, 0);
+
+  for (const language of Object.keys(dictionaries)) {
+    i18n.setLanguage(language, { persist: false });
+    assert.equal(
+      dom.window.document.querySelector('.species-source > span').textContent,
+      dictionaries[language]['tree.speciesSourcePrefix'],
+    );
+    assert.equal(link.textContent, dictionaries[language]['tree.speciesSourceName']);
+    assert.equal(
+      link.getAttribute('aria-label'),
+      dictionaries[language]['tree.speciesSourceLinkLabel'],
+    );
+    assert.ok(link.getAttribute('aria-label').length > 0);
+  }
+
+  dom.window.close();
+});
+
 test('language detection normalizes regional tags and stored preference takes precedence', () => {
   assert.equal(detectLanguage({ languages: ['fr-CA', 'en-US'] }), 'en');
   assert.equal(detectLanguage({ language: 'es-MX' }), 'es');
