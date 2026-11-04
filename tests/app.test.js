@@ -46,6 +46,8 @@ test('el formulario guarda mediciones con y sin GPS, conserva y permite actualiz
     const phytosanitaryStatusSelect = document.getElementById('phytosanitaryStatus');
     const treeTypeSelect = document.getElementById('treeType');
     const ontogeneticAgeSelect = document.getElementById('ontogeneticAge');
+    assert.equal(document.querySelectorAll('#ontogeneticAge').length, 1);
+    assert.equal(document.querySelectorAll('label.field span[data-i18n="tree.ontogeneticAge"]').length, 1);
     const speciesSuggestions = document.getElementById('speciesSuggestions');
     assert.equal(speciesSuggestions.options.length > 1, true);
     assert.equal(speciesSelect.value, '');
