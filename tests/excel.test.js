@@ -73,6 +73,7 @@ test('exportMeasurementsToXlsx creates one fixed-named sheet and one row per tre
       id: 'tree-a',
       treeId: 'Oak A',
       treeType: 'broadleaf',
+      ontogeneticAge: 'young',
       speciesScientificName: 'Quercus robur',
       trunkDiameters: [24.5, 18.2],
       trunkIds: ['trunk-a1', 'trunk-a2'],
@@ -83,6 +84,7 @@ test('exportMeasurementsToXlsx creates one fixed-named sheet and one row per tre
       id: 'tree-b',
       treeId: 'Oak B',
       treeType: 'conifer',
+      ontogeneticAge: 'adult',
       trunkDiameters: [35],
       trunkIds: ['trunk-b1'],
     },
@@ -90,15 +92,25 @@ test('exportMeasurementsToXlsx creates one fixed-named sheet and one row per tre
       id: 'tree-c',
       treeId: 'Oak C',
       treeType: 'palm',
+      ontogeneticAge: 'mature',
       trunkDiameters: [12, 15.5, 9],
       trunkIds: ['trunk-c1', 'trunk-c2', 'trunk-c3'],
     },
-    { id: 'legacy', treeId: 'Legacy tree' },
+    { id: 'legacy', treeId: 'Legacy tree', ontogeneticAge: 'senescent' },
     { id: 'empty', treeId: 'Unmeasured tree', treeType: '', trunkDiameters: [] },
   ]);
 
   assert.deepEqual(workbook.worksheets.map((sheet) => sheet.name), ['Mediciones']);
   assert.equal(rows.length, 5);
+  assert.equal(i18n.t('export.ontogeneticAge'), 'Edad ontogénica');
+  assert.deepEqual(
+    rows.map((row) => row[i18n.t('export.ontogeneticAge')]),
+    ['Joven', 'Adulto', 'Maduro', 'Senescente', ''],
+  );
+  assert.deepEqual(
+    rows.map((row) => row[i18n.t('export.treeId')]),
+    ['Oak A', 'Oak B', 'Oak C', 'Legacy tree', 'Unmeasured tree'],
+  );
   assert.deepEqual(
     rows.map((row) => row[i18n.t('export.treeType')]),
     ['Frondosa', 'Conífera', 'Palmera', '', ''],
@@ -233,6 +245,7 @@ test('export keeps translated measurement fields while structural sheet and trun
       id: 'record-1',
       treeId: 'Oak',
       treeType: 'conifer',
+      ontogeneticAge: 'young',
       trunkDiameters: [31, 20],
       method: 'slope',
       measurementType: 'clinometer',
@@ -249,6 +262,7 @@ test('export keeps translated measurement fields while structural sheet and trun
     assert.equal(rows[0]['Scientific name'], 'Abies alba');
     assert.equal(rows[0]['Common name'], 'Pinabete');
     assert.equal(rows[0]['Tree type'], 'Conifer');
+    assert.equal(rows[0]['Ontogenetic age'], 'Young');
     assert.equal(rows[0]['Measurement method'], 'Distance along the ground');
     assert.equal(rows[0]['Height source'], 'Calculate with clinometer');
     assert.match(rows[0]['Formula / method used'], /h_eye/);

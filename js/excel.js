@@ -1,6 +1,7 @@
 import { i18n } from './i18n.js';
 import { getPhytosanitaryStatusLabel } from './phytosanitary.js';
 import { getTreeTypeLabel } from './tree-types.js';
+import { getOntogeneticAgeLabel } from './ontogenetic-age.js';
 import { validateStoredTrunkDiameter } from './diameters.js';
 
 const MIN_COLUMN_WIDTH = 12;
@@ -77,6 +78,7 @@ export async function exportMeasurementsToXlsx(measurements) {
     t('export.speciesScientificName'),
     t('export.speciesCommonName'),
     t('tree.phytosanitaryStatus'),
+    t('export.ontogeneticAge'),
     t('export.measurementType'),
     t('export.date'),
     t('export.notes'),
@@ -113,6 +115,7 @@ export async function exportMeasurementsToXlsx(measurements) {
       speciesScientificName,
       speciesCommonName,
       getPhytosanitaryStatusLabel(entry.phytosanitaryStatus, t),
+      getOntogeneticAgeLabel(entry.ontogeneticAge, t) ?? '',
       t(isManual ? 'measurement.typeManual' : 'measurement.typeClinometer'),
       entry.date || '',
       entry.notes || '',

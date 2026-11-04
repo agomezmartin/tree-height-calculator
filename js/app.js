@@ -19,6 +19,7 @@ import {
 import { getErrorTranslationKey, i18n, setLocalizedText } from './i18n.js';
 import { getPhytosanitaryStatusLabel } from './phytosanitary.js';
 import { getTreeTypeLabel } from './tree-types.js';
+import { getOntogeneticAgeLabel, normalizeOntogeneticAge } from './ontogenetic-age.js';
 import { isPartialTrunkDiameter, validateTrunkDiameters } from './diameters.js';
 import {
   findSpeciesByDisplayName,
@@ -47,6 +48,7 @@ const longitudeInput = document.getElementById('longitude');
 const speciesSelect = document.getElementById('speciesSelect');
 const phytosanitaryStatusSelect = document.getElementById('phytosanitaryStatus');
 const treeTypeSelect = document.getElementById('treeType');
+const ontogeneticAgeSelect = document.getElementById('ontogeneticAge');
 const mapStatus = document.getElementById('mapStatus');
 const languageSelect = document.getElementById('languageSelect');
 const manualHeightInput = document.getElementById('manualHeight');
@@ -561,6 +563,7 @@ saveButton.addEventListener('click', () => {
       date: measurementDateInput.value || new Date().toISOString().slice(0, 10),
       notes: document.getElementById('notes').value.trim(),
       phytosanitaryStatus: phytosanitaryStatusSelect.value || null,
+      ontogeneticAge: normalizeOntogeneticAge(ontogeneticAgeSelect.value),
       trunkDiameters: validateTrunkDiameters(trunkDiameterValues),
       trunkIds: trunkDiameterValues
         .flatMap((value, index) => String(value).trim() ? [trunkInputIds[index]] : []),
@@ -645,7 +648,7 @@ function renderTable() {
   if (!state.measurements.length) {
     const row = document.createElement('tr');
     const cell = document.createElement('td');
-    cell.colSpan = 16;
+    cell.colSpan = 17;
     cell.className = 'empty-state';
     cell.textContent = t('table.empty');
     row.append(cell);
@@ -682,6 +685,7 @@ function renderTable() {
         t('tree.phytosanitaryNotEvaluated'),
       ),
       getTreeTypeLabel(entry.treeType, t),
+      getOntogeneticAgeLabel(entry.ontogeneticAge, t) ?? '',
       formatTrunkDiameters(entry.trunkDiameters),
     ];
     for (const value of values) {
@@ -750,6 +754,7 @@ tableBody.addEventListener('click', (event) => {
     setLocalizedText(saveButton, 'action.update');
     document.getElementById('treeId').value = target.treeId || '';
     treeTypeSelect.value = target.treeType || '';
+    ontogeneticAgeSelect.value = normalizeOntogeneticAge(target.ontogeneticAge) ?? '';
     const targetSpecies = target.speciesIfnCode != null && target.speciesIfnCode !== ''
       ? findSpeciesByIfnCode(target.speciesIfnCode)
       : null;
