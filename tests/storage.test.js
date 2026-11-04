@@ -26,6 +26,7 @@ test('storage conserva coordenadas opcionales, edita registros existentes y lee 
       id: 'gps',
       treeId: 'Roble',
       treeType: 'broadleaf',
+      ontogeneticAge: 'young',
       latitude: 40.123456789,
       longitude: -3.987654321,
       trunkDiameters: [28.5, 19.25],
@@ -38,6 +39,7 @@ test('storage conserva coordenadas opcionales, edita registros existentes y lee 
     assert.deepEqual(edited.find((entry) => entry.id === 'gps').trunkDiameters, [28.5, 19.25]);
     assert.equal(edited.find((entry) => entry.id === 'gps').treeId, 'Roble editado');
     assert.equal(edited.find((entry) => entry.id === 'gps').treeType, 'broadleaf');
+    assert.equal(edited.find((entry) => entry.id === 'gps').ontogeneticAge, 'young');
 
     const updatedCoordinates = updateMeasurementById('gps', { latitude: 0, longitude: 0 });
     assert.equal(updatedCoordinates.find((entry) => entry.id === 'gps').latitude, 0);
@@ -47,6 +49,7 @@ test('storage conserva coordenadas opcionales, edita registros existentes y lee 
     assert.equal(remaining.some((entry) => entry.id === 'gps'), false);
     assert.deepEqual(getMeasurements(), remaining);
     assert.equal(remaining.find((entry) => entry.id === 'old').estimatedHeight, 12.5);
+    assert.equal(Object.hasOwn(remaining.find((entry) => entry.id === 'old'), 'ontogeneticAge'), false);
     assert.equal(remaining.find((entry) => entry.id === 'no-gps').latitude, null);
   } finally {
     delete globalThis.localStorage;

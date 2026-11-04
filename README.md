@@ -8,6 +8,7 @@ Una pequeña aplicación web para calcular la altura de un árbol a partir de me
 - Admite dos métodos de distancia: distancia horizontal o distancia medida sobre el terreno.
 - Calcula la altura estimada del árbol usando una formulación geométrica clara y separada por fases.
 - Guarda mediciones localmente con `localStorage` para editar o revisar datos sin depender de un servidor.
+- Permite registrar opcionalmente la edad ontogénica del árbol: Joven, Adulto, Maduro o Senescente.
 - Permite registrar opcionalmente el estado fitosanitario de cada árbol: Bueno, Aceptable, Deficiente o Crítico.
 - Permite registrar el DAP de cada tronco a 1,30 m de altura en centímetros, incluidos árboles multitronco.
 - Exporta los registros a Excel con archivos `.xlsx` para auditoría posterior.
@@ -35,6 +36,10 @@ Los registros antiguos siguen siendo compatibles porque el modelo acepta valores
 ## Tipo de arbolado
 
 El formulario permite seleccionar **Frondosa**, **Conífera** o **Palmera**. La selección se guarda en cada medición como `treeType` (`broadleaf`, `conifer` o `palm`); la opción inicial está vacía y se guarda como `""`, sin asignar una categoría. Los registros antiguos sin `treeType` siguen siendo compatibles y se muestran sin valor de tipo. La parrilla muestra la categoría en su propia columna y Excel la incluye en una columna localizada; los valores vacíos o ausentes quedan en blanco en ambas vistas.
+
+## Edad ontogénica
+
+El formulario permite seleccionar **Joven**, **Adulto**, **Maduro** o **Senescente**. No hay un valor preseleccionado: la edad es opcional y se guarda como `ontogeneticAge` (`young`, `adult`, `mature` o `senescent`), o como `null` si se deja vacía. La parrilla muestra una celda vacía cuando no hay una categoría; la exportación Excel incluye la columna «Edad ontogénica» (localizada según el idioma activo) y deja la celda vacía si no se seleccionó ninguna. Los registros anteriores sin esta propiedad siguen siendo compatibles.
 
 ## Estado fitosanitario
 
